@@ -368,3 +368,142 @@
 .textDark {
   color: #000000 !important;
 }
+// Question popup styles - Enhanced version
+.popup-window {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 380px; // Slightly wider for better readability
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  z-index: 1000;
+  transition: all 0.3s ease;
+  overflow: hidden; // Changed from auto to hidden for cleaner appearance
+  
+  &.minimized {
+    width: 250px;
+    height: auto;
+    .popup-header {
+      margin-bottom: 0;
+      border-bottom: none;
+    }
+  }
+  
+  .popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #eee;
+
+    h4 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 500;
+      color: #2c3e50;
+    }
+
+    .popup-controls {
+      display: flex;
+      gap: 8px;
+
+      button {
+        padding: 6px;
+        background: none;
+        border: none;
+        border-radius: 6px;
+        color: #6c757d;
+        
+        &:hover {
+          background-color: #e9ecef;
+          color: #495057;
+        }
+      }
+    }
+  }
+  
+  .popup-content {
+    padding: 20px;
+    max-height: 320px;
+    overflow-y: auto;
+    
+    p {
+      margin: 0 0 20px 0;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #2c3e50;
+    }
+  }
+  
+  .popup-response-area {
+    background-color: #fff;
+    border-top: 1px solid #eee;
+    padding: 20px;
+    
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.5;
+      resize: none;
+      transition: all 0.2s ease;
+      margin-bottom: 16px;
+      background-color: #f8f9fa;
+      
+      &:focus {
+        background-color: #fff;
+        border-color: #86b7fe;
+        outline: 0;
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+      }
+      
+      &::placeholder {
+        color: #adb5bd;
+      }
+    }
+    
+    button {
+      display: block;
+      width: 100%; // Make button full width
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: 8px;
+      border: none;
+      background-color: #0d6efd;
+      color: white;
+      transition: all 0.2s ease;
+      
+      &:hover:not(:disabled) {
+        background-color: #0b5ed7;
+        transform: translateY(-1px);
+      }
+      
+      &:disabled {
+        background-color: #8cb8ff;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+// Animation
+@keyframes slideIn {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.popup-window:not(.minimized) {
+  animation: slideIn 0.3s ease-out;
+}

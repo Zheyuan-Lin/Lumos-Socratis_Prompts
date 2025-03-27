@@ -2,7 +2,7 @@
 import * as d3 from "d3";
 import $ from "jquery";
 import "bootstrap";
-import { Component, OnInit, AfterViewInit } from "@angular/core";
+import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from "@angular/core";
 import { Router } from "@angular/router";
 import { DomSanitizer } from "@angular/platform-browser";
 import { ActivatedRoute } from "@angular/router";
@@ -10,6 +10,7 @@ import { OverlayScrollbarsComponent } from "overlayscrollbars-ngx";
 // local
 import { SessionPage, AppConfig, InteractionTypes, UserConfig } from "../models/config";
 import { ChatService } from "../services/socket.service";
+import { FirebaseService } from "../services/firebase.service";
 import { UtilsService } from "../services/utils.service";
 import { ScatterPlot } from "../visualizations/main/scatter-plot-component";
 import { StripPlot } from "../visualizations/main/strip-plot-component";
@@ -17,6 +18,7 @@ import { DotPlot } from "../visualizations/main/dot-plot-component";
 import { BarChart } from "../visualizations/main/bar-chart-component";
 import { LineChart } from "../visualizations/main/line-chart-component";
 import { AttributeDistributionPlotConfig } from "../visualizations/awareness/component";
+import { Question } from '../models/question';
 
 window.addEventListener("beforeunload", function (e) {
   // Cancel the event
@@ -28,13 +30,16 @@ window.addEventListener("beforeunload", function (e) {
 // This is loaded as an external script not using npm, hence this step.
 declare var vegaEmbed: any;
 
+
+
 @Component({
   selector: "main-activity",
   templateUrl: "./component.html",
-  providers: [ChatService],
+  providers: [ChatService, FirebaseService],
   styleUrls: ["./component.scss"],
 })
 export class MainActivityComponent implements OnInit, AfterViewInit {
+  @ViewChild('sendButton') sendButton: ElementRef; // Reference to the button
   objectKeys: { (o: object): string[]; (o: {}): string[] };
   objectValues: any;
   math: Math;
@@ -52,6 +57,16 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
   plotWidth: number;
   plotHeight: number;
   plotGroup: any;
+  currentQuestion: Question | null = null;
+  userResponse: string = '';
+  isPopupVisible: boolean = true;
+  isMinimized: boolean = false;
+  popupQuestion: string = "What do you think about this visualization?";
+  questionId: string = '';
+  popupResponse: string = '';
+  private userId: string; // Add this property to your component class
+  isWelcomePopupVisible: boolean = true;
+  welcomeMessage: string = "Welcome to Lumos!";
 
   constructor(
     private route: ActivatedRoute,
@@ -59,7 +74,8 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     public chatService: ChatService,
     private router: Router,
     public global: SessionPage,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private firebaseService: FirebaseService
   ) {
     this.objectKeys = Object.keys; // to help iterate over objects with *ngFor
     this.objectValues = Object.values; // to help iterate over objects with *ngFor
@@ -131,6 +147,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
    */
   ngAfterViewInit(): void {
     this.setWidthsForAwarenessPanelVis();
+  
   }
 
   /**
@@ -333,6 +350,22 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
           });
           context.updateAwarenessPanel();
           context.updateVis();
+        }
+      });
+
+      context.chatService.getExternalQuestion().subscribe({
+        next: (questionData: any) => {
+          const formattedQuestion: Question = {
+            id: questionData.id || Date.now().toString(),
+            text: questionData.text || "What do you think about this insight?",
+            timestamp: questionData.timestamp || new Date().toISOString(),
+            type: questionData.type || "question"
+          };
+          
+          context.handleIncomingQuestion(formattedQuestion);
+        },
+        error: (error) => {
+          alert("Error receiving question: " + error);
         }
       });
     });
@@ -1424,6 +1457,59 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
         break;
     }
     return arrayCopy;
+  }
+
+
+  toggleMinimize() {
+    this.isMinimized = !this.isMinimized; // Toggle the state
+    console.log("Minimized state:", this.isMinimized); // Log the current state for debugging
+  }
+
+  sendPopupResponse() {
+    if (!this.popupResponse.trim()) {
+        return;
+    }
+    
+    // Use the existing sendQuestionResponse method with user ID
+    this.chatService.sendQuestionResponse(
+        this.questionId,
+        this.popupResponse
+    );
+
+    // Prepare and send a new message
+    let message = this.utilsService.initializeNewMessage(this);
+
+    // Also log locally with user ID
+    const responseLog = {
+        userId: message.participantId,
+        questionId: this.questionId,
+        response: this.popupResponse,
+        timestamp: new Date().toISOString()
+    };
+    this.popupResponse = '';  // Clear the response after sending
+    this.isPopupVisible = false;
+  }
+
+  /**
+   * Handle an incoming question by displaying popup and logging
+   */
+  private handleIncomingQuestion(questionData: Question): void {
+    console.log("Processing incoming question:", questionData);
+    
+    // Store the question for tracking
+    const newQuestion: Question = {
+      id: questionData.id,
+      text: questionData.text,
+      timestamp: questionData.timestamp,
+      type: questionData.type
+    };
+    
+    // Update UI with the question
+    this.popupQuestion = newQuestion.text;
+    this.questionId = newQuestion.id;
+    this.isMinimized = false;
+    this.isPopupVisible = true;
+    
   }
 }
 

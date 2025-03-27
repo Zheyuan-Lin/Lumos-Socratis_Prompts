@@ -22,8 +22,12 @@ import { UtilsService } from "./services/utils.service";
 import { MainActivityComponent } from "./main-activity/component";
 
 const config: SocketIoConfig = {
-  url: DeploymentConfig.SERVER_URL,
-  options: { timeout: 60000, autoConnect: false },
+  url: 'http://localhost:3000',
+  options: { 
+    timeout: 60000, 
+    autoConnect: true,
+    transports: ['websocket']
+  },
 };
 
 @NgModule({

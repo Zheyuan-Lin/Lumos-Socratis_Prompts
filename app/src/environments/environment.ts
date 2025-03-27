@@ -3,7 +3,13 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  firebase: {
+    apiKey: "AIzaSyDPwM7yvXoLBYGL2JQg_U1LJ7XDkNEZUVY",
+    projectId: "socratisprompts",
+    authDomain: "socratisprompts.firebaseapp.com",
+    storageBucket: "socratisprompts.appspot.com"
+  }
 };
 
 /*

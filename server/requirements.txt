@@ -3,3 +3,5 @@ aiohttp-index==0.1
 python-engineio==3.8.1
 python-socketio==4.1.0
 scipy==1.14
+websockets==8.1
+requests==2.31.0
