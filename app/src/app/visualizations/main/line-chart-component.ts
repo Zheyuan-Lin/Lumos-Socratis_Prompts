@@ -192,7 +192,7 @@ export class LineChart {
 
     if (xIsT && yIsQ && dataset["aggType"] !== null) {
       // [T x Q] => aggregate yVar grouped by xVar
-      context.lineChartConfig.legendGroup.style("display", "block");
+      context.lineChartConfig.legendGroup.style("display", "none"); // Hide legend since we're not using colors
       buckets = d3
         .rollups(
           prepared,
@@ -207,7 +207,7 @@ export class LineChart {
       yAxisTitle = `${aggTitle}(${dataset["yVar"]})`;
     } else if (xIsT && dataset["yVar"] == null) {
       // [T x NA] => count values in each xVar as aggregate
-      context.lineChartConfig.legendGroup.style("display", "block");
+      context.lineChartConfig.legendGroup.style("display", "none"); // Hide legend since we're not using colors
       buckets = d3
         .rollups(
           prepared,
@@ -335,65 +335,22 @@ export class LineChart {
         let fullBandwidth = context.plotWidth / d3.intersection(rawData.map((d) => d["xVar"])).size;
         return `${4 + fullBandwidth / 8}px`;
       })
-      .style("fill", (d) => {
-        // fill based on interactions with underlying data points!
-        if (context.global.appType == "CONTROL") return "white";
-        switch (dataset["colorByMode"]) {
-          case "abs":
-            const sumInteracted = d[2].reduce(context.utilsService.sumTimesVisited, 0) as number;
-            const sumVisits = prepared.reduce(context.utilsService.sumTimesVisited, 0) as number;
-            return sumInteracted == 0
-              ? "white"
-              : context.userConfig.focusSequentialColorScale(sumInteracted / sumVisits);
-          case "rel":
-            const maxInteracted = d[2].reduce(context.utilsService.maxTimesVisited, 0) as number;
-            const maxVisits = prepared.reduce(context.utilsService.maxTimesVisited, 0) as number;
-            return maxInteracted == 0
-              ? "white"
-              : context.userConfig.focusSequentialColorScale(maxInteracted / maxVisits);
-          case "binary":
-            const visited = d[2].some((el) => el["timesVisited"] > 0);
-            return !visited ? "white" : context.userConfig.focusSequentialColorScale(1);
-          default:
-            return "white";
-        }
-      })
+      .style("fill", "white") // Use white fill for all points
       .style("fill-opacity", 1)
-      .style("stroke", (d) => (d[2].reduce((a, b) => a || b["selected"], false) ? "brown" : "black"))
-      .style("stroke-width", (d) => (d[2].reduce((a, b) => a || b["selected"], false) ? "3px" : "1px"))
-      .style("stroke-dasharray", (d) => {
-        const countSelected = d[2].filter((o) => o["selected"]).length;
-        return countSelected < d[2].length && countSelected > 0 ? "3" : "none";
-      })
+      .style("stroke", "black") // Standard black stroke
+      .style("stroke-width", "1px") // Standard stroke width
       .style("cursor", "pointer")
-      .on("click", function (event, d) {
-        if (context.global.appType === "ADMIN") {
-          context.utilsService.clickGroup(context, event, {
-            aggName: dataset["aggType"] == null ? "count" : dataset["aggType"],
-            aggAxis: "y-axis",
-            binLabel: d[0],
-            binValue: d[1],
-            binData: d[2],
-          });
-        }
-      })
       .on("mouseover", function (event, d) {
-        context.utilsService.mouseoverGroup(context, event, this, {
-          aggName: dataset["aggType"] == null ? "count" : dataset["aggType"],
-          aggAxis: "y-axis",
-          binLabel: d[0],
-          binValue: d[1],
-          binData: d[2],
-        });
+        // Simple highlight on hover
+        d3.select(this)
+          .style("stroke", "brown")
+          .style("stroke-width", "3px");
       })
       .on("mouseout", function (event, d) {
-        context.utilsService.mouseoutGroup(context, event, {
-          aggName: dataset["aggType"] == null ? "count" : dataset["aggType"],
-          aggAxis: "y-axis",
-          binLabel: d[0],
-          binValue: d[1],
-          binData: d[2],
-        });
+        // Reset on mouseout
+        d3.select(this)
+          .style("stroke", "black")
+          .style("stroke-width", "1px");
       });
 
     // add event listeners to the line group based on modified buckets
@@ -418,40 +375,6 @@ export class LineChart {
       .on("mouseleave", () => {
         d3.select(".intersect-line").style("display", "none");
       });
-
-    // FILTER can update `buckets` => must update hovered Objects list
-    if (dataset["hoveredObjects"]["binName"]) {
-      // binName set => there is a bin visible in details view, reset existing object
-      let currentBinName = dataset["hoveredObjects"]["binName"];
-      let currentBinAttr = dataset["hoveredObjects"]["binAttr"];
-      dataset["hoveredObjects"] = { binName: null, binAttr: null, points: {} };
-      // look for the bin in the filtered data set. If not there, table is already reset!
-      for (let bin of buckets) {
-        if (bin[0] == currentBinName && dataset["xVar"] == currentBinAttr) {
-          // found the bin! => update hovered Objects for possible FILTER
-          dataset["hoveredObjects"]["binName"] = currentBinName;
-          dataset["hoveredObjects"]["binAttr"] = currentBinAttr;
-          bin[2].forEach((d) => {
-            const id = d[dataset["primaryKey"]];
-            if (id !== "-") {
-              // use dict OBJECT to update source data by reference!
-              let dataPoint = originalDatasetDict[id];
-              context.utilsService.colorDataPoint(context, dataPoint, bin[2]);
-              dataset["hoveredObjects"]["points"][id] = dataPoint;
-            }
-          });
-          // attempt to remove values from the details table
-          if (dataset["aggType"] == "min" || dataset["aggType"] == "max") {
-            Object.keys(dataset["hoveredObjects"]["points"]).forEach((id) => {
-              if (dataset["hoveredObjects"]["points"][id][dataset["yVar"]] !== bin[1]) {
-                delete dataset["hoveredObjects"]["points"][id];
-              }
-            });
-          }
-          break;
-        }
-      }
-    }
   }
 }
 

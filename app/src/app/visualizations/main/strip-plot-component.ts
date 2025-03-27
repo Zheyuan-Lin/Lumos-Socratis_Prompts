@@ -84,7 +84,7 @@ export class StripPlot {
       const rightLabel = "More Focus"; // label on the right of the legend gradient
       // build the legend right to left
       let xPos = context.plotWidth; // x position of element, gets updated dynamically
-      let el = context.stripPlotConfig.legendGroup
+    let el = context.stripPlotConfig.legendGroup
         .append("text")
         .attr("transform", `translate(${xPos}, ${(-5 / 8) * plotMargins.top})`)
         .attr("text-anchor", "end")
@@ -182,7 +182,7 @@ export class StripPlot {
         .html(context.stripPlotConfig.unsupportedMessage);
     } else if (xIsQ) {
       // x is Q => vertical strips
-      context.stripPlotConfig.legendGroup.style("display", "block");
+      context.stripPlotConfig.legendGroup.style("display", "none"); // Hide legend since we're not using colors
       context.stripPlotConfig.yAxisGroup.selectAll("*").remove();
       context.stripPlotConfig.xScale = d3.scaleLinear().range([0, context.plotWidth]);
       if (!yIsQ && dataset["yVar"] !== null) {
@@ -242,7 +242,7 @@ export class StripPlot {
     } else if (yIsQ) {
       // y is Q => horizontal strips
       yAxisMajor = true;
-      context.stripPlotConfig.legendGroup.style("display", "block");
+      context.stripPlotConfig.legendGroup.style("display", "none"); // Hide legend since we're not using colors
       context.stripPlotConfig.xAxisGroup.selectAll("*").remove();
       context.stripPlotConfig.yScale = d3.scaleLinear().range([context.plotHeight, 0]);
       if (!xIsQ && dataset["xVar"] !== null) {
@@ -414,33 +414,20 @@ export class StripPlot {
             : 0.975 * context.plotHeight // 75% of gridline
           : y(d["yVar"]);
       })
-      .style("stroke", (d) => {
-        // use dict OBJECT to update source data by reference!
-        let dataPoint = originalDatasetDict[d[dataset["primaryKey"]]];
-        context.utilsService.colorDataPoint(context, dataPoint, prepared);
-        // default/selected stroke is DIFFERENT than data point color!!
-        if (dataPoint["selected"]) {
-          return "brown"; // selected color
-        } else if (context.global.appType !== "CONTROL" && dataPoint["timesVisited"] > 0 && dataset["colorByMode"]) {
-          return dataPoint["color"]; // bias color
-        } else {
-          return "black"; // default color
-        }
-      })
-      .style("stroke-width", (d) => (d["selected"] ? "2px" : "1px"))
+      .style("stroke", "black") // Use black stroke for all strips
+      .style("stroke-width", "1px") // Standard stroke width for all strips
       .style("cursor", "pointer")
-      .on("click", function (event, d) {
-        if (context.global.appType === "ADMIN") {
-          d["selected"]
-            ? context.utilsService.clickRemoveItem(context, event, d)
-            : context.utilsService.clickAddItem(context, event, d);
-        }
-      })
       .on("mouseover", function (event, d) {
-        context.utilsService.mouseoverItem(context, event, d, this, "stroke");
+        // Simple highlight on hover
+        d3.select(this)
+          .style("stroke", "brown")
+          .style("stroke-width", "2px");
       })
       .on("mouseout", function (event, d) {
-        context.utilsService.mouseoutItem(context, event, d);
+        // Reset on mouseout
+        d3.select(this)
+          .style("stroke", "black")
+          .style("stroke-width", "1px");
       });
   }
 }

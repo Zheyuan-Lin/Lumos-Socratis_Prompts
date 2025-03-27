@@ -2,10 +2,14 @@
 import { Injectable } from "@angular/core";
 import { Socket } from "ngx-socket-io";
 import { map } from "rxjs/operators";
+import { SessionPage } from "../models/config";
 
 @Injectable()
 export class ChatService {
-  constructor(private vizSocket: Socket) {}
+  constructor(
+    private vizSocket: Socket,
+    private global: SessionPage
+  ) {}
 
   connectToSocket() {
     this.vizSocket.connect();
@@ -54,5 +58,22 @@ export class ChatService {
     return this.vizSocket
       .fromEvent("attribute_distribution")
       .pipe(map((obj) => obj));
+  }
+
+  sendQuestionResponse(questionId: string, response: string, question: string) {
+    const payload = {
+      question_id: questionId,
+      response: response,
+      participant_id: this.global.participantId,
+      timestamp: new Date().toISOString(),
+      question: question
+    };
+    this.vizSocket.emit("on_question_response", payload);
+  }
+
+  getExternalQuestion() {
+    return this.vizSocket.fromEvent("question").pipe(map((obj) => {
+      return obj;
+    }));
   }
 }

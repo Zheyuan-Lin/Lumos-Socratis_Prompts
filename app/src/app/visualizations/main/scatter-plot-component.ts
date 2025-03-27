@@ -42,23 +42,6 @@ export class ScatterPlot {
     // Add containing SVG
     let svg = d3.select(container).append("svg").attr("width", width).attr("height", height);
 
-    // Add linear gradient to SVG definition for use in color scale FIRST
-    let grad = svg
-      .append("defs")
-      .append("linearGradient")
-      .attr("id", "grad")
-      .attr("x1", "0%")
-      .attr("x2", "100%")
-      .attr("y1", "0%")
-      .attr("y2", "0%");
-    grad
-      .selectAll("stop")
-      .data(sequentialColorRange)
-      .enter()
-      .append("stop")
-      .style("stop-color", (d) => d.toString())
-      .attr("offset", (_, i) => 100 * (i / (sequentialColorRange.length - 1)) + "%");
-
     // Add plot group
     context.plotGroup = svg
       .append("g")
@@ -76,35 +59,10 @@ export class ScatterPlot {
     // Add point groups
     context.scatterPlotConfig.pointsGroup = context.plotGroup.append("g").classed("points", true);
 
-    // Add legend group, text and gradient rectangle
+    // Add legend group - but don't add gradient or text
     context.scatterPlotConfig.legendGroup = context.plotGroup.append("g").classed("legend", true);
-    if (context.global.appType !== "CONTROL") {
-      const pad = 5; // padding (px) between elements
-      const gradRectWidth = context.plotWidth / 5; // width of gradient rectangle
-      const leftLabel = "Less Focus"; // label on the left of the legend gradient
-      const rightLabel = "More Focus"; // label on the right of the legend gradient
-      // build the legend right to left
-      let xPos = context.plotWidth; // x position of element, gets updated dynamically
-      let el = context.scatterPlotConfig.legendGroup
-        .append("text")
-        .attr("transform", `translate(${xPos}, ${(-5 / 8) * plotMargins.top})`)
-        .attr("text-anchor", "end")
-        .text(rightLabel);
-      xPos -= Math.abs(el.node().getBBox()["x"]) + gradRectWidth + pad;
-      context.scatterPlotConfig.legendGroup
-        .append("rect")
-        .attr("transform", `translate(${xPos}, ${(-3 / 4) * plotMargins.top})`)
-        .attr("width", gradRectWidth)
-        .attr("height", (1 / 8) * plotMargins.top)
-        .style("rx", "4")
-        .style("fill", "url(#grad)");
-      xPos -= pad;
-      context.scatterPlotConfig.legendGroup
-        .append("text")
-        .attr("transform", `translate(${xPos}, ${(-5 / 8) * plotMargins.top})`)
-        .attr("text-anchor", "end")
-        .text(leftLabel);
-    }
+    // Hide the legend completely
+    context.scatterPlotConfig.legendGroup.style("display", "none");
 
     // Create unsupported text to display if chart cannot render
     context.scatterPlotConfig.unsupportedMessage = `
@@ -185,7 +143,8 @@ export class ScatterPlot {
         .html(context.scatterPlotConfig.unsupportedMessage);
     } else {
       // both x and y are defined => set axis titles and display legend
-      context.scatterPlotConfig.legendGroup.style("display", "block");
+      // Keep legend hidden even for supported plots
+      context.scatterPlotConfig.legendGroup.style("display", "none");
       xAxisTitle = dataset["xVar"];
       yAxisTitle = dataset["yVar"];
       if (xIsQ) {
@@ -324,28 +283,19 @@ export class ScatterPlot {
       .select("circle")
       .attr("transform", (d) => translatePoints(d, context, xIsQ, yIsQ))
       .attr("r", 6)
-      .style("fill", (d) => {
-        // use dict OBJECT to update source data by reference!
-        let dataPoint = originalDatasetDict[d[dataset["primaryKey"]]];
-        context.utilsService.colorDataPoint(context, dataPoint, prepared);
-        return dataPoint["color"];
-      })
+      .style("fill", "white")
       .style("fill-opacity", 0.8)
-      .style("stroke-width", (d) => (d["selected"] ? "3px" : "1px"))
-      .style("stroke", (d) => (d["selected"] ? "brown" : "black"))
-      .style("cursor", "pointer")
-      .on("click", function (event, d) {
-        if (context.global.appType === "ADMIN") {
-          d["selected"]
-            ? context.utilsService.clickRemoveItem(context, event, d)
-            : context.utilsService.clickAddItem(context, event, d);
-        }
-      })
+      .style("stroke-width", "1px")
+      .style("stroke", "black")
       .on("mouseover", function (event, d) {
-        context.utilsService.mouseoverItem(context, event, d, this, "fill");
+        d3.select(this)
+          .style("stroke-width", "3px")
+          .style("stroke", "brown");
       })
       .on("mouseout", function (event, d) {
-        context.utilsService.mouseoutItem(context, event, d);
+        d3.select(this)
+          .style("stroke-width", "1px")
+          .style("stroke", "black");
       });
   }
 }
