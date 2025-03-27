@@ -2,14 +2,17 @@
 """
 import os
 from pathlib import Path
+from datetime import datetime
 
 import pandas as pd
 import socketio
 from aiohttp import web
 from aiohttp_index import IndexMiddleware
-
+from firebase_config import db  # Import the Firestore client
+from firebase_admin import credentials, firestore
 import bias
 import bias_util
+
 
 # Set the path for the Google Cloud Logging logger
 currdir = Path(__file__).parent.absolute()
@@ -163,7 +166,49 @@ async def on_interaction(sid, data):
     await SIO.emit("interaction_response", response, room=sid)
 
 
+
+@SIO.event
+async def receive_external_question(sid, question_data):
+    formatted_question = {
+        "type": "question",
+        "id": question_data.get("id", str(datetime.now().timestamp())),
+        "text": question_data.get("text", ""),
+        "timestamp": datetime.now().isoformat(),
+    }
+    
+    print(f"Received external question from {sid}: {formatted_question}")
+    
+    # Store in Firestore
+    db.collection('questions').add(formatted_question)
+    
+    # Simple broadcast to all clients except sender
+    await SIO.emit(
+        "question", 
+        formatted_question, 
+        broadcast=True,
+        include_self=False,  # Don't send back to sender
+    )
+   
+
+@SIO.event
+async def on_question_response(sid, data):
+    response = {
+        "question_id": data.get("question_id"),
+        "response": data.get("response"),
+        "participant_id": data.get("participant_id"),
+        "timestamp": datetime.now().isoformat(),
+        "question": data.get("question")
+    }
+    try:
+        # Store in Firestore
+        db.collection('responses').add(response)
+        print(f"Stored response: {response}")
+        
+    except Exception as e:
+        print(f"Error storing response: {e}")
+
 if __name__ == "__main__":
     bias.precompute_distributions()
     port = int(os.environ.get("PORT", 3000))
     web.run_app(APP, port=port)
+
