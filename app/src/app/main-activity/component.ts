@@ -1473,7 +1473,8 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     // Use the existing sendQuestionResponse method with user ID
     this.chatService.sendQuestionResponse(
         this.questionId,
-        this.popupResponse
+        this.popupResponse,
+        this.popupQuestion
     );
 
     // Prepare and send a new message
@@ -1483,6 +1484,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     const responseLog = {
         userId: message.participantId,
         questionId: this.questionId,
+        question: this.popupQuestion,
         response: this.popupResponse,
         timestamp: new Date().toISOString()
     };
