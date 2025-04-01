@@ -696,12 +696,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
    * Set CSS styling for attribute panel cards programmatically.
    */
   styleAttributePanelCard(attribute) {
-    return {
-      "background-repeat": "no-repeat",
-      "background-image": this.getPanelCardBGImage(attribute, "attributes"),
-      "background-size": this.getPanelCardBGSize(attribute, "attributes"),
-      color: this.getPanelCardTxtColor(attribute, "attributes"),
-    };
+    return {}; // Return empty style object to disable coloring effect
   }
 
   /**
