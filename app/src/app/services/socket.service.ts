@@ -61,10 +61,11 @@ export class ChatService {
       .pipe(map((obj) => obj));
   }
 
-  sendQuestionResponse(questionId: string, response: string) {
+  sendQuestionResponse(questionId: string, question: string, response: string) {
     const payload = {
       question_id: questionId,
       response: response,
+      question: question,
       participant_id: this.global.participantId,
       timestamp: new Date().toISOString()
     };

@@ -10,7 +10,6 @@ import { OverlayScrollbarsComponent } from "overlayscrollbars-ngx";
 // local
 import { SessionPage, AppConfig, InteractionTypes, UserConfig } from "../models/config";
 import { ChatService } from "../services/socket.service";
-import { FirebaseService } from "../services/firebase.service";
 import { UtilsService } from "../services/utils.service";
 import { ScatterPlot } from "../visualizations/main/scatter-plot-component";
 import { StripPlot } from "../visualizations/main/strip-plot-component";
@@ -35,7 +34,6 @@ declare var vegaEmbed: any;
 @Component({
   selector: "main-activity",
   templateUrl: "./component.html",
-  providers: [ChatService, FirebaseService],
   styleUrls: ["./component.scss"],
 })
 export class MainActivityComponent implements OnInit, AfterViewInit {
@@ -67,6 +65,9 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
   private userId: string; // Add this property to your component class
   isWelcomePopupVisible: boolean = true;
   welcomeMessage: string = "Welcome to Lumos!";
+  userInsight: string = ''; // Property to store user insights
+  pastInsights: Array<{text: string, timestamp: string}> = []; // Array to store past insights
+  canContinue: boolean = false; // Flag to track if user can continue (5+ insights)
 
   constructor(
     private route: ActivatedRoute,
@@ -75,7 +76,6 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     private router: Router,
     public global: SessionPage,
     private sanitizer: DomSanitizer,
-    private firebaseService: FirebaseService
   ) {
     this.objectKeys = Object.keys; // to help iterate over objects with *ngFor
     this.objectValues = Object.values; // to help iterate over objects with *ngFor
@@ -699,12 +699,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
    * Set CSS styling for attribute panel cards programmatically.
    */
   styleAttributePanelCard(attribute) {
-    return {
-      "background-repeat": "no-repeat",
-      "background-image": this.getPanelCardBGImage(attribute, "attributes"),
-      "background-size": this.getPanelCardBGSize(attribute, "attributes"),
-      color: this.getPanelCardTxtColor(attribute, "attributes"),
-    };
+    return {}; // Return empty style object to disable coloring effect
   }
 
   /**
@@ -1473,7 +1468,8 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     // Use the existing sendQuestionResponse method with user ID
     this.chatService.sendQuestionResponse(
         this.questionId,
-        this.popupResponse
+        this.popupResponse,
+        this.popupQuestion
     );
 
     // Prepare and send a new message
@@ -1483,11 +1479,62 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     const responseLog = {
         userId: message.participantId,
         questionId: this.questionId,
+        question: this.popupQuestion,
         response: this.popupResponse,
         timestamp: new Date().toISOString()
     };
     this.popupResponse = '';  // Clear the response after sending
     this.isPopupVisible = false;
+  }
+
+  /**
+   * Save user insights to the server
+   */
+  saveUserInsight() {
+    if (!this.userInsight.trim()) {
+      return;
+    }
+    
+    // Prepare and send a new message
+    let message = this.utilsService.initializeNewMessage(this);
+    message.interactionType = InteractionTypes.SAVE_USER_INSIGHT;
+    message.data = {
+      insight: this.userInsight,
+      timestamp: new Date().toISOString(),
+      eventX: null,
+      eventY: null
+    };
+    
+    // Add to past insights array
+    this.pastInsights.unshift({
+      text: this.userInsight,
+      timestamp: new Date().toLocaleString()
+    });
+    
+    // Check if user can continue (has 5+ insights)
+    this.canContinue = this.pastInsights.length >= 5;
+    
+    // Clear the insight field after sending
+    this.userInsight = '';
+  }
+
+  /**
+   * Handle continue action when user has saved at least 5 insights
+   */
+  continueAfterInsights() {
+    if (this.pastInsights.length >= 5) {
+      // Prepare and send a new message
+      let message = this.utilsService.initializeNewMessage(this);
+      message.interactionType = InteractionTypes.CONTINUE_AFTER_INSIGHTS;
+      message.data = {
+        insightCount: this.pastInsights.length,
+        timestamp: new Date().toISOString(),
+        eventX: null,
+        eventY: null
+      };
+      
+
+    }
   }
 
   /**
