@@ -450,6 +450,68 @@
             </article>
           </div>
         </as-split-area>
+
+        <!-- ROW: User Insights -->
+        <as-split-area [size]="33">
+          <div class="list-group h-100">
+            <article class="list-group-item">
+              <!-- Header -->
+              <header class="insights-header">
+                <table class="w-100">
+                  <tr>
+                    <td>
+                      <h5>
+                        <span class="badge badge-info">Your Insights</span>
+                      </h5>
+                    </td>
+                  </tr>
+                </table>
+              </header>
+
+              <!-- Content -->
+              <div class="insights-content">
+                <div class="form-group">
+                  <label for="userInsight">Share your insights about the data:</label>
+                  <textarea 
+                    id="userInsight" 
+                    class="form-control" 
+                    rows="4" 
+                    placeholder="Write your insights here..."
+                    [(ngModel)]="userInsight">
+                  </textarea>
+                </div>
+                <div class="text-right mt-2">
+                  <button 
+                    class="btn btn-primary" 
+                    (click)="saveUserInsight()" 
+                    [disabled]="!userInsight.trim()">
+                    <i class="fa fa-save mr-1"></i> Save Insight
+                  </button>
+                </div>
+                
+                <!-- Past Insights Section -->
+                <div class="past-insights mt-4" *ngIf="pastInsights.length > 0">
+                  <h6 class="mb-3">Your Past Insights</h6>
+                  <div class="insight-list">
+                    <div class="insight-item" *ngFor="let insight of pastInsights">
+                      <div class="insight-text">{{insight.text}}</div>
+                      <div class="insight-timestamp text-muted">
+                        <small><i class="fa fa-clock-o mr-1"></i> {{insight.timestamp}}</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Insight Counter -->
+                <div class="insight-counter mt-4">
+                  <span class="badge" [ngClass]="{'badge-success': pastInsights.length >= 5, 'badge-secondary': pastInsights.length < 5}">
+                    {{pastInsights.length}}/5 Insights
+                  </span>
+                </div>
+              </div>
+            </article>
+          </div>
+        </as-split-area>
       </as-split>
     </as-split-area>
 
@@ -588,4 +650,16 @@
       </as-split>
     </as-split-area>
   </as-split>
+</div>
+
+<!-- Continue Button - Fixed at bottom right of window -->
+<div class="continue-button-container">
+  <div class="d-flex justify-content-between align-items-center">
+    <button 
+      class="btn" 
+      (click)="continueAfterInsights()" 
+      [disabled]="!canContinue">
+      <i class="fa fa-check-circle mr-1"></i> Continue
+    </button>
+  </div>
 </div>

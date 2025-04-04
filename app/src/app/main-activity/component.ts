@@ -65,6 +65,9 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
   private userId: string; // Add this property to your component class
   isWelcomePopupVisible: boolean = true;
   welcomeMessage: string = "Welcome to Lumos!";
+  userInsight: string = ''; // Property to store user insights
+  pastInsights: Array<{text: string, timestamp: string}> = []; // Array to store past insights
+  canContinue: boolean = false; // Flag to track if user can continue (5+ insights)
 
   constructor(
     private route: ActivatedRoute,
@@ -696,7 +699,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
    * Set CSS styling for attribute panel cards programmatically.
    */
   styleAttributePanelCard(attribute) {
-    return {};
+    return {}; // Return empty style object to disable coloring effect
   }
 
   /**
@@ -1482,6 +1485,44 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     };
     this.popupResponse = '';  // Clear the response after sending
     this.isPopupVisible = false;
+  }
+
+  /**
+   * Save user insights to the server
+   */
+  saveUserInsight() {
+    if (!this.userInsight.trim()) {
+      return;
+    }
+    
+    // Prepare and send a new message
+    let message = this.utilsService.initializeNewMessage(this);
+    message.interactionType = InteractionTypes.SAVE_USER_INSIGHT;
+    message.data = {
+      insight: this.userInsight,
+      timestamp: new Date().toISOString(),
+      eventX: null,
+      eventY: null
+    };
+    
+    // Add to past insights array
+    this.pastInsights.unshift({
+      text: this.userInsight,
+      timestamp: new Date().toLocaleString()
+    });
+    
+    // Check if user can continue (has 5+ insights)
+    this.canContinue = this.pastInsights.length >= 5;
+    
+    // Clear the insight field after sending
+    this.userInsight = '';
+  }
+
+  /**
+   * Handle continue action when user has saved at least 5 insights
+   */
+  continueAfterInsights() {
+    return;
   }
 
   /**

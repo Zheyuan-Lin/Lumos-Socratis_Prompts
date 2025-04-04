@@ -66,6 +66,10 @@ export const enum InteractionTypes {
   MOUSEOVER_GROUP = "mouseover_group",
   MOUSEOUT_ITEM = "mouseout_item",
   MOUSEOUT_GROUP = "mouseout_group",
+  
+  // User Insights
+  SAVE_USER_INSIGHT = "save_user_insight",
+  CONTINUE_AFTER_INSIGHTS = "continue_after_insights",
 }
 
 /**
