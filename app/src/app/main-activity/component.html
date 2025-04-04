@@ -655,16 +655,11 @@
 <!-- Continue Button - Fixed at bottom right of window -->
 <div class="continue-button-container">
   <div class="d-flex justify-content-between align-items-center">
-    <div class="insight-counter">
-      <span class="badge" [ngClass]="{'badge-success': pastInsights.length >= 5, 'badge-secondary': pastInsights.length < 5}">
-        {{pastInsights.length}}/5 Insights
-      </span>
-    </div>
     <button 
       class="btn" 
       (click)="continueAfterInsights()" 
       [disabled]="!canContinue">
-      <i class="fa fa-check-circle mr-1"></i> Continue to Next Step
+      <i class="fa fa-check-circle mr-1"></i> Continue
     </button>
   </div>
 </div>
