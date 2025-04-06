@@ -110,6 +110,26 @@ DATA_MAP = {
         ],
         "data": {},
     },
+
+    "synthetic_voters_v14.csv": {
+        "attributes": [],
+        "distribution": {},
+        "numerical_attributes": [
+            "voter_id",
+            "name",
+            "age",
+            "gender",
+            "race",
+            "income",
+            "location",
+            "party",
+            "abortion_view",
+            "gun_control_view",
+            "immigration_view",
+            "voted_last_election"
+        ],
+        "data": {},
+    },
 }
 
 
@@ -147,12 +167,14 @@ def read_data(filename):
         reader = csv.DictReader(csvfile, delimiter=",", quotechar='"')
         dataset["attributes"] = reader.fieldnames
         for row in reader:
-            data[row["id"]] = {}  # store data in data dict
+            # Handle both 'id' and 'voter_id' cases
+            id_field = "voter_id" if "voter_id" in row else "id"
+            data[row[id_field]] = {}  # store data in data dict
             for attr in row:
                 if attr in dataset["numerical_attributes"]:
-                    data[row["id"]][attr] = bias_util.cast_to_num(row[attr])
+                    data[row[id_field]][attr] = bias_util.cast_to_num(row[attr])
                 else:
-                    data[row["id"]][attr] = str(row[attr])
+                    data[row[id_field]][attr] = str(row[attr])
         print(f"done")
 
 

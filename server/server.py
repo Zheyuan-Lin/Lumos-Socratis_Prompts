@@ -206,6 +206,23 @@ async def on_question_response(sid, data):
     except Exception as e:
         print(f"Error storing response: {e}")
 
+@SIO.event
+async def on_insight(sid, data):
+    insight = {
+        "text": data.get("data", {}).get("insight"),
+        "timestamp": data.get("data", {}).get("timestamp"),
+        "group": data.get("data", {}).get("group"),
+        "participant_id": data.get("participantId")
+    }
+    
+    try:
+        # Store in Firestore
+        db.collection('insights').add(insight)
+        print(f"Stored insight: {insight}")
+        
+    except Exception as e:
+        print(f"Error storing insight: {e}")
+
 if __name__ == "__main__":
     bias.precompute_distributions()
     port = int(os.environ.get("PORT", 3000))
