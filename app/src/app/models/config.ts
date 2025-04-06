@@ -16,7 +16,7 @@ export class SessionPage {
   "app-practice": object = { completed: false, timestamp: 0 };
   "app-live": object = { completed: false, timestamp: 0 };
   "participantId": string = participantId; // 12 character long unique identifier
-  "appMode": string = "credit_risk.csv"; // Name of the dataset
+  "appMode": string = "synthetic_voters_v14.csv"; // Name of the dataset
   "appLevel": string = "live"; // Practice / Live
   // "appType": string = this.utils.generateRandomAppType(); // CONTROL / AWARENESS
   "appType": string = "AWARENESS"; // CONTROL | ADMIN | AWARENESS
@@ -951,4 +951,102 @@ export const AppConfig = {
       },
     },
   },
+
+  "synthetic_voters_v14.csv": {
+    dataset: "synthetic_voters_v14.csv",
+    primaryKey: "voter_id",
+    labelKey: "name",
+    orderedAttributeList: [
+        "voter_id",
+        "name",
+        "age",
+        "gender",
+        "race",
+        "income",
+        "location",
+        "party",
+        "abortion_view",
+        "gun_control_view",
+        "immigration_view",
+        "voted_last_election"
+    ],
+    attributes: {
+        "voter_id": {
+            name: "Voter ID",
+            datatype: "N",
+            types: [],
+            filterModel: []
+        },
+        "name": {
+            name: "Name",
+            datatype: "N",
+            types: [],
+            filterModel: []
+        },
+        "age": {
+            name: "Age",
+            datatype: "Q",
+            max: -Infinity,
+            step: 1,
+            min: Infinity,
+            filterModel: [0, 1]
+        },
+        "gender": {
+            name: "Gender",
+            datatype: "N",
+            types: [],
+            filterModel: []
+        },
+        "race": {
+            name: "Race",
+            datatype: "N",
+            types: [],
+            filterModel: []
+        },
+        "income": {
+            name: "Income",
+            datatype: "Q",
+            max: -Infinity,
+            step: 1000,
+            min: Infinity,
+            filterModel: [0, 1]
+        },
+        "location": {
+            name: "Location",
+            datatype: "N",
+            types: [],
+            filterModel: []
+        },
+        "party": {
+            name: "Political Party",
+            datatype: "N",
+            types: [],
+            filterModel: []
+        },
+        "abortion_view": {
+            name: "Abortion View",
+            datatype: "N",
+            types: [],
+            filterModel: []
+        },
+        "gun_control_view": {
+            name: "Gun Control View",
+            datatype: "N",
+            types: [],
+            filterModel: []
+        },
+        "immigration_view": {
+            name: "Immigration View",
+            datatype: "N",
+            types: [],
+            filterModel: []
+        },
+        "voted_last_election": {
+            name: "Voted in Last Election",
+            datatype: "N",
+            types: [],
+            filterModel: []
+        }
+    }
+  }
 };

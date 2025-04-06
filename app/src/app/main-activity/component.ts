@@ -125,7 +125,8 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
         this.global.appMode = "cars.csv";
         break;
       case "live":
-        this.global.appMode = "credit_risk.csv";
+       // this.global.appMode = "credit_risk.csv";
+        this.global.appMode = "synthetic_voters_v14.csv";
         break;
     }
     switch (this.global.appType) {
@@ -1492,26 +1493,28 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
    */
   saveUserInsight() {
     if (!this.userInsight.trim()) {
-      return;
+        return;
     }
     
-    // Prepare and send a new message
+    // Prepare the message
     let message = this.utilsService.initializeNewMessage(this);
-    message.interactionType = InteractionTypes.SAVE_USER_INSIGHT;
     message.data = {
-      insight: this.userInsight,
-      timestamp: new Date().toISOString(),
-      eventX: null,
-      eventY: null
+        insight: this.userInsight,
+        timestamp: new Date().toISOString(),
+        group: "socratic",
+        participantId: this.global.participantId  // Adding participant ID
     };
     
-    // Add to past insights array
+    // Send to backend via websocket
+    this.chatService.sendInsights(message);
+    
+    // Add to past insights array in frontend
     this.pastInsights.unshift({
-      text: this.userInsight,
-      timestamp: new Date().toLocaleString()
+        text: this.userInsight,
+        timestamp: new Date().toLocaleString()
     });
     
-    // Check if user can continue (has 5+ insights)
+    // Update continue button state
     this.canContinue = this.pastInsights.length >= 5;
     
     // Clear the insight field after sending
@@ -1542,20 +1545,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
    */
   private handleIncomingQuestion(questionData: Question): void {
     console.log("Processing incoming question:", questionData);
-    
-    // Store the question for tracking
-    const newQuestion: Question = {
-      id: questionData.id,
-      text: questionData.text,
-      timestamp: questionData.timestamp,
-      type: questionData.type
-    };
-    
-    // Update UI with the question
-    this.popupQuestion = newQuestion.text;
-    this.questionId = newQuestion.id;
-    this.isMinimized = false;
-    this.isPopupVisible = true;
+  
     
   }
 }
