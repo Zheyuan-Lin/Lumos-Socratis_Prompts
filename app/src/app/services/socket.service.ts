@@ -76,4 +76,8 @@ export class ChatService {
       return obj;
     }));
   }
+
+  sendInsights(payload) {
+    this.vizSocket.emit("on_insight", payload);
+  }
 }

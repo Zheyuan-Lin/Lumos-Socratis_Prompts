@@ -25,7 +25,7 @@ This folder contains the Lumos backend code. It computes Wall et al.'s \[1\] met
 ### Install Packages
 3. `python -m pip install --upgrade pip setuptools wheel`
 4. `python -m pip install -r requirements.txt` - installs required libraries local to this project environment
-5. `python -m pip install numpy --no-use-pep517` (for M1 Mac. For others, maybe try without `--no-use-pep517`)
+5. `python -m pip install -r requirements.txt` (for M1 Mac. For others, maybe try without `--no-use-pep517`)
 6. `python -m pip install pandas --no-use-pep517` (for M1 Mac. For others, maybe try without `--no-use-pep517`)
 7. `pip install firebase-admin`
 

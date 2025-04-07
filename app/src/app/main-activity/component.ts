@@ -1497,13 +1497,13 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     
     // Prepare and send a new message
     let message = this.utilsService.initializeNewMessage(this);
-    message.interactionType = InteractionTypes.SAVE_USER_INSIGHT;
     message.data = {
       insight: this.userInsight,
       timestamp: new Date().toISOString(),
-      eventX: null,
-      eventY: null
+      participantId: this.global.participantId,
+      group: "control"
     };
+    this.chatService.sendInsights(message);
     
     // Add to past insights array
     this.pastInsights.unshift({

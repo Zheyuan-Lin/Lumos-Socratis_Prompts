@@ -1,4 +1,4 @@
-#!/Users/soukasumi/Lumos_Heroku/Lumos/lumos/bin/python
+#!/Users/soukasumi/Desktop/Lumos-Socratis_Prompts/lumo/bin/python3.10
 # -*- coding: utf-8 -*-
 import re
 import sys
