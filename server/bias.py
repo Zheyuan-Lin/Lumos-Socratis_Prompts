@@ -115,18 +115,8 @@ DATA_MAP = {
         "attributes": [],
         "distribution": {},
         "numerical_attributes": [
-            "voter_id",
-            "name",
             "age",
-            "gender",
-            "race",
-            "income",
-            "location",
-            "party",
-            "abortion_view",
-            "gun_control_view",
-            "immigration_view",
-            "voted_last_election"
+            "income"
         ],
         "data": {},
     },

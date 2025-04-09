@@ -1,4 +1,4 @@
-#!/Users/soukasumi/Desktop/Lumos-Socratis_Prompts/lumo/bin/python3.10
+#!/Users/soukasumi/Desktop/Lumos-Socratis_Prompts/lumo/bin/python
 # -*- coding: utf-8 -*-
 # Copyright 2024 Google LLC
 #
