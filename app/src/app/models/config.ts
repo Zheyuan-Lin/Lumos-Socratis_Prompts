@@ -950,4 +950,108 @@ export const AppConfig = {
       },
     },
   },
+
+ "synthetic_voters_v14.csv": {
+  dataset: "synthetic_voters_v14.csv",
+  primaryKey: "voter_id",
+  labelKey: "name",
+  orderedAttributeList: [
+      "voter_id",
+      "name",
+      "age",
+      "gender",
+      "race",
+      "income",
+      "location",
+      "party",
+      "abortion_view",
+      "gun_control_view",
+      "immigration_view",
+      "voted_last_election"
+  ],
+  attributes: {
+      "voter_id": {
+          name: "Voter ID",
+          datatype: "N",
+          types: [],
+          filterModel: []
+      },
+      "name": {
+          name: "Name",
+          datatype: "N",
+          types: [],
+          filterModel: []
+      },
+      "age": {
+          name: "Age",
+          datatype: "Q",
+          max: 100,  // Set realistic max
+          step: 1,
+          min: 18,   // Set realistic min
+          filterModel: [18, 100]
+      },
+      "gender": {
+          name: "Gender",
+          datatype: "N",
+          types: ["Male", "Female"],  // Add known values
+          filterModel: ["Male", "Female"]
+      },
+      "race": {
+          name: "Race",
+          datatype: "N",
+          types: ["White", "Black", "Asian"],  // Add known values
+          filterModel: ["White", "Black", "Asian"]
+      },
+      "income": {
+          name: "Income",
+          datatype: "O",  // Change to Ordinal since it's "Low", "Middle", "High"
+          types: ["Low", "Middle", "High"],
+          filterModel: ["Low", "Middle", "High"]
+      },
+      "location": {
+          name: "Location",
+          datatype: "N",
+          types: ["Urban", "Suburban", "Rural"],
+          filterModel: ["Urban", "Suburban", "Rural"]
+      },
+      "party": {
+          name: "Political Party",
+          datatype: "N",
+          types: ["Democrat", "Republican"],
+          filterModel: ["Democrat", "Republican"]
+      },
+      "abortion_view": {
+          name: "Abortion View",
+          datatype: "Q",  // Change to Quantitative since it's numeric values
+          max: 3.0,
+          step: 0.1,
+          min: -3.0,
+          filterModel: [-3.0, 3.0]
+      },
+      "gun_control_view": {
+          name: "Gun Control View",
+          datatype: "Q",  // Change to Quantitative
+          max: 3.0,
+          step: 0.1,
+          min: -3.0,
+          filterModel: [-3.0, 3.0]
+      },
+      "immigration_view": {
+          name: "Immigration View",
+          datatype: "Q",  // Change to Quantitative
+          max: 3.0,
+          step: 0.1,
+          min: -3.0,
+          filterModel: [-3.0, 3.0]
+      },
+      "voted_last_election": {
+          name: "Voted in Last Election",
+          datatype: "N",
+          types: [true, false],  // Add boolean values
+          filterModel: [true, false]
+      }
+  }
+},
 };
+
+
