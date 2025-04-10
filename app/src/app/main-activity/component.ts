@@ -1470,8 +1470,9 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     // Use the existing sendQuestionResponse method with user ID
     this.chatService.sendQuestionResponse(
         this.questionId,
-        this.popupResponse,
-        this.popupQuestion
+        this.popupQuestion,
+        this.popupResponse
+
     );
 
     // Prepare and send a new message
@@ -1546,7 +1547,16 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
    */
   private handleIncomingQuestion(questionData: Question): void {
     console.log("Processing incoming question:", questionData);
-  
+    
+    // Update the current question
+    this.currentQuestion = questionData;
+    
+    // Update popup information
+    this.popupQuestion = questionData.text;
+    this.questionId = questionData.id;
+    
+    // Show the popup
+    this.isPopupVisible = true;
     
   }
 }

@@ -194,6 +194,7 @@ async def receive_external_question(sid, question_data):
 async def on_question_response(sid, data):
     response = {
         "question_id": data.get("question_id"),
+        "question": data.get("question"),
         "response": data.get("response"),
         "participant_id": data.get("participant_id"),
         "timestamp": datetime.now().isoformat()
