@@ -112,18 +112,28 @@ export class UtilsService {
    */
   formatLargeNum(d: number) {
     if (d === 0) return "0";
-    if (!d || d < 0) return "";
-    let digits = (Math.log(d) * Math.LOG10E + 1) | 0;
+    if (!d) return "";
+    
+    // Handle negative values
+    const isNegative = d < 0;
+    const absValue = Math.abs(d);
+    
+    let digits = (Math.log(absValue) * Math.LOG10E + 1) | 0;
+    let result = "";
+    
     if (digits >= 13) {
-      return `${Math.round((d / 1000000000000 + Number.EPSILON) * 100) / 100}T`;
+      result = `${Math.round((absValue / 1000000000000 + Number.EPSILON) * 100) / 100}T`;
     } else if (digits >= 10) {
-      return `${Math.round((d / 1000000000 + Number.EPSILON) * 100) / 100}B`;
+      result = `${Math.round((absValue / 1000000000 + Number.EPSILON) * 100) / 100}B`;
     } else if (digits >= 7) {
-      return `${Math.round((d / 1000000 + Number.EPSILON) * 100) / 100}M`;
+      result = `${Math.round((absValue / 1000000 + Number.EPSILON) * 100) / 100}M`;
     } else if (digits >= 4) {
-      return `${Math.round((d / 1000 + Number.EPSILON) * 100) / 100}K`;
+      result = `${Math.round((absValue / 1000 + Number.EPSILON) * 100) / 100}K`;
+    } else {
+      result = `${Math.round((absValue + Number.EPSILON) * 100) / 100}`;
     }
-    return `${Math.round((d + Number.EPSILON) * 100) / 100}`;
+    
+    return isNegative ? `-${result}` : result;
   }
 
   /**

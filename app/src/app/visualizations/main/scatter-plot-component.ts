@@ -291,11 +291,63 @@ export class ScatterPlot {
         d3.select(this)
           .style("stroke-width", "3px")
           .style("stroke", "brown");
+          
+        // Get the dataset and original data dictionary
+        let dataset = context.appConfig[context.global.appMode];
+        let originalDatasetDict = context.userConfig["originalDatasetDict"];
+        
+        // Get the data point ID
+        const id = d[dataset["primaryKey"]];
+        
+        // Get the original data point
+        const dataPoint = originalDatasetDict[id];
+        
+        // Create a copy of the data point with hovered flag
+        const hoveredData = { ...dataPoint, hovered: true };
+        
+        // Ensure all values are properly copied, including negative values
+        Object.keys(dataPoint).forEach(key => {
+          hoveredData[key] = dataPoint[key];
+        });
+        
+        // Update the hovered object to show in details section
+        dataset["hoveredObject"] = hoveredData;
+        
+        // Log the hovered data for debugging
+        console.log("Hovered data point:", hoveredData);
       })
       .on("mouseout", function (event, d) {
         d3.select(this)
           .style("stroke-width", "1px")
           .style("stroke", "black");
+          
+        // Clear the hovered object when mouse leaves
+        let dataset = context.appConfig[context.global.appMode];
+        dataset["hoveredObject"] = { hovered: false };
+      })
+      .on("click", function(event, d) {
+        // Get the dataset and original data dictionary
+        let dataset = context.appConfig[context.global.appMode];
+        let originalDatasetDict = context.userConfig["originalDatasetDict"];
+        
+        // Get the data point ID
+        const id = d[dataset["primaryKey"]];
+        
+        // Update the selected object in the dataset
+        dataset["selectedObject"] = { ...originalDatasetDict[id], selected: true };
+        
+        // Update the hovered object to show in details section
+        dataset["hoveredObject"] = { ...originalDatasetDict[id], hovered: true };
+        
+        // Update the selected objects collection
+        dataset["selectedObjects"] = {};
+        dataset["selectedObjects"][id] = originalDatasetDict[id];
+        
+        // Update the visualization to reflect the selection
+        context.update();
+        
+        // Log the selection
+        console.log("Selected data point:", originalDatasetDict[id]);
       });
   }
 }
