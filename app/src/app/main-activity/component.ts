@@ -1530,13 +1530,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
    */
   continueAfterInsights() {
     if (this.pastInsights.length >= 5) {
-      // Navigate to post survey with userId
-      const userId = localStorage.getItem('userId');
-      this.router.navigate(['/post'], { 
-        queryParams: { 
-          userId: userId 
-        }
-      });
+
     }
   }
 

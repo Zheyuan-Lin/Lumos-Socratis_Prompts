@@ -88,8 +88,9 @@
                         <div class="input-group-text"><i class="fa fa-table"></i></div>
                       </div>
                       <ng-select [disabled]="true" name="datasetSelect" appendTo="body" [clearable]="false" [searchable]="false"
-                        [ngStyle]="{ width: getSelectWidth(objectKeys(appConfig)) }" [(ngModel)]="global.appMode">
-                        <ng-option [value]="global.appMode">voter_info</ng-option>
+                        [ngStyle]="{ width: getSelectWidth(objectKeys(appConfig)) }" [(ngModel)]="global.appMode"
+                        (change)="initLumos()">
+                        <ng-option value="voter_info">voter_info</ng-option>
                       </ng-select>
                     </div>
                   </div>
@@ -511,12 +512,15 @@
                   <tr>
                     <td>
                       <h5>
-                        <span class="badge badge-info">Your Insights</span>
+                        <span class="badge badge-secondary">Your Insights</span>
                       </h5>
                     </td>
                   </tr>
                 </table>
               </header>
+              
+
+              
 
               <!-- Content -->
               <div class="insights-content">
@@ -587,7 +591,6 @@
             style="overflow-x: hidden">
             <article class="list-group-item">
               <!-- Header -->
-              <header class="details-header">
                 <table class="w-100">
                   <tr>
                     <td>
@@ -597,7 +600,8 @@
                     </td>
                   </tr>
                 </table>
-              </header>
+
+
 
               <!-- Content -->
               <div class="row single-table">
@@ -699,12 +703,11 @@
 <!-- Continue Button - Fixed at bottom right -->
 <div class="continue-button-container">
   <button 
-    class="btn" 
+    class="btn circular-btn" 
     (click)="continueAfterInsights()" 
     [disabled]="!canContinue"
     [title]="!canContinue ? 'Complete the current task to continue' : 'Click to proceed'">
     <i class="fa fa-arrow-right"></i>
-    Continue
   </button>
 </div>
 
@@ -713,7 +716,7 @@
   <div class="popup-header">
     <h4>
       <i class="fa fa-question-circle mr-2" style="margin-right: 8px; color: #0d6efd;"></i>
-      Research Question
+      Question
     </h4>
     <div class="popup-controls">
       <button type="button" (click)="toggleMinimize()" title="{{isMinimized ? 'Expand' : 'Minimize'}}">
