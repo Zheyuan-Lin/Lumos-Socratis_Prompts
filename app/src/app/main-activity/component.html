@@ -5,6 +5,57 @@
   </div>
 </nav>
 
+<style>
+  .participant-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 12px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+  }
+
+  .participant-label {
+    color: #6c757d;
+    font-size: 14px;
+  }
+
+  .participant-id {
+    color: #0d6efd;
+    font-weight: 500;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+  }
+
+  .copy-id-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    background-color: white;
+    color: #495057;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+  }
+
+  .copy-id-btn:hover {
+    background-color: #f8f9fa;
+    border-color: #0d6efd;
+    color: #0d6efd;
+  }
+
+  .copy-id-btn.copied {
+    background-color: #198754;
+    border-color: #198754;
+    color: white;
+  }
+</style>
+
 <!-- The Interface -->
 <div>
   <as-split direction="horizontal" class="border-light h-full" restrictMove="true">
@@ -37,9 +88,8 @@
                         <div class="input-group-text"><i class="fa fa-table"></i></div>
                       </div>
                       <ng-select [disabled]="true" name="datasetSelect" appendTo="body" [clearable]="false" [searchable]="false"
-                        [ngStyle]="{ width: getSelectWidth(objectKeys(appConfig)) }" [(ngModel)]="global.appMode"
-                        (change)="initLumos()">
-                        <ng-option *ngFor="let s of objectKeys(appConfig)" [value]="s"> {{s}} </ng-option>
+                        [ngStyle]="{ width: getSelectWidth(objectKeys(appConfig)) }" [(ngModel)]="global.appMode">
+                        <ng-option [value]="global.appMode">voter_info</ng-option>
                       </ng-select>
                     </div>
                   </div>
@@ -502,12 +552,6 @@
                   </div>
                 </div>
                 
-                <!-- Insight Counter -->
-                <div class="insight-counter mt-4">
-                  <span class="badge" [ngClass]="{'badge-success': pastInsights.length >= 5, 'badge-secondary': pastInsights.length < 5}">
-                    {{pastInsights.length}}/5 Insights
-                  </span>
-                </div>
               </div>
             </article>
           </div>
@@ -652,16 +696,16 @@
   </as-split>
 </div>
 
-<!-- Continue Button - Fixed at bottom right of window -->
+<!-- Continue Button - Fixed at bottom right -->
 <div class="continue-button-container">
-  <div class="d-flex justify-content-between align-items-center">
-    <button 
-      class="btn" 
-      (click)="continueAfterInsights()" 
-      [disabled]="!canContinue">
-      <i class="fa fa-check-circle mr-1"></i> Continue
-    </button>
-  </div>
+  <button 
+    class="btn" 
+    (click)="continueAfterInsights()" 
+    [disabled]="!canContinue"
+    [title]="!canContinue ? 'Complete the current task to continue' : 'Click to proceed'">
+    <i class="fa fa-arrow-right"></i>
+    Continue
+  </button>
 </div>
 
 <!-- Enhanced Question Popup -->

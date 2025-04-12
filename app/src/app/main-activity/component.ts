@@ -62,12 +62,13 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
   popupQuestion: string = "What do you think about this visualization?";
   questionId: string = '';
   popupResponse: string = '';
-  private userId: string; // Add this property to your component class
+  userId: string;
   isWelcomePopupVisible: boolean = true;
   welcomeMessage: string = "Welcome to Lumos!";
   userInsight: string = ''; // Property to store user insights
   pastInsights: Array<{text: string, timestamp: string}> = []; // Array to store past insights
   canContinue: boolean = false; // Flag to track if user can continue (5+ insights)
+  showCopied: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -93,6 +94,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
       if("level" in params){
         this.global.appLevel = params["level"];
       }
+      this.userId = params['userId'] || localStorage.getItem('userId');
     });
     this.qFilterSliderConfig = (attribute) => {
       let attrConfig = this.appConfig[this.global.appMode]["attributes"][attribute];
@@ -1504,7 +1506,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
         insight: this.userInsight,
         timestamp: new Date().toISOString(),
         group: "socratic",
-        participantId: this.global.participantId  // Adding participant ID
+        participantId: localStorage.getItem('userId') // Adding participant ID
     };
     
     // Send to backend via websocket
@@ -1528,17 +1530,13 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
    */
   continueAfterInsights() {
     if (this.pastInsights.length >= 5) {
-      // Prepare and send a new message
-      let message = this.utilsService.initializeNewMessage(this);
-      message.interactionType = InteractionTypes.CONTINUE_AFTER_INSIGHTS;
-      message.data = {
-        insightCount: this.pastInsights.length,
-        timestamp: new Date().toISOString(),
-        eventX: null,
-        eventY: null
-      };
-      
-
+      // Navigate to post survey with userId
+      const userId = localStorage.getItem('userId');
+      this.router.navigate(['/post'], { 
+        queryParams: { 
+          userId: userId 
+        }
+      });
     }
   }
 
@@ -1558,6 +1556,23 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     // Show the popup
     this.isPopupVisible = true;
     
+  }
+
+  onContinue() {
+    if (this.canContinue) {
+      this.router.navigate(['/post']);
+    }
+  }
+
+  copyUserId(): void {
+    if (this.userId) {
+      navigator.clipboard.writeText(this.userId).then(() => {
+        this.showCopied = true;
+        setTimeout(() => {
+          this.showCopied = false;
+        }, 2000);
+      });
+    }
   }
 }
 
