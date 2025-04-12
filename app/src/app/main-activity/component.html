@@ -39,7 +39,7 @@
                       <ng-select [disabled]="true" name="datasetSelect" appendTo="body" [clearable]="false" [searchable]="false"
                         [ngStyle]="{ width: getSelectWidth(objectKeys(appConfig)) }" [(ngModel)]="global.appMode"
                         (change)="initLumos()">
-                        <ng-option *ngFor="let s of objectKeys(appConfig)" [value]="s"> {{s}} </ng-option>
+                        <ng-option value="voter_info">voter_info</ng-option>
                       </ng-select>
                     </div>
                   </div>
@@ -654,12 +654,11 @@
 
 <!-- Continue Button - Fixed at bottom right of window -->
 <div class="continue-button-container">
-  <div class="d-flex justify-content-between align-items-center">
-    <button 
-      class="btn" 
-      (click)="continueAfterInsights()" 
-      [disabled]="!canContinue">
-      <i class="fa fa-check-circle mr-1"></i> Continue
-    </button>
-  </div>
+  <button 
+    class="btn circular-btn" 
+    (click)="continueAfterInsights()" 
+    [disabled]="!canContinue"
+    [title]="!canContinue ? 'Complete the current task to continue' : 'Click to proceed'">
+    <i class="fa fa-arrow-right"></i>
+  </button>
 </div>

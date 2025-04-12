@@ -1522,7 +1522,9 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
    * Handle continue action when user has saved at least 5 insights
    */
   continueAfterInsights() {
-    return;
+    if (this.pastInsights.length >= 5) {
+      // Add your continue logic here
+    }
   }
 
   /**
