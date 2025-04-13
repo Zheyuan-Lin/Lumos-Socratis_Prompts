@@ -16,7 +16,7 @@ export class SessionPage {
   "app-practice": object = { completed: false, timestamp: 0 };
   "app-live": object = { completed: false, timestamp: 0 };
   "participantId": string = participantId; // 12 character long unique identifier
-  "appMode": string = "credit_risk.csv"; // Name of the dataset
+ "appMode": string = "synthetic_voters_v14.csv"; // Name of the dataset
   "appLevel": string = "live"; // Practice / Live
   // "appType": string = this.utils.generateRandomAppType(); // CONTROL / AWARENESS
   "appType": string = "AWARENESS"; // CONTROL | ADMIN | AWARENESS

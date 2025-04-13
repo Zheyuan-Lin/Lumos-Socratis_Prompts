@@ -4,7 +4,6 @@
     <div class="navbar-brand">Lumos</div>
   </div>
 </nav>
-
 <!-- The Interface -->
 <div>
   <as-split direction="horizontal" class="border-light h-full" restrictMove="true">
@@ -39,7 +38,7 @@
                       <ng-select [disabled]="true" name="datasetSelect" appendTo="body" [clearable]="false" [searchable]="false"
                         [ngStyle]="{ width: getSelectWidth(objectKeys(appConfig)) }" [(ngModel)]="global.appMode"
                         (change)="initLumos()">
-                        <ng-option value="voter_info">voter_info</ng-option>
+                        <ng-option value="synthetic_voters_v14.csv">Voter</ng-option>
                       </ng-select>
                     </div>
                   </div>
@@ -461,12 +460,15 @@
                   <tr>
                     <td>
                       <h5>
-                        <span class="badge badge-info">Your Insights</span>
+                        <span class="badge badge-secondary">Your Insights</span>
                       </h5>
                     </td>
                   </tr>
                 </table>
               </header>
+              
+
+              
 
               <!-- Content -->
               <div class="insights-content">
@@ -482,9 +484,10 @@
                 </div>
                 <div class="text-right mt-2">
                   <button 
-                    class="btn btn-primary" 
+                    class="btn btn-secondary" 
                     (click)="saveUserInsight()" 
-                    [disabled]="!userInsight.trim()">
+                    [disabled]="!userInsight.trim()"
+                    style="background-color: #6c757d; border-color: #6c757d;">
                     <i class="fa fa-save mr-1"></i> Send Insight
                   </button>
                 </div>
@@ -502,12 +505,6 @@
                   </div>
                 </div>
                 
-                <!-- Insight Counter -->
-                <div class="insight-counter mt-4">
-                  <span class="badge" [ngClass]="{'badge-success': pastInsights.length >= 5, 'badge-secondary': pastInsights.length < 5}">
-                    {{pastInsights.length}}/5 Insights
-                  </span>
-                </div>
               </div>
             </article>
           </div>
@@ -543,7 +540,6 @@
             style="overflow-x: hidden">
             <article class="list-group-item">
               <!-- Header -->
-              <header class="details-header">
                 <table class="w-100">
                   <tr>
                     <td>
@@ -553,7 +549,8 @@
                     </td>
                   </tr>
                 </table>
-              </header>
+
+
 
               <!-- Content -->
               <div class="row single-table">
@@ -652,7 +649,7 @@
   </as-split>
 </div>
 
-<!-- Continue Button - Fixed at bottom right of window -->
+<!-- Continue Button - Fixed at bottom right -->
 <div class="continue-button-container">
   <button 
     class="btn circular-btn" 

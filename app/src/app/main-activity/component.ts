@@ -18,6 +18,7 @@ import { BarChart } from "../visualizations/main/bar-chart-component";
 import { LineChart } from "../visualizations/main/line-chart-component";
 import { AttributeDistributionPlotConfig } from "../visualizations/awareness/component";
 import { Question } from '../models/question';
+import { MessageService } from "../services/message.service";
 
 window.addEventListener("beforeunload", function (e) {
   // Cancel the event
@@ -62,12 +63,13 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
   popupQuestion: string = "What do you think about this visualization?";
   questionId: string = '';
   popupResponse: string = '';
-  private userId: string; // Add this property to your component class
+  userId: string;
   isWelcomePopupVisible: boolean = true;
   welcomeMessage: string = "Welcome to Lumos!";
   userInsight: string = ''; // Property to store user insights
   pastInsights: Array<{text: string, timestamp: string}> = []; // Array to store past insights
   canContinue: boolean = false; // Flag to track if user can continue (5+ insights)
+  showCopied: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -76,6 +78,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     private router: Router,
     public global: SessionPage,
     private sanitizer: DomSanitizer,
+    private messageService: MessageService
   ) {
     this.objectKeys = Object.keys; // to help iterate over objects with *ngFor
     this.objectValues = Object.values; // to help iterate over objects with *ngFor
@@ -93,6 +96,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
       if("level" in params){
         this.global.appLevel = params["level"];
       }
+      this.userId = params['userId'] || localStorage.getItem('userId');
     });
     this.qFilterSliderConfig = (attribute) => {
       let attrConfig = this.appConfig[this.global.appMode]["attributes"][attribute];
@@ -1523,7 +1527,13 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
    */
   continueAfterInsights() {
     if (this.pastInsights.length >= 5) {
-      // Add your continue logic here
+      // Navigate to post survey with userId
+      const userId = localStorage.getItem('userId');
+      this.router.navigate(['/post'], { 
+        queryParams: { 
+          userId: userId 
+        }
+      });
     }
   }
 
@@ -1547,6 +1557,17 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     this.isMinimized = false;
     this.isPopupVisible = true;
     
+  }
+
+  copyUserId(): void {
+    if (this.userId) {
+      navigator.clipboard.writeText(this.userId).then(() => {
+        this.showCopied = true;
+        setTimeout(() => {
+          this.showCopied = false;
+        }, 2000);
+      });
+    }
   }
 }
 

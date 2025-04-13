@@ -418,16 +418,22 @@ export class StripPlot {
       .style("stroke-width", "1px") // Standard stroke width for all strips
       .style("cursor", "pointer")
       .on("mouseover", function (event, d) {
-        // Simple highlight on hover
+        // Update visual style
         d3.select(this)
           .style("stroke", "brown")
           .style("stroke-width", "2px");
+        
+        // Update hovered object data
+        context.utilsService.mouseoverItem(context, event, d, this, "stroke");
       })
       .on("mouseout", function (event, d) {
-        // Reset on mouseout
+        // Reset visual style
         d3.select(this)
           .style("stroke", "black")
           .style("stroke-width", "1px");
+        
+        // Clear hovered object data
+        context.utilsService.mouseoutItem(context, event, d);
       });
   }
 }

@@ -288,14 +288,22 @@ export class ScatterPlot {
       .style("stroke-width", "1px")
       .style("stroke", "black")
       .on("mouseover", function (event, d) {
+        // Update visual style
         d3.select(this)
           .style("stroke-width", "3px")
           .style("stroke", "brown");
+        
+        // Update hovered object data
+        context.utilsService.mouseoverItem(context, event, d, this, "stroke");
       })
       .on("mouseout", function (event, d) {
+        // Reset visual style
         d3.select(this)
           .style("stroke-width", "1px")
           .style("stroke", "black");
+        
+        // Clear hovered object data
+        context.utilsService.mouseoutItem(context, event, d);
       });
   }
 }

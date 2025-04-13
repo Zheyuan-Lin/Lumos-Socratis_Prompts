@@ -60,13 +60,14 @@ export class ChatService {
       .pipe(map((obj) => obj));
   }
 
-  sendQuestionResponse(questionId: string, response: string, question: string) {
+  sendQuestionResponse(questionId: string, question: string, response: string) {
+    const userId = localStorage.getItem('userId');
     const payload = {
       question_id: questionId,
       response: response,
-      participant_id: this.global.participantId,
-      timestamp: new Date().toISOString(),
-      question: question
+      question: question,
+      participant_id: userId,
+      timestamp: new Date().toISOString()
     };
     this.vizSocket.emit("on_question_response", payload);
   }
