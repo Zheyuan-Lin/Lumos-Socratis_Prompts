@@ -334,7 +334,6 @@ export class UtilsService {
       const delay = 350; // 350 ms delay before hover counts as an interaction
       context.userConfig["hoverTimer"] = setTimeout(function () {
         context.userConfig["hoverTimer"] = null;
-        if (element && styleAttr) d3.select(element).style(styleAttr, "cyan");
         /* Prepare and Send New Message - Start */
         let message = this_.initializeNewMessage(context);
         let startTime = context.userConfig["hoverStartTime"];
@@ -460,7 +459,6 @@ export class UtilsService {
       context.userConfig["hoverTimer"] = setTimeout(function () {
         // reset timer function and set hovered object properties for point
         context.userConfig["hoverTimer"] = null;
-        if (element) d3.select(element).style("fill", "cyan");
         /* Prepare and Send New Message - Start */
         let message = this_.initializeNewMessage(context);
         let startTime = context.userConfig["hoverStartTime"];
