@@ -653,50 +653,63 @@
   bottom: 20px;
   right: 20px;
   z-index: 1000;
-  animation: fadeIn 0.3s ease-out;
-}
 
-.circular-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  padding: 0;
-  background-color: #0d6efd;
-  color: white;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  .circular-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #6c757d;
+    border: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    position: relative;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 
-  &:hover:not(:disabled) {
-    background-color: #0b5ed7;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
+    &:not(:disabled) {
+      &:hover {
+        background-color: #5a6268;
+      }
+    }
 
-  &:disabled {
-    background-color: #e9ecef;
-    color: #6c757d;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-  }
+    &:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
 
-  i {
-    font-size: 16px;
-  }
-}
+      &:hover .tooltip-text {
+        visibility: visible;
+        opacity: 1;
+      }
+    }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+    .tooltip-text {
+      visibility: hidden;
+      position: absolute;
+      bottom: 120%;
+      right: 0;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      text-align: center;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.3s;
+      min-width: 120px;
+
+      &::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        right: 15px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: rgba(0, 0, 0, 0.8) transparent transparent transparent;
+      }
+    }
   }
 }
 
