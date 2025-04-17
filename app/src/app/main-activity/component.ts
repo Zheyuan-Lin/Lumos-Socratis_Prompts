@@ -2,7 +2,7 @@
 import * as d3 from "d3";
 import $ from "jquery";
 import "bootstrap";
-import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from "@angular/core";
+import { Component, OnInit, AfterViewInit, ElementRef, ViewChild, OnDestroy } from "@angular/core";
 import { Router } from "@angular/router";
 import { DomSanitizer } from "@angular/platform-browser";
 import { ActivatedRoute } from "@angular/router";
@@ -69,6 +69,9 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
   pastInsights: Array<{text: string, timestamp: string}> = []; // Array to store past insights
   canContinue: boolean = false; // Flag to track if user can continue (5+ insights)
   showCopied: boolean = false;
+  timeRemaining: number = 20 * 60; // 20 minutes in seconds
+  timerInterval: any;
+  canContinueTime: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -122,6 +125,8 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
    * Required for ng.
    */
   ngOnInit(): void {
+    // Start the timer when component initializes
+    this.startTimer();
     switch (this.global.appLevel) {
       case "practice":
         this.global.appMode = "cars.csv";
@@ -151,7 +156,6 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
    */
   ngAfterViewInit(): void {
     this.setWidthsForAwarenessPanelVis();
-  
   }
 
   /**
@@ -1568,6 +1572,34 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
       });
     }
   }
+
+  startTimer(): void {
+    this.timerInterval = setInterval(() => {
+      if (this.timeRemaining > 0) {
+        this.timeRemaining--;
+      } else {
+        this.canContinueTime = true;
+        clearInterval(this.timerInterval);
+      }
+    }, 1000);
+  }
+
+  formatTime(): string {
+    const minutes = Math.floor(this.timeRemaining / 60);
+    const seconds = this.timeRemaining % 60;
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  }
+
+  getButtonTooltip(): string {
+    if (!this.canContinueTime) {
+      return `Please wait ${this.formatTime()} before continuing`;
+    }
+    if (!this.canContinue) {
+      return `Please share ${5 - this.pastInsights.length} more insight${5 - this.pastInsights.length === 1 ? '' : 's'} to continue`;
+    }
+    return 'Click to proceed';
+  }
+
 }
 
 /** ======================= CONVENIENCE FUNCTIONS ========================= */

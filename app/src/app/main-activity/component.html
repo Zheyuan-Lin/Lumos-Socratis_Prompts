@@ -9,7 +9,7 @@
 <div>
   <as-split direction="horizontal" class="border-light h-full" restrictMove="true">
     <!-- COLUMN: Data and Attributes -->
-    <as-split-area [size]="20">
+    <as-split-area [size]="22">
       <as-split direction="vertical" restrictMove="true">
         <!-- ROW: Dataset Selector -->
         <as-split-area [size]="15">
@@ -655,9 +655,19 @@
   <button 
     class="btn circular-btn" 
     (click)="continueAfterInsights()" 
-    [disabled]="!canContinue"
-    [title]="!canContinue ? 'Complete the current task to continue' : 'Click to proceed'">
+    [disabled]="!canContinue || !canContinueTime"
+    [title]="getButtonTooltip()"
+    [ngClass]="{'tooltip-active': !canContinue || !canContinueTime}"
+  >
     <i class="fa fa-arrow-right"></i>
+    <span class="tooltip-text" *ngIf="!canContinue || !canContinueTime">
+      <ng-container *ngIf="!canContinueTime">
+        {{formatTime()}} left
+      </ng-container>
+      <ng-container *ngIf="!canContinue">
+        and {{5 - pastInsights.length}} more insight{{5 - pastInsights.length === 1 ? '' : 's'}} needed
+      </ng-container>
+    </span>
   </button>
 </div>
 
