@@ -167,7 +167,11 @@ export class PreSurveyComponent implements OnInit {
   ngOnInit(): void {
     // Check if returning from survey
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('survey_completed') === 'true') {
+    const surveyCompleted = urlParams.get('survey_completed');
+    const encodedSurveyCompleted = urlParams.get('survey_completed%3Dtrue%26userId%3D');
+    
+    // Check both encoded and decoded versions
+    if (surveyCompleted === 'true' || encodedSurveyCompleted !== null) {
       // Navigate to main with userId
       this.router.navigate(['/main'], {
         queryParams: { userId: this.userId }
@@ -194,11 +198,11 @@ export class PreSurveyComponent implements OnInit {
   }
 
   redirectToSurvey(): void {
-    // Add return URL parameter and userId to the survey URL
-    const returnUrl = encodeURIComponent(
-      `${window.location.origin}${window.location.pathname}?survey_completed=true&userId=${this.userId}`
-    );
-    const surveyUrlWithParams = `${this.SURVEY_URL}?return_url=${returnUrl}&userId=${this.userId}`;
+    // Create the return URL without encoding it first
+    const returnUrl = `${window.location.origin}${window.location.pathname}?survey_completed=true&userId=${this.userId}`;
+    
+    // Construct the survey URL with properly encoded parameters
+    const surveyUrlWithParams = `${this.SURVEY_URL}?return_url=${encodeURIComponent(returnUrl)}&userId=${this.userId}`;
     
     // Redirect to the survey
     window.location.href = surveyUrlWithParams;
