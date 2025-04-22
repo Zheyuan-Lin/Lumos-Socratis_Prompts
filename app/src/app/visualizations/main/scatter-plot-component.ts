@@ -315,6 +315,9 @@ export class ScatterPlot {
         
         // Log the hovered data for debugging
         console.log("Hovered data point:", hoveredData);
+        
+        // Track the interaction
+        context.utilsService.mouseoverItem(context, event, dataPoint);
       })
       .on("mouseout", function (event, d) {
         d3.select(this)
@@ -324,6 +327,9 @@ export class ScatterPlot {
         // Clear the hovered object when mouse leaves
         let dataset = context.appConfig[context.global.appMode];
         dataset["hoveredObject"] = { hovered: false };
+        
+        // Track the interaction
+        context.utilsService.mouseoutItem(context, event, d);
       })
       .on("click", function(event, d) {
         // Get the dataset and original data dictionary
@@ -348,6 +354,9 @@ export class ScatterPlot {
         
         // Log the selection
         console.log("Selected data point:", originalDatasetDict[id]);
+        
+        // Track the interaction
+        context.utilsService.clickAddItem(context, event, d);
       });
   }
 }

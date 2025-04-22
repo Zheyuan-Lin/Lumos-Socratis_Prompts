@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-post-page',
@@ -17,42 +18,14 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
         </div>
       </div>
 
-      <form [formGroup]="surveyForm" (ngSubmit)="onSubmit()">
-        <div class="form-group">
-          <label>How would you rate the usability of the visualization?</label>
-          <div class="rating-input">
-            <input type="number" formControlName="usabilityRating" min="1" max="5" required>
-            <span class="rating-hint">(1-5, where 5 is best)</span>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>How clear were the visualizations in presenting the data?</label>
-          <div class="rating-input">
-            <input type="number" formControlName="clarityRating" min="1" max="5" required>
-            <span class="rating-hint">(1-5, where 5 is clearest)</span>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>How helpful was the tool in understanding the data?</label>
-          <div class="rating-input">
-            <input type="number" formControlName="helpfulnessRating" min="1" max="5" required>
-            <span class="rating-hint">(1-5, where 5 is most helpful)</span>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Additional Comments:</label>
-          <textarea 
-            formControlName="comments" 
-            rows="4" 
-            placeholder="Please share any additional thoughts or feedback...">
-          </textarea>
-        </div>
-
-        <button type="submit" [disabled]="!surveyForm.valid">Submit Survey</button>
-      </form>
+      <div class="survey-instructions">
+        <p>Please click the button below to proceed to the post-study survey. You will need your Participant ID for the survey.</p>
+        <p class="id-reminder">Your Participant ID: <strong>{{userId}}</strong></p>
+        <button class="proceed-btn" (click)="proceedToSurvey()">
+          Proceed to Survey
+          <i class="fa fa-external-link"></i>
+        </button>
+      </div>
     </div>
   `,
   styles: [`
@@ -118,89 +91,73 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
       color: white;
     }
 
-    h1 {
-      margin: 0;
-      color: #2c3e50;
+    .survey-instructions {
+      text-align: center;
+      padding: 40px;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      margin-top: 20px;
     }
 
-    .form-group {
-      margin-bottom: 24px;
+    .survey-instructions p {
+      font-size: 16px;
+      color: #495057;
+      margin-bottom: 20px;
     }
 
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 500;
-      color: #2c3e50;
-    }
-
-    .rating-input {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    input[type="number"] {
-      width: 80px;
-      padding: 8px;
+    .id-reminder {
+      background-color: white;
+      padding: 15px;
+      border-radius: 6px;
       border: 1px solid #dee2e6;
-      border-radius: 4px;
+      margin: 20px 0;
     }
 
-    .rating-hint {
-      color: #6c757d;
-      font-size: 14px;
+    .id-reminder strong {
+      color: #0d6efd;
+      font-size: 18px;
+      letter-spacing: 0.5px;
     }
 
-    textarea {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #dee2e6;
-      border-radius: 4px;
-      resize: vertical;
-    }
-
-    button[type="submit"] {
+    .proceed-btn {
       background-color: #0d6efd;
       color: white;
       border: none;
-      padding: 12px 24px;
+      padding: 15px 30px;
       border-radius: 6px;
       font-size: 16px;
       cursor: pointer;
       transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
     }
 
-    button[type="submit"]:hover {
+    .proceed-btn:hover {
       background-color: #0b5ed7;
       transform: translateY(-1px);
     }
 
-    button[type="submit"]:disabled {
-      background-color: #e9ecef;
-      color: #6c757d;
-      cursor: not-allowed;
-      transform: none;
+    .proceed-btn i {
+      font-size: 14px;
+    }
+
+    h1 {
+      margin: 0;
+      color: #2c3e50;
     }
   `]
 })
 export class PostPageComponent implements OnInit {
-  surveyForm: FormGroup;
   userId: string;
   showCopied: boolean = false;
+  private qualtricsUrl = 'https://qfreeaccountssjc1.az1.qualtrics.com/jfe/form/SV_bjcPehy9IOhUTNI';
 
   constructor(
-    private fb: FormBuilder,
     private router: Router,
-    private route: ActivatedRoute
-  ) {
-    this.surveyForm = this.fb.group({
-      usabilityRating: ['', [Validators.required, Validators.min(1), Validators.max(5)]],
-      clarityRating: ['', [Validators.required, Validators.min(1), Validators.max(5)]],
-      helpfulnessRating: ['', [Validators.required, Validators.min(1), Validators.max(5)]],
-      comments: ['']
-    });
-  }
+    private route: ActivatedRoute,
+    private sanitizer: DomSanitizer
+  ) {}
 
   ngOnInit(): void {
     // Get userId from URL params or localStorage
@@ -220,16 +177,10 @@ export class PostPageComponent implements OnInit {
     }
   }
 
-  onSubmit(): void {
-    if (this.surveyForm.valid) {
-      const surveyData = {
-        ...this.surveyForm.value,
-        userId: this.userId,
-        timestamp: new Date().toISOString()
-      };
-      console.log('Survey submitted:', surveyData);
-      // Here you would typically send the data to your backend
-      // After successful submission, you can redirect or show a completion message
-    }
+  proceedToSurvey(): void {
+    // Construct URL with userId parameter
+    const surveyUrl = `${this.qualtricsUrl}?userId=${this.userId}`;
+    // Open in the same window
+    window.location.href = surveyUrl;
   }
 } 

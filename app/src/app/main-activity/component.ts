@@ -18,6 +18,7 @@ import { BarChart } from "../visualizations/main/bar-chart-component";
 import { LineChart } from "../visualizations/main/line-chart-component";
 import { AttributeDistributionPlotConfig } from "../visualizations/awareness/component";
 import { Question } from '../models/question';
+import { Insight } from "../models/message";
 
 window.addEventListener("beforeunload", function (e) {
   // Cancel the event
@@ -69,7 +70,8 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
   pastInsights: Array<{text: string, timestamp: string}> = []; // Array to store past insights
   canContinue: boolean = false; // Flag to track if user can continue (5+ insights)
   showCopied: boolean = false;
-  timeRemaining: number = 20 * 60; // 20 minutes in seconds
+  //timeRemaining: number = 20 * 60; // 20 minutes in seconds
+  timeRemaining: number = 10; // 10 seconds
   timerInterval: any;
   canContinueTime: boolean = false;
 
@@ -891,8 +893,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     this.collapseAccordion();
 
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initializeNewMessage(this);
-    message.interactionType = InteractionTypes.TOGGLE_ALL_ATTRIBUTE_BOOKMARK_AWARENESS_PANEL;
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.TOGGLE_ALL_ATTRIBUTE_BOOKMARK_AWARENESS_PANEL);
     message.data = {
       isBookmarked: false,
       eventX: null,
@@ -910,8 +911,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
   onChangeDistributionPanelSort(model) {
     console.log(model);
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initializeNewMessage(this);
-    message.interactionType = InteractionTypes.CHANGE_DISTRIBUTION_PANEL_SORT;
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_DISTRIBUTION_PANEL_SORT);
     message.data = {
       sortBy: model,
       eventX: null,
@@ -926,8 +926,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
    */
   onChangeAttributePanelSort(model) {
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initializeNewMessage(this);
-    message.interactionType = InteractionTypes.CHANGE_ATTRIBUTE_PANEL_SORT;
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_ATTRIBUTE_PANEL_SORT);
     message.data = {
       sortBy: model,
       eventX: null,
@@ -966,8 +965,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
       this.collapseAccordion(attribute);
     }
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initializeNewMessage(this);
-    message.interactionType = InteractionTypes.TOGGLE_ATTRIBUTE_BOOKMARK_AWARENESS_PANEL;
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.TOGGLE_ATTRIBUTE_BOOKMARK_AWARENESS_PANEL);
     message.data = {
       attribute: attribute,
       isBookmarked: attrConfig["awarenessPanel"]["isBookmarked"],
@@ -1003,8 +1001,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
       this.updateAwarenessPanel(); // Refresh the awareness panel visualizations
 
       /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initializeNewMessage(this);
-      message.interactionType = InteractionTypes.TOGGLE_ALL_ATTRIBUTE_ACCORDION_AWARENESS_PANEL;
+      let message = this.utilsService.initializeNewMessage(InteractionTypes.TOGGLE_ALL_ATTRIBUTE_ACCORDION_AWARENESS_PANEL);
       message.data = {
         isExpanded: true,
         eventX: null,
@@ -1018,8 +1015,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
       this.updateAwarenessPanel(attribute); // Refresh the awareness panel visualizations just for this attribute
 
       /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initializeNewMessage(this);
-      message.interactionType = InteractionTypes.TOGGLE_ATTRIBUTE_ACCORDION_AWARENESS_PANEL;
+      let message = this.utilsService.initializeNewMessage(InteractionTypes.TOGGLE_ATTRIBUTE_ACCORDION_AWARENESS_PANEL);
       message.data = {
         attribute: attribute,
         isExpanded: dataset["attributes"][attribute]["awarenessPanel"]["isExpanded"],
@@ -1044,8 +1040,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
       this.updateAwarenessPanel(); // Refresh the awareness panel visualizations
 
       /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initializeNewMessage(this);
-      message.interactionType = InteractionTypes.TOGGLE_ALL_ATTRIBUTE_ACCORDION_AWARENESS_PANEL;
+      let message = this.utilsService.initializeNewMessage(InteractionTypes.TOGGLE_ALL_ATTRIBUTE_ACCORDION_AWARENESS_PANEL);
       message.data = {
         isExpanded: false,
         eventX: null,
@@ -1059,8 +1054,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
       this.updateAwarenessPanel(attribute); // Refresh the awareness panel visualizations just for this attribute
 
       /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initializeNewMessage(this);
-      message.interactionType = InteractionTypes.TOGGLE_ATTRIBUTE_ACCORDION_AWARENESS_PANEL;
+      let message = this.utilsService.initializeNewMessage(InteractionTypes.TOGGLE_ATTRIBUTE_ACCORDION_AWARENESS_PANEL);
       message.data = {
         attribute: attribute,
         isExpanded: dataset["attributes"][attribute]["awarenessPanel"]["isExpanded"],
@@ -1083,8 +1077,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     this.updateVis();
 
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initializeNewMessage(this);
-    message.interactionType = InteractionTypes.SWAP_AXES_ATTRIBUTES;
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.SWAP_AXES_ATTRIBUTES);
     message.data = {
       x: dataset["xVar"],
       y: dataset["yVar"],
@@ -1104,8 +1097,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     dataset["attributeInteracted"][attribute] += 1;
 
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initializeNewMessage(this);
-    message.interactionType = InteractionTypes.ADD_FILTER;
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.ADD_FILTER);
     message.data = {
       attribute: attribute,
       eventX: null,
@@ -1136,8 +1128,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
 
     if (sendMessage) {
       /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initializeNewMessage(this);
-      message.interactionType = InteractionTypes.REMOVE_FILTER;
+      let message = this.utilsService.initializeNewMessage(InteractionTypes.REMOVE_FILTER);
       message.data = {
         attribute: attribute,
         eventX: null,
@@ -1158,8 +1149,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     if (updateVis) this.updateVis();
 
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initializeNewMessage(this);
-    message.interactionType = InteractionTypes.REMOVE_ALL_FILTERS;
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.REMOVE_ALL_FILTERS);
     message.data = {
       eventX: null,
       eventY: null,
@@ -1184,8 +1174,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     this.updateVis(); // only update the vis after all encodings are reset
 
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initializeNewMessage(this);
-    message.interactionType = InteractionTypes.REMOVE_ALL_ENCODINGS;
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.REMOVE_ALL_ENCODINGS);
     message.data = {
       eventX: null,
       eventY: null,
@@ -1204,8 +1193,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     }
     if (!reset) {
       /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initializeNewMessage(this);
-      message.interactionType = InteractionTypes.CHANGE_CHART_TYPE;
+      let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_CHART_TYPE);
       message.data = {
         chartChanged: dataset["chartType"],
         x: dataset["xVar"],
@@ -1236,8 +1224,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     }
     if (!reset) {
       /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initializeNewMessage(this);
-      message.interactionType = InteractionTypes.CHANGE_AXIS_ATTRIBUTE;
+      let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_AXIS_ATTRIBUTE);
       message.data = {
         axisChanged: axis,
         x: dataset["xVar"],
@@ -1253,8 +1240,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
   onChangeAggregation(event, updateVis = true) {
     let dataset = this.appConfig[this.global.appMode];
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initializeNewMessage(this);
-    message.interactionType = InteractionTypes.CHANGE_AGGREGATION;
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_AGGREGATION);
     message.data = {
       aggChanged: dataset["aggType"],
       x: dataset["xVar"],
@@ -1273,8 +1259,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
   onChangeAttributeColorByMode(event, reset = false, updateVis = true) {
     if (!reset) {
       /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initializeNewMessage(this);
-      message.interactionType = InteractionTypes.CHANGE_ATTRIBUTE_COLOR_BY_MODE;
+      let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_ATTRIBUTE_COLOR_BY_MODE);
       message.data = {
         colorBy: event,
         eventX: null,
@@ -1294,8 +1279,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     }
     if (!reset) {
       /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initializeNewMessage(this);
-      message.interactionType = InteractionTypes.CHANGE_VIS_COLOR_BY_MODE;
+      let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_VIS_COLOR_BY_MODE);
       message.data = {
         colorBy: dataset["colorByMode"],
         eventX: null,
@@ -1310,8 +1294,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     let dataset = this.appConfig[this.global.appMode];
     dataset["attributeInteracted"][attribute] += 1;
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initializeNewMessage(this);
-    message.interactionType = InteractionTypes.CHANGE_FILTER;
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_FILTER);
     message.data = {
       attribute: attribute,
       value: dataset["attributes"][attribute]["filterModel"],
@@ -1481,17 +1464,6 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
 
     );
 
-    // Prepare and send a new message
-    let message = this.utilsService.initializeNewMessage(this);
-
-    // Also log locally with user ID
-    const responseLog = {
-        userId: message.participantId,
-        questionId: this.questionId,
-        question: this.popupQuestion,
-        response: this.popupResponse,
-        timestamp: new Date().toISOString()
-    };
     this.popupResponse = '';  // Clear the response after sending
     this.isPopupVisible = false;
   }
@@ -1505,7 +1477,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     }
     
     // Prepare the message
-    let message = this.utilsService.initializeNewMessage(this);
+    let message = new Insight();
     message.data = {
         insight: this.userInsight,
         timestamp: new Date().toISOString(),
@@ -1530,11 +1502,24 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Handle continue action when user has saved at least 5 insights
+   * Handle continue action when user has saved at least 5 insights and timer is complete
    */
   continueAfterInsights() {
-    if (this.pastInsights.length >= 5) {
-
+    if (this.pastInsights.length >= 5 && this.canContinueTime) {
+      // Save any pending data
+      this.chatService.sendMessageToSaveLogs();
+      this.chatService.removeAllListenersAndDisconnectFromSocket();
+      
+      // Update completion status
+      this.global["app-" + this.global.appLevel]["completed"] = true;
+      this.global["app-" + this.global.appLevel]["timestamp"] = new Date().toLocaleString();
+      
+      // Navigate to post survey with userId
+      this.router.navigate(['/post'], { 
+        queryParams: { 
+          userId: this.userId 
+        }
+      });
     }
   }
 
@@ -1557,9 +1542,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
   }
 
   onContinue() {
-    if (this.canContinue) {
-      this.router.navigate(['/post']);
-    }
+    this.continueAfterInsights();
   }
 
   copyUserId(): void {

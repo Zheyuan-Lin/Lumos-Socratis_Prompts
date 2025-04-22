@@ -71,6 +71,7 @@ export const enum InteractionTypes {
   // User Insights
   SAVE_USER_INSIGHT = "save_user_insight",
   CONTINUE_AFTER_INSIGHTS = "continue_after_insights",
+  INSIGHT = "insight"
 }
 
 /**

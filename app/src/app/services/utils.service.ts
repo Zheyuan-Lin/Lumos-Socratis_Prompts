@@ -7,6 +7,15 @@ import { Message } from "../models/message";
 
 @Injectable()
 export class UtilsService {
+  appMode: string;
+  appType: string;
+  appLevel: string;
+
+  constructor() {
+    this.appMode = "synthetic_voters_v14.csv";
+    this.appType = "AWARENESS";
+  }
+
   /**
    * Generates a random alphanumeric string of `length` characters.
    */
@@ -176,19 +185,26 @@ export class UtilsService {
   /**
    * Returns new message object for communicating with backend server.
    */
-  initializeNewMessage(context) {
-    let chartType = context.appConfig[context.global.appMode]["chartType"];
-    let message = new Message();
-    (message.appMode = context.global.appMode),
-    (message.appType = context.global.appType),
-    (message.appLevel = context.global.appLevel),
-    (message.chartType = chartType),
-    (message.interactionType = ""),
-    (message.interactionDuration = 0),
-    (message.interactionAt = this.getCurrentTime()),
-    (message.participantId = context.global.participantId),
-    (message.data = {});
-    return message;
+  initializeNewMessage(interactionType: string, data: any = {}): Message {
+    const participantId = localStorage.getItem('participantId');
+    if (!participantId) {
+      throw new Error('Participant ID not found in local storage');
+    }
+
+    return {
+      appMode: this.appMode,
+      appType: this.appType,
+      appLevel: this.appLevel,
+      chartType: '',
+      interactionType,
+      interactionDuration: 0,
+      interactionAt: new Date().toISOString(),
+      createdAt: new Date().getTime(),
+      participantId,
+      data,
+      eventX: 0,
+      eventY: 0
+    };
   }
 
   /**
@@ -204,19 +220,7 @@ export class UtilsService {
       dataset["selectedObjects"][id] = d;
       context.userConfig["originalDatasetDict"][id]["selected"] = true;
       /* Prepare and Send New Message - Start */
-      let message = this.initializeNewMessage(context);
-      message.interactionType = InteractionTypes.CLICK_ADD_ITEM;
-      message.data["id"] = id;
-      message.data["x"] = {
-        name: dataset["xVar"],
-        value: d["xVar"],
-      };
-      message.data["y"] = {
-        name: dataset["yVar"],
-        value: d["yVar"],
-      };
-      message.data["eventX"] = event.clientX;
-      message.data["eventY"] = event.clientY;
+      let message = this.initializeNewMessage(InteractionTypes.CLICK_ADD_ITEM, { id: id, x: { name: dataset["xVar"], value: d["xVar"] }, y: { name: dataset["yVar"], value: d["yVar"] }, eventX: event.clientX, eventY: event.clientY });
       context.chatService.sendInteractionResponse(message);
       /* Prepare and Send New Message - End */
     }
@@ -234,19 +238,7 @@ export class UtilsService {
       context.userConfig["originalDatasetDict"][id]["selected"] = false;
       delete dataset["selectedObjects"][id];
       /* Prepare and Send New Message - Start */
-      let message = this.initializeNewMessage(context);
-      message.interactionType = InteractionTypes.CLICK_REMOVE_ITEM;
-      message.data["id"] = id;
-      message.data["x"] = {
-        name: dataset["xVar"],
-        value: d["xVar"],
-      };
-      message.data["y"] = {
-        name: dataset["yVar"],
-        value: d["yVar"],
-      };
-      message.data["eventX"] = event.clientX;
-      message.data["eventY"] = event.clientY;
+      let message = this.initializeNewMessage(InteractionTypes.CLICK_REMOVE_ITEM, { id: id, x: { name: dataset["xVar"], value: d["xVar"] }, y: { name: dataset["yVar"], value: d["yVar"] }, eventX: event.clientX, eventY: event.clientY });
       context.chatService.sendInteractionResponse(message);
       /* Prepare and Send New Message - End */
     }
@@ -298,25 +290,9 @@ export class UtilsService {
       });
     }
     /* Prepare and Send New Message - Start */
-    let message = this.initializeNewMessage(context);
-    message.interactionType = InteractionTypes.CLICK_GROUP;
-    message.data["id"] = ids;
-    message.data["x"] = {
-      name: dataset["xVar"],
-      value: xValues,
-    };
-    message.data["y"] = {
-      name: dataset["yVar"],
-      value: yValues,
-    };
-    message.data["agg"] = {
-      name: meta.aggName, // aggregation applied to the bucket
-      axis: meta.aggAxis, // axis the aggregation is applied to
-      value: meta.binValue, // Value of the aggregation
-      label: meta.binLabel, // label of the bucket the agg was applied to
-    };
-    message.data["eventX"] = event.clientX;
-    message.data["eventY"] = event.clientY;
+    let message = this.initializeNewMessage(InteractionTypes.CLICK_GROUP, { id: ids, x: { name: dataset["xVar"], value: xValues }, y: { name: dataset["yVar"], value: yValues }, agg: { name: meta.aggName, axis: meta.aggAxis, value: meta.binValue, label: meta.binLabel } });
+    message.eventX = event.clientX;
+    message.eventY = event.clientY;
     context.chatService.sendInteractionResponse(message);
     /* Prepare and Send New Message - End */
   }
@@ -336,22 +312,10 @@ export class UtilsService {
         context.userConfig["hoverTimer"] = null;
         if (element && styleAttr) d3.select(element).style(styleAttr, "cyan");
         /* Prepare and Send New Message - Start */
-        let message = this_.initializeNewMessage(context);
+        let message = this_.initializeNewMessage(InteractionTypes.MOUSEOVER_ITEM, { id: d[dataset["primaryKey"]], x: { name: dataset["xVar"], value: d["xVar"] }, y: { name: dataset["yVar"], value: d["yVar"] }, eventX: event.clientX, eventY: event.clientY });
         let startTime = context.userConfig["hoverStartTime"];
         let currentTime = this_.getCurrentTime();
         message.interactionDuration = currentTime - startTime;
-        message.interactionType = InteractionTypes.MOUSEOVER_ITEM;
-        message.data["id"] = d[dataset["primaryKey"]];
-        message.data["x"] = {
-          name: dataset["xVar"],
-          value: d["xVar"],
-        };
-        message.data["y"] = {
-          name: dataset["yVar"],
-          value: d["yVar"],
-        };
-        message.data["eventX"] = event.clientX;
-        message.data["eventY"] = event.clientY;
         context.chatService.sendInteractionResponse(message);
         /* Prepare and Send New Message - End */
       }, delay);
@@ -371,22 +335,10 @@ export class UtilsService {
     } else {
       // Hover was long enough => count as an interaction, update server
       /* Prepare and Send New Message - Start */
-      let message = this.initializeNewMessage(context);
+      let message = this.initializeNewMessage(InteractionTypes.MOUSEOUT_ITEM, { id: d[dataset["primaryKey"]], x: { name: dataset["xVar"], value: d["xVar"] }, y: { name: dataset["yVar"], value: d["yVar"] }, eventX: event.clientX, eventY: event.clientY });
       let startTime = context.userConfig["hoverStartTime"];
       let currentTime = this.getCurrentTime();
       message.interactionDuration = currentTime - startTime;
-      message.interactionType = InteractionTypes.MOUSEOUT_ITEM;
-      message.data["id"] = d[dataset["primaryKey"]];
-      message.data["x"] = {
-        name: dataset["xVar"],
-        value: d["xVar"],
-      };
-      message.data["y"] = {
-        name: dataset["yVar"],
-        value: d["yVar"],
-      };
-      message.data["eventX"] = event.clientX;
-      message.data["eventY"] = event.clientY;
       context.chatService.sendInteractionResponse(message);
       /* Prepare and Send New Message - End */
     }
@@ -462,28 +414,12 @@ export class UtilsService {
         context.userConfig["hoverTimer"] = null;
         if (element) d3.select(element).style("fill", "cyan");
         /* Prepare and Send New Message - Start */
-        let message = this_.initializeNewMessage(context);
+        let message = this_.initializeNewMessage(InteractionTypes.MOUSEOVER_GROUP, { id: dataPointIDs, x: { name: dataset["xVar"], value: xValues }, y: { name: dataset["yVar"], value: yValues }, agg: { name: meta.aggName, axis: meta.aggAxis, value: meta.binValue, label: meta.binLabel } });
         let startTime = context.userConfig["hoverStartTime"];
         let currentTime = this_.getCurrentTime();
         message.interactionDuration = currentTime - startTime;
-        message.interactionType = InteractionTypes.MOUSEOVER_GROUP;
-        message.data["id"] = dataPointIDs;
-        message.data["x"] = {
-          name: dataset["xVar"],
-          value: xValues,
-        };
-        message.data["y"] = {
-          name: dataset["yVar"],
-          value: yValues,
-        };
-        message.data["agg"] = {
-          name: meta.aggName, // aggregation applied to the bucket
-          axis: meta.aggAxis, // axis the aggregation is applied to
-          value: meta.binValue, // Value of the aggregation
-          label: meta.binLabel, // label of the bucket the agg was applied to
-        };
-        message.data["eventX"] = event.clientX;
-        message.data["eventY"] = event.clientY;
+        message.eventX = event.clientX;
+        message.eventY = event.clientY;
         context.chatService.sendInteractionResponse(message);
         /* Prepare and Send New Message - End */
       }, delay);
@@ -531,28 +467,12 @@ export class UtilsService {
         }
       });
       /* Prepare and Send New Message - Start */
-      let message = this.initializeNewMessage(context);
+      let message = this.initializeNewMessage(InteractionTypes.MOUSEOUT_GROUP, { id: dataPointIDs, x: { name: dataset["xVar"], value: xValues }, y: { name: dataset["yVar"], value: yValues }, agg: { name: meta.aggName, axis: meta.aggAxis, value: meta.binValue, label: meta.binLabel } });
       let startTime = context.userConfig["hoverStartTime"];
       let currentTime = this.getCurrentTime();
       message.interactionDuration = currentTime - startTime;
-      message.interactionType = InteractionTypes.MOUSEOUT_GROUP;
-      message.data["id"] = dataPointIDs;
-      message.data["x"] = {
-        name: dataset["xVar"],
-        value: xValues,
-      };
-      message.data["y"] = {
-        name: dataset["yVar"],
-        value: yValues,
-      };
-      message.data["agg"] = {
-        name: meta.aggName, // aggregation applied to the bucket
-        axis: meta.aggAxis, // axis the aggregation is applied to
-        value: meta.binValue, // Value of the aggregation
-        label: meta.binLabel, // label of the bucket the agg was applied to
-      };
-      message.data["eventX"] = event.clientX;
-      message.data["eventY"] = event.clientY;
+      message.eventX = event.clientX;
+      message.eventY = event.clientY;
       context.chatService.sendInteractionResponse(message);
       /* Prepare and Send New Message - End */
     }

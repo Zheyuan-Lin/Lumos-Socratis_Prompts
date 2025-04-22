@@ -8,6 +8,7 @@ import numbers
 import os
 import random
 import statistics
+from datetime import datetime
 
 import scipy
 import sys
@@ -530,3 +531,22 @@ def attribute_distribution(logs, active_data, active_attrs, active_attr_distr, a
                 ad_details[attr]["p_value"] = chi_squared_result[1]
 
     return ad_metric, ad_details
+
+
+def log_simplified_interaction(pid, interaction_type):
+    """
+    Logs a simplified interaction with only participant ID, interaction type, and timestamp.
+    
+    Args:
+        pid (str): Participant ID
+        interaction_type (str): Type of interaction
+    """
+    # Create simplified interaction data
+    interaction_data = {
+        "participant_id": pid,
+        "interaction_type": interaction_type,
+        "timestamp": datetime.now().isoformat()
+    }
+    
+    # Store in Firestore
+    db.collection('simplified_interactions').add(interaction_data)
