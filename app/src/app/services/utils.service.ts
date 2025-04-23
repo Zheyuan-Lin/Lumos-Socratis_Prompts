@@ -14,6 +14,7 @@ export class UtilsService {
   constructor() {
     this.appMode = "synthetic_voters_v14.csv";
     this.appType = "AWARENESS";
+    this.appLevel = "live";
   }
 
   /**
@@ -186,7 +187,7 @@ export class UtilsService {
    * Returns new message object for communicating with backend server.
    */
   initializeNewMessage(interactionType: string, data: any = {}): Message {
-    const participantId = localStorage.getItem('participantId');
+    const participantId = localStorage.getItem('userId');
     if (!participantId) {
       throw new Error('Participant ID not found in local storage');
     }

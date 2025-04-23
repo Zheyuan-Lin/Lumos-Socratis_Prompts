@@ -158,17 +158,15 @@ async def on_interaction(sid, data):
         response["output_data"] = metrics
         
             # Create simplified interaction data
-        simplified_data = {
-                "participant_id": pid,
-                "interaction_type": interaction_type,
-                "timestamp": data["interactionAt"]
-            }
-            
+    simplified_data = {
+        "participant_id": pid,
+        "interaction_type": interaction_type,
+        "group": "socratic",
+        "timestamp": data["interactionAt"]
+    }
             # Store in Firestore
-        db.collection('interactions').add(simplified_data)
-        print(f"Stored interaction successfully")
-    else:
-        response["output_data"] = None
+    db.collection('interactions').add(simplified_data)
+    print(f"Stored interaction successfully")
 
 
 
