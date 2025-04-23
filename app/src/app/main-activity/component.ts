@@ -891,13 +891,11 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     this.collapseAccordion();
 
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initializeNewMessage(this);
-    message.interactionType = InteractionTypes.TOGGLE_ALL_ATTRIBUTE_BOOKMARK_AWARENESS_PANEL;
-    message.data = {
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.TOGGLE_ALL_ATTRIBUTE_BOOKMARK_AWARENESS_PANEL, {
       isBookmarked: false,
       eventX: null,
       eventY: null,
-    };
+    });
     this.chatService.sendInteractionResponse(message);
     /* Prepare and Send New Message - End */
 
@@ -910,13 +908,11 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
   onChangeDistributionPanelSort(model) {
     console.log(model);
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initializeNewMessage(this);
-    message.interactionType = InteractionTypes.CHANGE_DISTRIBUTION_PANEL_SORT;
-    message.data = {
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_DISTRIBUTION_PANEL_SORT, {
       sortBy: model,
       eventX: null,
       eventY: null,
-    };
+    });
     this.chatService.sendInteractionResponse(message);
     /* Prepare and Send New Message - End */
   }
@@ -926,13 +922,11 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
    */
   onChangeAttributePanelSort(model) {
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initializeNewMessage(this);
-    message.interactionType = InteractionTypes.CHANGE_ATTRIBUTE_PANEL_SORT;
-    message.data = {
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_ATTRIBUTE_PANEL_SORT, {
       sortBy: model,
       eventX: null,
       eventY: null,
-    };
+    });
     this.chatService.sendInteractionResponse(message);
     /* Prepare and Send New Message - End */
   }
@@ -966,14 +960,12 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
       this.collapseAccordion(attribute);
     }
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initializeNewMessage(this);
-    message.interactionType = InteractionTypes.TOGGLE_ATTRIBUTE_BOOKMARK_AWARENESS_PANEL;
-    message.data = {
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.TOGGLE_ATTRIBUTE_BOOKMARK_AWARENESS_PANEL, {
       attribute: attribute,
       isBookmarked: attrConfig["awarenessPanel"]["isBookmarked"],
       eventX: null,
       eventY: null,
-    };
+    });
     this.chatService.sendInteractionResponse(message);
     /* Prepare and Send New Message - End */
     if ($event) $event.stopPropagation();
@@ -1003,13 +995,11 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
       this.updateAwarenessPanel(); // Refresh the awareness panel visualizations
 
       /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initializeNewMessage(this);
-      message.interactionType = InteractionTypes.TOGGLE_ALL_ATTRIBUTE_ACCORDION_AWARENESS_PANEL;
-      message.data = {
+      let message = this.utilsService.initializeNewMessage(InteractionTypes.TOGGLE_ALL_ATTRIBUTE_ACCORDION_AWARENESS_PANEL, {
         isExpanded: true,
         eventX: null,
         eventY: null,
-      };
+      });
       this.chatService.sendInteractionResponse(message);
       /* Prepare and Send New Message - End */
     } else {
@@ -1018,14 +1008,12 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
       this.updateAwarenessPanel(attribute); // Refresh the awareness panel visualizations just for this attribute
 
       /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initializeNewMessage(this);
-      message.interactionType = InteractionTypes.TOGGLE_ATTRIBUTE_ACCORDION_AWARENESS_PANEL;
-      message.data = {
+      let message = this.utilsService.initializeNewMessage(InteractionTypes.TOGGLE_ATTRIBUTE_ACCORDION_AWARENESS_PANEL, {
         attribute: attribute,
         isExpanded: dataset["attributes"][attribute]["awarenessPanel"]["isExpanded"],
         eventX: null,
         eventY: null,
-      };
+      });
       this.chatService.sendInteractionResponse(message);
       /* Prepare and Send New Message - End */
     }
@@ -1044,13 +1032,11 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
       this.updateAwarenessPanel(); // Refresh the awareness panel visualizations
 
       /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initializeNewMessage(this);
-      message.interactionType = InteractionTypes.TOGGLE_ALL_ATTRIBUTE_ACCORDION_AWARENESS_PANEL;
-      message.data = {
+      let message = this.utilsService.initializeNewMessage(InteractionTypes.TOGGLE_ALL_ATTRIBUTE_ACCORDION_AWARENESS_PANEL, {
         isExpanded: false,
         eventX: null,
         eventY: null,
-      };
+      });
       this.chatService.sendInteractionResponse(message);
       /* Prepare and Send New Message - End */
     } else {
@@ -1059,14 +1045,12 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
       this.updateAwarenessPanel(attribute); // Refresh the awareness panel visualizations just for this attribute
 
       /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initializeNewMessage(this);
-      message.interactionType = InteractionTypes.TOGGLE_ATTRIBUTE_ACCORDION_AWARENESS_PANEL;
-      message.data = {
+      let message = this.utilsService.initializeNewMessage(InteractionTypes.TOGGLE_ATTRIBUTE_ACCORDION_AWARENESS_PANEL, {
         attribute: attribute,
         isExpanded: dataset["attributes"][attribute]["awarenessPanel"]["isExpanded"],
         eventX: null,
         eventY: null,
-      };
+      });
       this.chatService.sendInteractionResponse(message);
       /* Prepare and Send New Message - End */
     }
@@ -1083,14 +1067,12 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     this.updateVis();
 
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initializeNewMessage(this);
-    message.interactionType = InteractionTypes.SWAP_AXES_ATTRIBUTES;
-    message.data = {
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.SWAP_AXES_ATTRIBUTES, {
       x: dataset["xVar"],
       y: dataset["yVar"],
       eventX: null,
       eventY: null,
-    };
+    });
     this.chatService.sendInteractionResponse(message);
     /* Prepare and Send New Message - End */
   }
@@ -1104,13 +1086,11 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     dataset["attributeInteracted"][attribute] += 1;
 
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initializeNewMessage(this);
-    message.interactionType = InteractionTypes.ADD_FILTER;
-    message.data = {
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.ADD_FILTER, {
       attribute: attribute,
       eventX: null,
       eventY: null,
-    };
+    });
     this.chatService.sendInteractionResponse(message);
     /* Prepare and Send New Message - End */
   }
@@ -1136,13 +1116,11 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
 
     if (sendMessage) {
       /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initializeNewMessage(this);
-      message.interactionType = InteractionTypes.REMOVE_FILTER;
-      message.data = {
+      let message = this.utilsService.initializeNewMessage(InteractionTypes.REMOVE_FILTER, {
         attribute: attribute,
         eventX: null,
         eventY: null,
-      };
+      });
       this.chatService.sendInteractionResponse(message);
       /* Prepare and Send New Message - End */
     }
@@ -1158,12 +1136,10 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     if (updateVis) this.updateVis();
 
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initializeNewMessage(this);
-    message.interactionType = InteractionTypes.REMOVE_ALL_FILTERS;
-    message.data = {
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.REMOVE_ALL_FILTERS, {
       eventX: null,
       eventY: null,
-    };
+    });
     this.chatService.sendInteractionResponse(message);
     /* Prepare and Send New Message - End */
   }
@@ -1184,12 +1160,10 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     this.updateVis(); // only update the vis after all encodings are reset
 
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initializeNewMessage(this);
-    message.interactionType = InteractionTypes.REMOVE_ALL_ENCODINGS;
-    message.data = {
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.REMOVE_ALL_ENCODINGS, {
       eventX: null,
       eventY: null,
-    };
+    });
     this.chatService.sendInteractionResponse(message);
     /* Prepare and Send New Message - End */
   }
@@ -1204,15 +1178,13 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     }
     if (!reset) {
       /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initializeNewMessage(this);
-      message.interactionType = InteractionTypes.CHANGE_CHART_TYPE;
-      message.data = {
+      let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_CHART_TYPE, {
         chartChanged: dataset["chartType"],
         x: dataset["xVar"],
         y: dataset["yVar"],
         eventX: null,
         eventY: null,
-      };
+      });
       this.chatService.sendInteractionResponse(message);
       /* Prepare and Send New Message - End */
     }
@@ -1236,15 +1208,13 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     }
     if (!reset) {
       /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initializeNewMessage(this);
-      message.interactionType = InteractionTypes.CHANGE_AXIS_ATTRIBUTE;
-      message.data = {
+      let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_AXIS_ATTRIBUTE, {
         axisChanged: axis,
         x: dataset["xVar"],
         y: dataset["yVar"],
         eventX: null,
         eventY: null,
-      };
+      });
       this.chatService.sendInteractionResponse(message);
       /* Prepare and Send New Message - End */
     }
@@ -1253,15 +1223,13 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
   onChangeAggregation(event, updateVis = true) {
     let dataset = this.appConfig[this.global.appMode];
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initializeNewMessage(this);
-    message.interactionType = InteractionTypes.CHANGE_AGGREGATION;
-    message.data = {
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_AGGREGATION, {
       aggChanged: dataset["aggType"],
       x: dataset["xVar"],
       y: dataset["yVar"],
       eventX: null,
       eventY: null,
-    };
+    });
     this.chatService.sendInteractionResponse(message);
     /* Prepare and Send New Message - End */
     if (updateVis) {
@@ -1273,13 +1241,11 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
   onChangeAttributeColorByMode(event, reset = false, updateVis = true) {
     if (!reset) {
       /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initializeNewMessage(this);
-      message.interactionType = InteractionTypes.CHANGE_ATTRIBUTE_COLOR_BY_MODE;
-      message.data = {
+      let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_ATTRIBUTE_COLOR_BY_MODE, {
         colorBy: event,
         eventX: null,
         eventY: null,
-      };
+      });
       this.chatService.sendInteractionResponse(message);
       /* Prepare and Send New Message - End */
     }
@@ -1294,13 +1260,11 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     }
     if (!reset) {
       /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initializeNewMessage(this);
-      message.interactionType = InteractionTypes.CHANGE_VIS_COLOR_BY_MODE;
-      message.data = {
+      let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_VIS_COLOR_BY_MODE, {
         colorBy: dataset["colorByMode"],
         eventX: null,
         eventY: null,
-      };
+      });
       this.chatService.sendInteractionResponse(message);
       /* Prepare and Send New Message - End */
     }
@@ -1310,15 +1274,13 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     let dataset = this.appConfig[this.global.appMode];
     dataset["attributeInteracted"][attribute] += 1;
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initializeNewMessage(this);
-    message.interactionType = InteractionTypes.CHANGE_FILTER;
-    message.data = {
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_FILTER, {
       attribute: attribute,
       value: dataset["attributes"][attribute]["filterModel"],
       filterType: changeType,
       eventX: null,
       eventY: null,
-    };
+    });
     this.chatService.sendInteractionResponse(message);
     /* Prepare and Send New Message - End */
     this.updateVis();
@@ -1470,28 +1432,27 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
 
   sendPopupResponse() {
     if (!this.popupResponse.trim()) {
-        return;
+      return;
     }
     
     // Use the existing sendQuestionResponse method with user ID
     this.chatService.sendQuestionResponse(
-        this.questionId,
-        this.popupResponse,
-        this.popupQuestion
+      this.questionId,
+      this.popupResponse,
+      this.popupQuestion
     );
 
-    // Prepare and send a new message
-    let message = this.utilsService.initializeNewMessage(this);
+    /* Prepare and Send New Message - Start */
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.QUESTION_RESPONSE, {
+      questionId: this.questionId,
+      question: this.popupQuestion,
+      response: this.popupResponse,
+      timestamp: new Date().toISOString()
+    });
+    this.chatService.sendInteractionResponse(message);
+    /* Prepare and Send New Message - End */
 
-    // Also log locally with user ID
-    const responseLog = {
-        userId: message.participantId,
-        questionId: this.questionId,
-        question: this.popupQuestion,
-        response: this.popupResponse,
-        timestamp: new Date().toISOString()
-    };
-    this.popupResponse = '';  // Clear the response after sending
+    this.popupResponse = '';
     this.isPopupVisible = false;
   }
 
@@ -1503,15 +1464,15 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
       return;
     }
     
-    // Prepare and send a new message
-    let message = this.utilsService.initializeNewMessage(this);
-    message.data = {
+    /* Prepare and Send New Message - Start */
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.SAVE_USER_INSIGHT, {
       insight: this.userInsight,
       timestamp: new Date().toISOString(),
-      participantId: this.global.participantId,
-      group: "control"
-    };
+      group: "socratic",
+      participantId: localStorage.getItem('userId')
+    });
     this.chatService.sendInsights(message);
+    /* Prepare and Send New Message - End */
     
     // Add to past insights array
     this.pastInsights.unshift({

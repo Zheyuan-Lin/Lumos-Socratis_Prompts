@@ -7,6 +7,16 @@ import { Message } from "../models/message";
 
 @Injectable()
 export class UtilsService {
+  appMode: string;
+  appType: string;
+  appLevel: string;
+
+  constructor() {
+    this.appMode = "synthetic_voters_v14.csv";
+    this.appType = "AWARENESS";
+    this.appLevel = "live";
+  }
+
   /**
    * Generates a random alphanumeric string of `length` characters.
    */
@@ -176,19 +186,26 @@ export class UtilsService {
   /**
    * Returns new message object for communicating with backend server.
    */
-  initializeNewMessage(context) {
-    let chartType = context.appConfig[context.global.appMode]["chartType"];
-    let message = new Message();
-    (message.appMode = context.global.appMode),
-    (message.appType = context.global.appType),
-    (message.appLevel = context.global.appLevel),
-    (message.chartType = chartType),
-    (message.interactionType = ""),
-    (message.interactionDuration = 0),
-    (message.interactionAt = this.getCurrentTime()),
-    (message.participantId = context.global.participantId),
-    (message.data = {});
-    return message;
+  initializeNewMessage(interactionType: string, data: any = {}): Message {
+    const participantId = localStorage.getItem('userId');
+    if (!participantId) {
+      throw new Error('Participant ID not found in local storage');
+    }
+
+    return {
+      appMode: this.appMode,
+      appType: this.appType,
+      appLevel: this.appLevel,
+      chartType: '',
+      interactionType,
+      interactionDuration: 0,
+      interactionAt: new Date().toISOString(),
+      createdAt: new Date().getTime(),
+      participantId,
+      data,
+      eventX: 0,
+      eventY: 0
+    };
   }
 
   /**

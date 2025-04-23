@@ -156,8 +156,17 @@ async def on_interaction(sid, data):
         CLIENTS[pid]["bias_logs"].append(data)
         metrics = bias.compute_metrics(app_mode, CLIENTS[pid]["bias_logs"])
         response["output_data"] = metrics
-    else:
-        response["output_data"] = None
+        
+# Create simplified interaction data
+    simplified_data = {
+        "participant_id": pid,
+        "interaction_type": interaction_type,
+        "group": "control",
+        "timestamp": data["interactionAt"]
+    }
+            # Store in Firestore
+    db.collection('interactions').add(simplified_data)
+    print(f"Stored interaction successfully")
 
     # save response
     CLIENTS[pid]["response_list"].append(response)
