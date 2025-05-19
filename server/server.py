@@ -161,12 +161,17 @@ async def on_interaction(sid, data):
     simplified_data = {
         "participant_id": pid,
         "interaction_type": interaction_type,
+        "interacted_value": data["data"],
         "group": "socratic",
         "timestamp": data["interactionAt"]
     }
-            # Store in Firestore
-    db.collection('interactions').add(simplified_data)
-    print(f"Stored interaction successfully")
+    try:
+        # Store in Firestore
+        db.collection('interactions').add(simplified_data)
+        print(f"Stored interaction: {simplified_data}")
+    except Exception as e:
+        print(f"Error storing interaction: {e}")
+
 
 
 
@@ -226,6 +231,26 @@ async def on_insight(sid, data):
         
     except Exception as e:
         print(f"Error storing insight: {e}")
+
+
+@SIO.event
+async def recieve_interaction(sid, data):
+    interaction_type = data["interactionType"] # Interaction type - eg. hover, click
+    pid = data["participantId"]
+
+    simplified_data = {
+        "participant_id": pid,
+        "interaction_type": interaction_type,
+        "interacted_value": data["data"],
+        "group": "socratic",
+        "timestamp": data["interactionAt"]
+    }
+    try:
+        # Store in Firestore
+        db.collection('interactions').add(simplified_data)
+        print(f"Stored interaction: {simplified_data}")
+    except Exception as e:
+        print(f"Error storing interaction: {e}")
 
 if __name__ == "__main__":
     bias.precompute_distributions()

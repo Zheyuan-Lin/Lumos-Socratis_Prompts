@@ -208,6 +208,22 @@ export class UtilsService {
     };
   }
 
+  initialize(interactionType: string, data: any = {}): any {
+    const participantId = localStorage.getItem('userId');
+    let message = {
+      appMode: this.appMode,
+      appType: this.appType,
+      appLevel: this.appLevel,
+      chartType: '',
+      interactionType,
+      interactionDuration: 0,
+      interactionAt: new Date().toISOString(),
+      createdAt: new Date().getTime(),
+      participantId,
+      data
+    }
+    return message;
+  }
   /**
    * Adds the selected item to an object of selected datapoints.
    */
@@ -317,7 +333,7 @@ export class UtilsService {
         let startTime = context.userConfig["hoverStartTime"];
         let currentTime = this_.getCurrentTime();
         message.interactionDuration = currentTime - startTime;
-        context.chatService.sendInteractionResponse(message);
+        context.chatService.sendInteraction(message);
         /* Prepare and Send New Message - End */
       }, delay);
     }
@@ -340,7 +356,7 @@ export class UtilsService {
       let startTime = context.userConfig["hoverStartTime"];
       let currentTime = this.getCurrentTime();
       message.interactionDuration = currentTime - startTime;
-      context.chatService.sendInteractionResponse(message);
+      context.chatService.sendInteraction(message);
       /* Prepare and Send New Message - End */
     }
   }
