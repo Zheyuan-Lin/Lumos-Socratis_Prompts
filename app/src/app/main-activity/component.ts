@@ -17,8 +17,9 @@ import { DotPlot } from "../visualizations/main/dot-plot-component";
 import { BarChart } from "../visualizations/main/bar-chart-component";
 import { LineChart } from "../visualizations/main/line-chart-component";
 import { AttributeDistributionPlotConfig } from "../visualizations/awareness/component";
-import { Question } from '../models/question';
-import { MessageService } from "../services/message.service";
+
+import { Insight } from "../models/message";
+import { Question } from "../models/message";
 
 window.addEventListener("beforeunload", function (e) {
   // Cancel the event
@@ -70,7 +71,8 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
   pastInsights: Array<{text: string, timestamp: string}> = []; // Array to store past insights
   canContinue: boolean = false; // Flag to track if user can continue (5+ insights)
   showCopied: boolean = false;
-  timeRemaining: number = 20 * 60; // 20 minutes in seconds
+  //timeRemaining: number = 20 * 60; // 20 minutes in seconds
+  timeRemaining: number = 10; // 10 seconds
   timerInterval: any;
   canContinueTime: boolean = false;
 
@@ -81,7 +83,6 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     private router: Router,
     public global: SessionPage,
     private sanitizer: DomSanitizer,
-    private messageService: MessageService
   ) {
     this.objectKeys = Object.keys; // to help iterate over objects with *ngFor
     this.objectValues = Object.values; // to help iterate over objects with *ngFor
@@ -134,7 +135,9 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
         this.global.appMode = "cars.csv";
         break;
       case "live":
+        //this.global.appMode = "credit_risk.csv";
         this.global.appMode = "synthetic_voters_v14.csv";
+        //this.global.appMode = "euro.csv";
         break;
     }
     switch (this.global.appType) {
@@ -891,11 +894,12 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     this.collapseAccordion();
 
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initializeNewMessage(InteractionTypes.TOGGLE_ALL_ATTRIBUTE_BOOKMARK_AWARENESS_PANEL, {
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.TOGGLE_ALL_ATTRIBUTE_BOOKMARK_AWARENESS_PANEL);
+    message.data = {
       isBookmarked: false,
       eventX: null,
       eventY: null,
-    });
+    };
     this.chatService.sendInteractionResponse(message);
     /* Prepare and Send New Message - End */
 
@@ -908,11 +912,12 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
   onChangeDistributionPanelSort(model) {
     console.log(model);
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_DISTRIBUTION_PANEL_SORT, {
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_DISTRIBUTION_PANEL_SORT);
+    message.data = {
       sortBy: model,
       eventX: null,
       eventY: null,
-    });
+    };
     this.chatService.sendInteractionResponse(message);
     /* Prepare and Send New Message - End */
   }
@@ -922,11 +927,12 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
    */
   onChangeAttributePanelSort(model) {
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_ATTRIBUTE_PANEL_SORT, {
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_ATTRIBUTE_PANEL_SORT);
+    message.data = {
       sortBy: model,
       eventX: null,
       eventY: null,
-    });
+    };
     this.chatService.sendInteractionResponse(message);
     /* Prepare and Send New Message - End */
   }
@@ -960,12 +966,13 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
       this.collapseAccordion(attribute);
     }
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initializeNewMessage(InteractionTypes.TOGGLE_ATTRIBUTE_BOOKMARK_AWARENESS_PANEL, {
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.TOGGLE_ATTRIBUTE_BOOKMARK_AWARENESS_PANEL);
+    message.data = {
       attribute: attribute,
       isBookmarked: attrConfig["awarenessPanel"]["isBookmarked"],
       eventX: null,
       eventY: null,
-    });
+    };
     this.chatService.sendInteractionResponse(message);
     /* Prepare and Send New Message - End */
     if ($event) $event.stopPropagation();
@@ -995,11 +1002,12 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
       this.updateAwarenessPanel(); // Refresh the awareness panel visualizations
 
       /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initializeNewMessage(InteractionTypes.TOGGLE_ALL_ATTRIBUTE_ACCORDION_AWARENESS_PANEL, {
+      let message = this.utilsService.initializeNewMessage(InteractionTypes.TOGGLE_ALL_ATTRIBUTE_ACCORDION_AWARENESS_PANEL);
+      message.data = {
         isExpanded: true,
         eventX: null,
         eventY: null,
-      });
+      };
       this.chatService.sendInteractionResponse(message);
       /* Prepare and Send New Message - End */
     } else {
@@ -1008,12 +1016,13 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
       this.updateAwarenessPanel(attribute); // Refresh the awareness panel visualizations just for this attribute
 
       /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initializeNewMessage(InteractionTypes.TOGGLE_ATTRIBUTE_ACCORDION_AWARENESS_PANEL, {
+      let message = this.utilsService.initializeNewMessage(InteractionTypes.TOGGLE_ATTRIBUTE_ACCORDION_AWARENESS_PANEL);
+      message.data = {
         attribute: attribute,
         isExpanded: dataset["attributes"][attribute]["awarenessPanel"]["isExpanded"],
         eventX: null,
         eventY: null,
-      });
+      };
       this.chatService.sendInteractionResponse(message);
       /* Prepare and Send New Message - End */
     }
@@ -1032,11 +1041,12 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
       this.updateAwarenessPanel(); // Refresh the awareness panel visualizations
 
       /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initializeNewMessage(InteractionTypes.TOGGLE_ALL_ATTRIBUTE_ACCORDION_AWARENESS_PANEL, {
+      let message = this.utilsService.initializeNewMessage(InteractionTypes.TOGGLE_ALL_ATTRIBUTE_ACCORDION_AWARENESS_PANEL);
+      message.data = {
         isExpanded: false,
         eventX: null,
         eventY: null,
-      });
+      };
       this.chatService.sendInteractionResponse(message);
       /* Prepare and Send New Message - End */
     } else {
@@ -1045,12 +1055,13 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
       this.updateAwarenessPanel(attribute); // Refresh the awareness panel visualizations just for this attribute
 
       /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initializeNewMessage(InteractionTypes.TOGGLE_ATTRIBUTE_ACCORDION_AWARENESS_PANEL, {
+      let message = this.utilsService.initializeNewMessage(InteractionTypes.TOGGLE_ATTRIBUTE_ACCORDION_AWARENESS_PANEL);
+      message.data = {
         attribute: attribute,
         isExpanded: dataset["attributes"][attribute]["awarenessPanel"]["isExpanded"],
         eventX: null,
         eventY: null,
-      });
+      };
       this.chatService.sendInteractionResponse(message);
       /* Prepare and Send New Message - End */
     }
@@ -1067,7 +1078,6 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     this.updateVis();
     /* Prepare and Send New Message - Start */
     let message = this.utilsService.initialize(InteractionTypes.SWAP_AXES_ATTRIBUTES);
-
     this.chatService.sendInteraction(message);
     /* Prepare and Send New Message - End */
   }
@@ -1225,11 +1235,12 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
   onChangeAttributeColorByMode(event, reset = false, updateVis = true) {
     if (!reset) {
       /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_ATTRIBUTE_COLOR_BY_MODE, {
+      let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_ATTRIBUTE_COLOR_BY_MODE);
+      message.data = {
         colorBy: event,
         eventX: null,
         eventY: null,
-      });
+      };
       this.chatService.sendInteractionResponse(message);
       /* Prepare and Send New Message - End */
     }
@@ -1244,11 +1255,12 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     }
     if (!reset) {
       /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_VIS_COLOR_BY_MODE, {
+      let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_VIS_COLOR_BY_MODE);
+      message.data = {
         colorBy: dataset["colorByMode"],
         eventX: null,
         eventY: null,
-      });
+      };
       this.chatService.sendInteractionResponse(message);
       /* Prepare and Send New Message - End */
     }
@@ -1415,27 +1427,18 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
 
   sendPopupResponse() {
     if (!this.popupResponse.trim()) {
-      return;
+        return;
     }
     
     // Use the existing sendQuestionResponse method with user ID
     this.chatService.sendQuestionResponse(
-      this.questionId,
-      this.popupResponse,
-      this.popupQuestion
+        this.questionId,
+        this.popupQuestion,
+        this.popupResponse
+
     );
 
-    /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initializeNewMessage(InteractionTypes.QUESTION_RESPONSE, {
-      questionId: this.questionId,
-      question: this.popupQuestion,
-      response: this.popupResponse,
-      timestamp: new Date().toISOString()
-    });
-    this.chatService.sendInteractionResponse(message);
-    /* Prepare and Send New Message - End */
-
-    this.popupResponse = '';
+    this.popupResponse = '';  // Clear the response after sending
     this.isPopupVisible = false;
   }
 
@@ -1444,26 +1447,26 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
    */
   saveUserInsight() {
     if (!this.userInsight.trim()) {
-      return;
+        return;
     }
     
-    /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initializeNewMessage(InteractionTypes.SAVE_USER_INSIGHT, {
-      insight: this.userInsight,
-      timestamp: new Date().toISOString(),
-      group: "socratic",
-      participantId: localStorage.getItem('userId')
-    });
+    // Prepare the message
+    let message = new Insight();
+    message.insight = this.userInsight;
+    message.timestamp = new Date().toISOString();
+    message.group = "control";
+    message.participantId = localStorage.getItem('userId');
+
+    // Send to backend via websocket
     this.chatService.sendInsights(message);
-    /* Prepare and Send New Message - End */
     
-    // Add to past insights array
+    // Add to past insights array in frontend
     this.pastInsights.unshift({
-      text: this.userInsight,
-      timestamp: new Date().toLocaleString()
+        text: this.userInsight,
+        timestamp: new Date().toLocaleString()
     });
     
-    // Check if user can continue (has 5+ insights)
+    // Update continue button state
     this.canContinue = this.pastInsights.length >= 5;
     
     // Clear the insight field after sending
@@ -1471,15 +1474,22 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Handle continue action when user has saved at least 5 insights
+   * Handle continue action when user has saved at least 5 insights and timer is complete
    */
   continueAfterInsights() {
-    if (this.pastInsights.length >= 5) {
+    if (this.pastInsights.length >= 5 && this.canContinueTime) {
+      // Save any pending data
+      this.chatService.sendMessageToSaveLogs();
+      this.chatService.removeAllListenersAndDisconnectFromSocket();
+      
+      // Update completion status
+      this.global["app-" + this.global.appLevel]["completed"] = true;
+      this.global["app-" + this.global.appLevel]["timestamp"] = new Date().toLocaleString();
+      
       // Navigate to post survey with userId
-      const userId = localStorage.getItem('userId');
       this.router.navigate(['/post'], { 
         queryParams: { 
-          userId: userId 
+          userId: this.userId 
         }
       });
     }
@@ -1491,20 +1501,20 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
   private handleIncomingQuestion(questionData: Question): void {
     console.log("Processing incoming question:", questionData);
     
-    // Store the question for tracking
-    const newQuestion: Question = {
-      id: questionData.id,
-      text: questionData.text,
-      timestamp: questionData.timestamp,
-      type: questionData.type
-    };
+    // Update the current question
+    this.currentQuestion = questionData;
     
-    // Update UI with the question
-    this.popupQuestion = newQuestion.text;
-    this.questionId = newQuestion.id;
-    this.isMinimized = false;
+    // Update popup information
+    this.popupQuestion = questionData.text;
+    this.questionId = questionData.id;
+    
+    // Show the popup
     this.isPopupVisible = true;
     
+  }
+
+  onContinue() {
+    this.continueAfterInsights();
   }
 
   copyUserId(): void {

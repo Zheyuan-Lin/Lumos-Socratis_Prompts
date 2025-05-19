@@ -1,11 +1,27 @@
 export class Message {
-  interactionAt: number;
-  interactionDuration: number;
+  appMode: string;
   appType: string;
   appLevel: string;
-  appMode: string;
   chartType: string;
   interactionType: string;
+  interactionDuration: number;
+  interactionAt: string;
   participantId: string;
-  data: object;
+  createdAt: number;
+  data: any;
+  eventX: number;
+  eventY: number;
+  
+} 
+export class Insight {
+        insight: string;
+        timestamp: string;
+        group: string;
+        participantId: string;
+}
+export interface Question {
+  type: 'question';
+  id: string;
+  text: string;
+  timestamp: string;
 }

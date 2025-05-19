@@ -200,9 +200,9 @@ export class UtilsService {
       interactionType,
       interactionDuration: 0,
       interactionAt: new Date().toISOString(),
-      createdAt: new Date().getTime(),
       participantId,
       data,
+      createdAt: new Date().getTime(),
       eventX: 0,
       eventY: 0
     };
@@ -218,7 +218,6 @@ export class UtilsService {
       interactionType,
       interactionDuration: 0,
       interactionAt: new Date().toISOString(),
-      createdAt: new Date().getTime(),
       participantId,
       data
     }
@@ -350,7 +349,7 @@ export class UtilsService {
     };
     message.data["eventX"] = event.clientX;
     message.data["eventY"] = event.clientY;
-    context.chatService.sendInteractionResponse(message);
+    context.chatService.sendInteraction(message);
     /* Prepare and Send New Message - End */
   }
 
@@ -372,6 +371,21 @@ export class UtilsService {
         let startTime = context.userConfig["hoverStartTime"];
         let currentTime = this_.getCurrentTime();
         message.interactionDuration = currentTime - startTime;
+        message.interactionType = InteractionTypes.MOUSEOVER_ITEM;
+        message.data = {
+          id: d[dataset["primaryKey"]],
+          x: {
+            name: dataset["xVar"],
+            value: d["xVar"]
+          },
+          y: {
+            name: dataset["yVar"],
+            value: d["yVar"]
+          },
+          pointData: d, // Include all point data
+          eventX: event.clientX,
+          eventY: event.clientY
+        };
         context.chatService.sendInteraction(message);
         /* Prepare and Send New Message - End */
       }, delay);
@@ -395,6 +409,21 @@ export class UtilsService {
       let startTime = context.userConfig["hoverStartTime"];
       let currentTime = this.getCurrentTime();
       message.interactionDuration = currentTime - startTime;
+      message.interactionType = InteractionTypes.MOUSEOUT_ITEM;
+      message.data = {
+        id: d[dataset["primaryKey"]],
+        x: {
+          name: dataset["xVar"],
+          value: d["xVar"]
+        },
+        y: {
+          name: dataset["yVar"],
+          value: d["yVar"]
+        },
+        pointData: d, // Include all point data
+        eventX: event.clientX,
+        eventY: event.clientY
+      };
       context.chatService.sendInteraction(message);
       /* Prepare and Send New Message - End */
     }
