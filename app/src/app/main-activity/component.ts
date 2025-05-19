@@ -1065,15 +1065,10 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     dataset["xVar"] = dataset["yVar"];
     dataset["yVar"] = xVar;
     this.updateVis();
-
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initializeNewMessage(InteractionTypes.SWAP_AXES_ATTRIBUTES, {
-      x: dataset["xVar"],
-      y: dataset["yVar"],
-      eventX: null,
-      eventY: null,
-    });
-    this.chatService.sendInteractionResponse(message);
+    let message = this.utilsService.initialize(InteractionTypes.SWAP_AXES_ATTRIBUTES);
+
+    this.chatService.sendInteraction(message);
     /* Prepare and Send New Message - End */
   }
 
@@ -1086,12 +1081,11 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     dataset["attributeInteracted"][attribute] += 1;
 
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initializeNewMessage(InteractionTypes.ADD_FILTER, {
-      attribute: attribute,
-      eventX: null,
-      eventY: null,
-    });
-    this.chatService.sendInteractionResponse(message);
+    let message = this.utilsService.initialize(InteractionTypes.ADD_FILTER);
+    message.data = {
+      attribute: attribute
+    };
+    this.chatService.sendInteraction(message);
     /* Prepare and Send New Message - End */
   }
 
@@ -1116,12 +1110,11 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
 
     if (sendMessage) {
       /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initializeNewMessage(InteractionTypes.REMOVE_FILTER, {
-        attribute: attribute,
-        eventX: null,
-        eventY: null,
-      });
-      this.chatService.sendInteractionResponse(message);
+      let message = this.utilsService.initialize(InteractionTypes.REMOVE_FILTER);
+      message.data = {
+        attribute: attribute
+      };
+      this.chatService.sendInteraction(message);
       /* Prepare and Send New Message - End */
     }
   }
@@ -1136,11 +1129,8 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     if (updateVis) this.updateVis();
 
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initializeNewMessage(InteractionTypes.REMOVE_ALL_FILTERS, {
-      eventX: null,
-      eventY: null,
-    });
-    this.chatService.sendInteractionResponse(message);
+    let message = this.utilsService.initialize(InteractionTypes.REMOVE_ALL_FILTERS);
+    this.chatService.sendInteraction(message);
     /* Prepare and Send New Message - End */
   }
 
@@ -1160,11 +1150,8 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     this.updateVis(); // only update the vis after all encodings are reset
 
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initializeNewMessage(InteractionTypes.REMOVE_ALL_ENCODINGS, {
-      eventX: null,
-      eventY: null,
-    });
-    this.chatService.sendInteractionResponse(message);
+    let message = this.utilsService.initialize(InteractionTypes.REMOVE_ALL_ENCODINGS);
+    this.chatService.sendInteraction(message);
     /* Prepare and Send New Message - End */
   }
 
@@ -1178,14 +1165,13 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     }
     if (!reset) {
       /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_CHART_TYPE, {
+      let message = this.utilsService.initialize(InteractionTypes.CHANGE_CHART_TYPE);
+      message.data = {
         chartChanged: dataset["chartType"],
         x: dataset["xVar"],
-        y: dataset["yVar"],
-        eventX: null,
-        eventY: null,
-      });
-      this.chatService.sendInteractionResponse(message);
+        y: dataset["yVar"]
+      };
+      this.chatService.sendInteraction(message);
       /* Prepare and Send New Message - End */
     }
   }
@@ -1208,14 +1194,13 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     }
     if (!reset) {
       /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_AXIS_ATTRIBUTE, {
+      let message = this.utilsService.initialize(InteractionTypes.CHANGE_AXIS_ATTRIBUTE);
+      message.data = {
         axisChanged: axis,
         x: dataset["xVar"],
-        y: dataset["yVar"],
-        eventX: null,
-        eventY: null,
-      });
-      this.chatService.sendInteractionResponse(message);
+        y: dataset["yVar"]
+      };
+      this.chatService.sendInteraction(message);
       /* Prepare and Send New Message - End */
     }
   }
@@ -1223,14 +1208,13 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
   onChangeAggregation(event, updateVis = true) {
     let dataset = this.appConfig[this.global.appMode];
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_AGGREGATION, {
+    let message = this.utilsService.initialize(InteractionTypes.CHANGE_AGGREGATION);
+    message.data = {
       aggChanged: dataset["aggType"],
       x: dataset["xVar"],
-      y: dataset["yVar"],
-      eventX: null,
-      eventY: null,
-    });
-    this.chatService.sendInteractionResponse(message);
+      y: dataset["yVar"]
+    };
+    this.chatService.sendInteraction(message);
     /* Prepare and Send New Message - End */
     if (updateVis) {
       initializePlotInstance(this, this.currentPlotType);
@@ -1274,14 +1258,13 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     let dataset = this.appConfig[this.global.appMode];
     dataset["attributeInteracted"][attribute] += 1;
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_FILTER, {
+    let message = this.utilsService.initialize(InteractionTypes.CHANGE_FILTER);
+    message.data = {
       attribute: attribute,
       value: dataset["attributes"][attribute]["filterModel"],
       filterType: changeType,
-      eventX: null,
-      eventY: null,
-    });
-    this.chatService.sendInteractionResponse(message);
+    };
+    this.chatService.sendInteraction(message);
     /* Prepare and Send New Message - End */
     this.updateVis();
   }

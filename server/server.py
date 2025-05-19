@@ -157,22 +157,21 @@ async def on_interaction(sid, data):
         metrics = bias.compute_metrics(app_mode, CLIENTS[pid]["bias_logs"])
         response["output_data"] = metrics
         
-# Create simplified interaction data
+            # Create simplified interaction data
     simplified_data = {
         "participant_id": pid,
         "interaction_type": interaction_type,
-        "group": "control",
+        "interacted_value": data["data"],
+        "group": "socratic",
         "timestamp": data["interactionAt"]
     }
-            # Store in Firestore
-    db.collection('interactions').add(simplified_data)
-    print(f"Stored interaction successfully")
+    try:
+        # Store in Firestore
+        db.collection('interactions').add(simplified_data)
+        print(f"Stored interaction: {simplified_data}")
+    except Exception as e:
+        print(f"Error storing interaction: {e}")
 
-    # save response
-    CLIENTS[pid]["response_list"].append(response)
-
-    await SIO.emit("log", response)  # send this to all
-    await SIO.emit("interaction_response", response, room=sid)
 
 
 
@@ -203,10 +202,10 @@ async def receive_external_question(sid, question_data):
 async def on_question_response(sid, data):
     response = {
         "question_id": data.get("question_id"),
+        "question": data.get("question"),
         "response": data.get("response"),
         "participant_id": data.get("participant_id"),
-        "timestamp": datetime.now().isoformat(),
-        "question": data.get("question")
+        "timestamp": datetime.now().isoformat()
     }
     try:
         # Store in Firestore
@@ -216,25 +215,59 @@ async def on_question_response(sid, data):
     except Exception as e:
         print(f"Error storing response: {e}")
 
-
 @SIO.event
 async def on_insight(sid, data):
     insight = {
-        "text": data.get("data", {}).get("insight"),
-        "timestamp": data.get("data", {}).get("timestamp"),
-        "group": data.get("data", {}).get("group"),
+        "text": data.get("insight"),
+        "timestamp": data.get("timestamp"),
+        "group": data.get("group"),
         "participant_id": data.get("participantId")
     }
     try:
-        # Store in Firestore
         db.collection('insights').add(insight)
         print(f"Stored insight: {insight}")
-        
     except Exception as e:
         print(f"Error storing insight: {e}")
+
+
+@SIO.event
+async def recieve_interaction(sid, data):
+    interaction_type = data["interactionType"]  # Interaction type - eg. hover, click
+    pid = data["participantId"]
+
+    # Extract point data and interaction details
+    point_data = data.get("data", {})
+    interaction_details = {
+        "participant_id": pid,
+        "interaction_type": interaction_type,
+        "interacted_value": data["data"],
+        "group": "socratic",
+        "interaction_at": data["interactionAt"],
+        "interaction_duration": data.get("interactionDuration", 0),
+        "point_id": point_data.get("id"),
+        "x_axis": {
+            "name": point_data.get("x", {}).get("name"),
+            "value": point_data.get("x", {}).get("value")
+        },
+        "y_axis": {
+            "name": point_data.get("y", {}).get("name"),
+            "value": point_data.get("y", {}).get("value")
+        },
+        "point_data": point_data.get("pointData", {}),  # Complete point data
+        "mouse_position": {
+            "x": point_data.get("eventX"),
+            "y": point_data.get("eventY")
+        }
+    }
+
+    try:
+        # Store in Firestore
+        db.collection('interactions').add(interaction_details)
+        print(f"Stored interaction: {interaction_details}")
+    except Exception as e:
+        print(f"Error storing interaction: {e}")
 
 if __name__ == "__main__":
     bias.precompute_distributions()
     port = int(os.environ.get("PORT", 3000))
     web.run_app(APP, port=port)
-
