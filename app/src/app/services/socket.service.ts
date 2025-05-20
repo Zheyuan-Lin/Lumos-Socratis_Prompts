@@ -88,36 +88,9 @@ export class ChatService {
       return obj;
     }));
   }
-
-  onInsightSaved() {
-    return this.vizSocket.fromEvent("insight_saved").pipe(map((obj) => {
-      return obj;
-    }));
-  }
-
-  onInsightError() {
-    return this.vizSocket.fromEvent("insight_error").pipe(map((obj) => {
-      return obj;
-    }));
-  }
+  
 
   sendInsights(payload) {
-    console.log('Attempting to send insight:', payload);
-    if (this.vizSocket.ioSocket.connected) {
-      console.log('Socket is connected, sending insight...');
-      this.vizSocket.emit("on_insight", payload);
-    } else {
-      console.error('Socket not connected, attempting to reconnect...');
-      this.connectToSocket();
-      // Try to send again after a short delay
-      setTimeout(() => {
-        if (this.vizSocket.ioSocket.connected) {
-          console.log('Socket reconnected, sending insight...');
-          this.vizSocket.emit("on_insight", payload);
-        } else {
-          console.error('Failed to reconnect socket');
-        }
-      }, 1000);
-    }
+    this.vizSocket.emit("on_insight", payload);
   }
 }

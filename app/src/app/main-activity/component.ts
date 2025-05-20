@@ -1451,40 +1451,28 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     }
     
     // Prepare the message
-    let message = this.utilsService.initializeNewMessage(InteractionTypes.SAVE_USER_INSIGHT);
-    message.data = {
-      insight: this.userInsight,
-      timestamp: new Date().toISOString(),
-      group: "control",
-      participantId: localStorage.getItem('userId')
-    };
-
-    // Subscribe to insight events
-    this.chatService.onInsightSaved().subscribe((response) => {
-      console.log('Insight saved successfully:', response);
-      // Add to past insights array in frontend
-      this.pastInsights.unshift({
-          text: this.userInsight,
-          timestamp: new Date().toLocaleString()
-      });
-      
-      // Update continue button state
-      this.canContinue = this.pastInsights.length >= 5;
-      
-      // Clear the insight field after sending
-      this.userInsight = '';
-    });
-
-    this.chatService.onInsightError().subscribe((error) => {
-      console.error('Error saving insight:', error);
-      // Optionally show error to user
-      alert('Failed to save insight. Please try again.');
-    });
-
+    let message = new Insight();
+    message.text = this.userInsight;
+    message.timestamp = new Date().toISOString();
+    message.group = "interaction_trace";
+    message.participantId = localStorage.getItem('userId');
+    
     // Send to backend via websocket
     this.chatService.sendInsights(message);
-  }
+    
 
+        this.pastInsights.unshift({
+          text: this.userInsight,
+          timestamp: new Date().toLocaleString()
+        });
+        
+        // Update continue button state
+        this.canContinue = this.pastInsights.length >= 5;
+        
+        // Clear the insight field after sending
+        this.userInsight = '';
+      }
+    
   /**
    * Handle continue action when user has saved at least 5 insights and timer is complete
    */

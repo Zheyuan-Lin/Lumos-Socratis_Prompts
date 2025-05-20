@@ -14,7 +14,7 @@ export class Message {
   
 } 
 export class Insight {
-        insight: string;
+        text: string;
         timestamp: string;
         group: string;
         participantId: string;
