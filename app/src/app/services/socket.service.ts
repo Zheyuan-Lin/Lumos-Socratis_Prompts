@@ -3,6 +3,7 @@ import { Injectable } from "@angular/core";
 import { Socket } from "ngx-socket-io";
 import { map } from "rxjs/operators";
 import { SessionPage } from "../models/config";
+import { Observable, Subject } from "rxjs";
 
 @Injectable()
 export class ChatService {
@@ -12,7 +13,14 @@ export class ChatService {
   ) {}
 
   connectToSocket() {
+    console.log('Attempting to connect to socket...');
     this.vizSocket.connect();
+    this.vizSocket.on('connect', () => {
+      console.log('Socket connected successfully');
+    });
+    this.vizSocket.on('connect_error', (error) => {
+      console.error('Socket connection error:', error);
+    });
   }
 
   removeAllListenersAndDisconnectFromSocket() {
@@ -81,7 +89,35 @@ export class ChatService {
     }));
   }
 
+  onInsightSaved() {
+    return this.vizSocket.fromEvent("insight_saved").pipe(map((obj) => {
+      return obj;
+    }));
+  }
+
+  onInsightError() {
+    return this.vizSocket.fromEvent("insight_error").pipe(map((obj) => {
+      return obj;
+    }));
+  }
+
   sendInsights(payload) {
-    this.vizSocket.emit("on_insight", payload);
+    console.log('Attempting to send insight:', payload);
+    if (this.vizSocket.ioSocket.connected) {
+      console.log('Socket is connected, sending insight...');
+      this.vizSocket.emit("on_insight", payload);
+    } else {
+      console.error('Socket not connected, attempting to reconnect...');
+      this.connectToSocket();
+      // Try to send again after a short delay
+      setTimeout(() => {
+        if (this.vizSocket.ioSocket.connected) {
+          console.log('Socket reconnected, sending insight...');
+          this.vizSocket.emit("on_insight", payload);
+        } else {
+          console.error('Failed to reconnect socket');
+        }
+      }, 1000);
+    }
   }
 }

@@ -1077,8 +1077,8 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     dataset["yVar"] = xVar;
     this.updateVis();
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initialize(InteractionTypes.SWAP_AXES_ATTRIBUTES);
-    this.chatService.sendInteraction(message);
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.SWAP_AXES_ATTRIBUTES);
+    this.chatService.sendInteractionResponse(message);
     /* Prepare and Send New Message - End */
   }
 
@@ -1091,11 +1091,11 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     dataset["attributeInteracted"][attribute] += 1;
 
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initialize(InteractionTypes.ADD_FILTER);
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.ADD_FILTER);
     message.data = {
       attribute: attribute
     };
-    this.chatService.sendInteraction(message);
+    this.chatService.sendInteractionResponse(message);
     /* Prepare and Send New Message - End */
   }
 
@@ -1120,11 +1120,11 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
 
     if (sendMessage) {
       /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initialize(InteractionTypes.REMOVE_FILTER);
+      let message = this.utilsService.initializeNewMessage(InteractionTypes.REMOVE_FILTER);
       message.data = {
         attribute: attribute
       };
-      this.chatService.sendInteraction(message);
+      this.chatService.sendInteractionResponse(message);
       /* Prepare and Send New Message - End */
     }
   }
@@ -1139,8 +1139,8 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     if (updateVis) this.updateVis();
 
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initialize(InteractionTypes.REMOVE_ALL_FILTERS);
-    this.chatService.sendInteraction(message);
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.REMOVE_ALL_FILTERS);
+    this.chatService.sendInteractionResponse(message);
     /* Prepare and Send New Message - End */
   }
 
@@ -1160,8 +1160,8 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     this.updateVis(); // only update the vis after all encodings are reset
 
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initialize(InteractionTypes.REMOVE_ALL_ENCODINGS);
-    this.chatService.sendInteraction(message);
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.REMOVE_ALL_ENCODINGS);
+    this.chatService.sendInteractionResponse(message);
     /* Prepare and Send New Message - End */
   }
 
@@ -1175,13 +1175,13 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     }
     if (!reset) {
       /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initialize(InteractionTypes.CHANGE_CHART_TYPE);
+      let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_CHART_TYPE);
       message.data = {
         chartChanged: dataset["chartType"],
         x: dataset["xVar"],
         y: dataset["yVar"]
       };
-      this.chatService.sendInteraction(message);
+      this.chatService.sendInteractionResponse(message);
       /* Prepare and Send New Message - End */
     }
   }
@@ -1204,13 +1204,13 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     }
     if (!reset) {
       /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initialize(InteractionTypes.CHANGE_AXIS_ATTRIBUTE);
+      let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_AXIS_ATTRIBUTE);
       message.data = {
         axisChanged: axis,
         x: dataset["xVar"],
         y: dataset["yVar"]
       };
-      this.chatService.sendInteraction(message);
+      this.chatService.sendInteractionResponse(message);
       /* Prepare and Send New Message - End */
     }
   }
@@ -1218,13 +1218,13 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
   onChangeAggregation(event, updateVis = true) {
     let dataset = this.appConfig[this.global.appMode];
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initialize(InteractionTypes.CHANGE_AGGREGATION);
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_AGGREGATION);
     message.data = {
       aggChanged: dataset["aggType"],
       x: dataset["xVar"],
       y: dataset["yVar"]
     };
-    this.chatService.sendInteraction(message);
+    this.chatService.sendInteractionResponse(message);
     /* Prepare and Send New Message - End */
     if (updateVis) {
       initializePlotInstance(this, this.currentPlotType);
@@ -1270,13 +1270,13 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     let dataset = this.appConfig[this.global.appMode];
     dataset["attributeInteracted"][attribute] += 1;
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initialize(InteractionTypes.CHANGE_FILTER);
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_FILTER);
     message.data = {
       attribute: attribute,
       value: dataset["attributes"][attribute]["filterModel"],
       filterType: changeType,
     };
-    this.chatService.sendInteraction(message);
+    this.chatService.sendInteractionResponse(message);
     /* Prepare and Send New Message - End */
     this.updateVis();
   }
@@ -1451,26 +1451,38 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     }
     
     // Prepare the message
-    let message = new Insight();
-    message.insight = this.userInsight;
-    message.timestamp = new Date().toISOString();
-    message.group = "control";
-    message.participantId = localStorage.getItem('userId');
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.SAVE_USER_INSIGHT);
+    message.data = {
+      insight: this.userInsight,
+      timestamp: new Date().toISOString(),
+      group: "control",
+      participantId: localStorage.getItem('userId')
+    };
+
+    // Subscribe to insight events
+    this.chatService.onInsightSaved().subscribe((response) => {
+      console.log('Insight saved successfully:', response);
+      // Add to past insights array in frontend
+      this.pastInsights.unshift({
+          text: this.userInsight,
+          timestamp: new Date().toLocaleString()
+      });
+      
+      // Update continue button state
+      this.canContinue = this.pastInsights.length >= 5;
+      
+      // Clear the insight field after sending
+      this.userInsight = '';
+    });
+
+    this.chatService.onInsightError().subscribe((error) => {
+      console.error('Error saving insight:', error);
+      // Optionally show error to user
+      alert('Failed to save insight. Please try again.');
+    });
 
     // Send to backend via websocket
     this.chatService.sendInsights(message);
-    
-    // Add to past insights array in frontend
-    this.pastInsights.unshift({
-        text: this.userInsight,
-        timestamp: new Date().toLocaleString()
-    });
-    
-    // Update continue button state
-    this.canContinue = this.pastInsights.length >= 5;
-    
-    // Clear the insight field after sending
-    this.userInsight = '';
   }
 
   /**

@@ -208,21 +208,6 @@ export class UtilsService {
     };
   }
 
-  initialize(interactionType: string, data: any = {}): any {
-    const participantId = localStorage.getItem('userId');
-    let message = {
-      appMode: this.appMode,
-      appType: this.appType,
-      appLevel: this.appLevel,
-      chartType: '',
-      interactionType,
-      interactionDuration: 0,
-      interactionAt: new Date().toISOString(),
-      participantId,
-      data
-    }
-    return message;
-  }
   /**
    * Adds the selected item to an object of selected datapoints.
    */
@@ -236,8 +221,7 @@ export class UtilsService {
       dataset["selectedObjects"][id] = d;
       context.userConfig["originalDatasetDict"][id]["selected"] = true;
       /* Prepare and Send New Message - Start */
-      let message = this.initializeNewMessage(context);
-      message.interactionType = InteractionTypes.CLICK_ADD_ITEM;
+      let message = this.initializeNewMessage(InteractionTypes.CLICK_ADD_ITEM);
       message.data["id"] = id;
       message.data["x"] = {
         name: dataset["xVar"],
@@ -266,8 +250,7 @@ export class UtilsService {
       context.userConfig["originalDatasetDict"][id]["selected"] = false;
       delete dataset["selectedObjects"][id];
       /* Prepare and Send New Message - Start */
-      let message = this.initializeNewMessage(context);
-      message.interactionType = InteractionTypes.CLICK_REMOVE_ITEM;
+      let message = this.initializeNewMessage(InteractionTypes.CLICK_REMOVE_ITEM);
       message.data["id"] = id;
       message.data["x"] = {
         name: dataset["xVar"],
@@ -330,8 +313,7 @@ export class UtilsService {
       });
     }
     /* Prepare and Send New Message - Start */
-    let message = this.initializeNewMessage(context);
-    message.interactionType = InteractionTypes.CLICK_GROUP;
+    let message = this.initializeNewMessage(InteractionTypes.CLICK_GROUP);
     message.data["id"] = ids;
     message.data["x"] = {
       name: dataset["xVar"],
@@ -367,11 +349,10 @@ export class UtilsService {
       context.userConfig["hoverTimer"] = setTimeout(function () {
         context.userConfig["hoverTimer"] = null;
         /* Prepare and Send New Message - Start */
-        let message = this_.initializeNewMessage(context);
+        let message = this_.initializeNewMessage(InteractionTypes.MOUSEOVER_ITEM);
         let startTime = context.userConfig["hoverStartTime"];
         let currentTime = this_.getCurrentTime();
         message.interactionDuration = currentTime - startTime;
-        message.interactionType = InteractionTypes.MOUSEOVER_ITEM;
         message.data = {
           id: d[dataset["primaryKey"]],
           x: {
@@ -405,11 +386,10 @@ export class UtilsService {
     } else {
       // Hover was long enough => count as an interaction, update server
       /* Prepare and Send New Message - Start */
-      let message = this.initializeNewMessage(context);
+      let message = this.initializeNewMessage(InteractionTypes.MOUSEOUT_ITEM);
       let startTime = context.userConfig["hoverStartTime"];
       let currentTime = this.getCurrentTime();
       message.interactionDuration = currentTime - startTime;
-      message.interactionType = InteractionTypes.MOUSEOUT_ITEM;
       message.data = {
         id: d[dataset["primaryKey"]],
         x: {
@@ -498,11 +478,10 @@ export class UtilsService {
         // reset timer function and set hovered object properties for point
         context.userConfig["hoverTimer"] = null;
         /* Prepare and Send New Message - Start */
-        let message = this_.initializeNewMessage(context);
+        let message = this_.initializeNewMessage(InteractionTypes.MOUSEOVER_GROUP);
         let startTime = context.userConfig["hoverStartTime"];
         let currentTime = this_.getCurrentTime();
         message.interactionDuration = currentTime - startTime;
-        message.interactionType = InteractionTypes.MOUSEOVER_GROUP;
         message.data["id"] = dataPointIDs;
         message.data["x"] = {
           name: dataset["xVar"],
@@ -567,11 +546,10 @@ export class UtilsService {
         }
       });
       /* Prepare and Send New Message - Start */
-      let message = this.initializeNewMessage(context);
+      let message = this.initializeNewMessage(InteractionTypes.MOUSEOUT_GROUP);
       let startTime = context.userConfig["hoverStartTime"];
       let currentTime = this.getCurrentTime();
       message.interactionDuration = currentTime - startTime;
-      message.interactionType = InteractionTypes.MOUSEOUT_GROUP;
       message.data["id"] = dataPointIDs;
       message.data["x"] = {
         name: dataset["xVar"],
