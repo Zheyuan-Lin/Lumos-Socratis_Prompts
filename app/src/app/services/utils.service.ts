@@ -320,7 +320,21 @@ export class UtilsService {
         context.userConfig["hoverTimer"] = null;
         if (element && styleAttr) d3.select(element).style(styleAttr, "cyan");
         /* Prepare and Send New Message - Start */
-        let message = this_.initializeNewMessage(InteractionTypes.MOUSEOVER_ITEM, { id: d[dataset["primaryKey"]], x: { name: dataset["xVar"], value: d["xVar"] }, y: { name: dataset["yVar"], value: d["yVar"] }, eventX: event.clientX, eventY: event.clientY });
+        let message = this_.initializeNewMessage(InteractionTypes.MOUSEOVER_ITEM);
+        message.data = {
+          id: d[dataset["primaryKey"]],
+          x: {
+            name: dataset["xVar"],
+            value: d["xVar"]
+          },
+          y: {
+            name: dataset["yVar"],
+            value: d["yVar"]
+          },
+          pointData: d,
+          eventX: event.clientX,
+          eventY: event.clientY
+        };
         let startTime = context.userConfig["hoverStartTime"];
         let currentTime = this_.getCurrentTime();
         message.interactionDuration = currentTime - startTime;
@@ -343,7 +357,21 @@ export class UtilsService {
     } else {
       // Hover was long enough => count as an interaction, update server
       /* Prepare and Send New Message - Start */
-      let message = this.initializeNewMessage(InteractionTypes.MOUSEOUT_ITEM, { id: d[dataset["primaryKey"]], x: { name: dataset["xVar"], value: d["xVar"] }, y: { name: dataset["yVar"], value: d["yVar"] }, eventX: event.clientX, eventY: event.clientY });
+      let message = this.initializeNewMessage(InteractionTypes.MOUSEOUT_ITEM);
+      message.data = {
+        id: d[dataset["primaryKey"]],
+        x: {
+          name: dataset["xVar"],
+          value: d["xVar"]
+        },
+        y: {
+          name: dataset["yVar"],
+          value: d["yVar"]
+        },
+        pointData: d,
+        eventX: event.clientX,
+        eventY: event.clientY
+      };
       let startTime = context.userConfig["hoverStartTime"];
       let currentTime = this.getCurrentTime();
       message.interactionDuration = currentTime - startTime;
