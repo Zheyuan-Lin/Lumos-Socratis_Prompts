@@ -29,20 +29,18 @@
 
               <!-- Content: Dataset Select -->
               <div class="m-t-sm">
-                <form class="form-inline display-inline">
+                <div class="form-inline display-inline">
                   <div class="form-group">
                     <div class="input-group">
                       <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fa fa-table"></i></div>
                       </div>
-                      <ng-select [disabled]="true" name="datasetSelect" appendTo="body" [clearable]="false" [searchable]="false"
-                        [ngStyle]="{ width: getSelectWidth(objectKeys(appConfig)) }" [(ngModel)]="global.appMode"
-                        (change)="initLumos()">
-                        <ng-option value="synthetic_voters_v14.csv">voter_info</ng-option>
-                      </ng-select>
+                      <div class="form-control" style="background-color: #f8f9fa;">
+                        voter_info
+                      </div>
                     </div>
                   </div>
-                </form>
+                </div>
               </div>
             </article>
           </div>
@@ -61,83 +59,9 @@
                         <span class="badge badge-secondary">Attributes</span>
                       </h5>
                     </td>
-                    <td class="float-right">
-                      <button class="btn btn-light btn-sm" (click)="toggleAttributePanelSettingsAccordion()">
-                        <i class="fa fa-cog"></i>
-                      </button>
-                    </td>
                   </tr>
                 </table>
               </header>
-
-              <!-- Content: Settings -->
-              <div class="collapse" id="collapseAttributeControls">
-                <div class="m-sm">
-                  <table style="border-collapse: separate; border-spacing: 8px 4px">
-                    <tbody>
-                      <!-- Sort By -->
-                      <tr>
-                        <td style="float: right">Sort by</td>
-                        <td>
-                          <ng-container *ngIf="global.appType == 'CONTROL'">
-                            <ng-select name="attributeSortByModeSelect" appendTo="body" [clearable]="false"
-                              [searchable]="false"
-                              [ngStyle]="{ width: getSelectWidth('attributeControlSortByModes', 'sortByModeMapping') }"
-                              (change)="onChangeAttributePanelSort($event)"
-                              [(ngModel)]="userConfig['attributeSortByMode']">
-                              <ng-option *ngFor="let atcsm of userConfig['attributeControlSortByModes']" [value]="atcsm"
-                                [innerHTML]="userConfig['sortByModeMapping'][atcsm]">
-                              </ng-option>
-                            </ng-select>
-                          </ng-container>
-                          <ng-container *ngIf="global.appType !== 'CONTROL'">
-                            <ng-select name="attributeSortByModeSelect" appendTo="body" [clearable]="false"
-                              [searchable]="false"
-                              [ngStyle]="{ width: getSelectWidth('attributeSortByModes', 'sortByModeMapping') }"
-                              (change)="onChangeAttributePanelSort($event)"
-                              [(ngModel)]="userConfig['attributeSortByMode']">
-                              <ng-option *ngFor="let atsm of userConfig['attributeSortByModes']" [value]="atsm"
-                                [innerHTML]="userConfig['sortByModeMapping'][atsm]">
-                              </ng-option>
-                            </ng-select>
-                          </ng-container>
-                        </td>
-                      </tr>
-
-                      <!-- Color Scale -->
-                      <tr *ngIf="global.appType != 'CONTROL'">
-                        <td style="float: right">Color Scale</td>
-                        <td>
-                          <ng-select name="attributeColorScaleSelect" appendTo="body" [clearable]="false"
-                            [searchable]="false"
-                            [ngStyle]="{ width: getSelectWidth('colorScales', 'colorScaleMapping') }"
-                            [(ngModel)]="userConfig['attributeColorScale']">
-                            <ng-option *ngFor="let atcs of userConfig['colorScales']" [value]="atcs">
-                              {{userConfig['colorScaleMapping'][atcs]}}
-                            </ng-option>
-                          </ng-select>
-                        </td>
-                      </tr>
-
-                      <!-- Color By -->
-                      <tr *ngIf="global.appType != 'CONTROL'">
-                        <td style="float: right">Color By</td>
-                        <td>
-                          <ng-select name="attributeColorByModeSelect" appendTo="body" [clearable]="false"
-                            [searchable]="false" (change)="onChangeAttributeColorByMode($event)"
-                            [ngStyle]="{ width: getSelectWidth('colorByModes', 'colorByModeMapping') }"
-                            [(ngModel)]="userConfig['attributeColorByMode']">
-                            <ng-option *ngFor="let atcm of userConfig['colorByModes']" [value]="atcm">
-                              {{userConfig['colorByModeMapping'][atcm]}}
-                            </ng-option>
-                          </ng-select>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
 
               <!-- Content: Attributes -->
               <div class="accordion" id="attributeaccordion">
