@@ -1076,8 +1076,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     dataset["yVar"] = xVar;
     this.updateVis();
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initialize(InteractionTypes.SWAP_AXES_ATTRIBUTES);
-
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.SWAP_AXES_ATTRIBUTES);
     this.chatService.sendInteraction(message);
     /* Prepare and Send New Message - End */
   }
@@ -1091,7 +1090,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     dataset["attributeInteracted"][attribute] += 1;
 
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initialize(InteractionTypes.ADD_FILTER);
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.ADD_FILTER);
     message.data = {
       attribute: attribute
     };
@@ -1120,7 +1119,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
 
     if (sendMessage) {
       /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initialize(InteractionTypes.REMOVE_FILTER);
+      let message = this.utilsService.initializeNewMessage(InteractionTypes.REMOVE_FILTER);
       message.data = {
         attribute: attribute
       };
@@ -1139,7 +1138,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     if (updateVis) this.updateVis();
 
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initialize(InteractionTypes.REMOVE_ALL_FILTERS);
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.REMOVE_ALL_FILTERS);
     this.chatService.sendInteraction(message);
     /* Prepare and Send New Message - End */
   }
@@ -1160,7 +1159,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     this.updateVis(); // only update the vis after all encodings are reset
 
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initialize(InteractionTypes.REMOVE_ALL_ENCODINGS);
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.REMOVE_ALL_ENCODINGS);
     this.chatService.sendInteraction(message);
     /* Prepare and Send New Message - End */
   }
@@ -1175,7 +1174,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     }
     if (!reset) {
       /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initialize(InteractionTypes.CHANGE_CHART_TYPE);
+      let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_CHART_TYPE);
       message.data = {
         chartChanged: dataset["chartType"],
         x: dataset["xVar"],
@@ -1204,7 +1203,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     }
     if (!reset) {
       /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initialize(InteractionTypes.CHANGE_AXIS_ATTRIBUTE);
+      let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_AXIS_ATTRIBUTE);
       message.data = {
         axisChanged: axis,
         x: dataset["xVar"],
@@ -1218,7 +1217,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
   onChangeAggregation(event, updateVis = true) {
     let dataset = this.appConfig[this.global.appMode];
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initialize(InteractionTypes.CHANGE_AGGREGATION);
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_AGGREGATION);
     message.data = {
       aggChanged: dataset["aggType"],
       x: dataset["xVar"],
@@ -1270,7 +1269,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     let dataset = this.appConfig[this.global.appMode];
     dataset["attributeInteracted"][attribute] += 1;
     /* Prepare and Send New Message - Start */
-    let message = this.utilsService.initialize(InteractionTypes.CHANGE_FILTER);
+    let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_FILTER);
     message.data = {
       attribute: attribute,
       value: dataset["attributes"][attribute]["filterModel"],

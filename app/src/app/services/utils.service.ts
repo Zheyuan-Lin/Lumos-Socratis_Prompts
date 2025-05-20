@@ -7,11 +7,17 @@ import { Message } from "../models/message";
 
 @Injectable()
 export class UtilsService {
+  private appConfig: any;
+  private global: any;
+  private chatService: any;
+  private utilsService: UtilsService;
+
   appMode: string;
   appType: string;
   appLevel: string;
 
   constructor() {
+    this.utilsService = this;
     this.appMode = "synthetic_voters_v14.csv";
     this.appType = "AWARENESS";
     this.appLevel = "live";
@@ -185,6 +191,7 @@ export class UtilsService {
 
   /**
    * Returns new message object for communicating with backend server.
+   * Standardized method for all interaction messages.
    */
   initializeNewMessage(interactionType: string, data: any = {}): Message {
     const participantId = localStorage.getItem('userId');
@@ -203,27 +210,11 @@ export class UtilsService {
       createdAt: new Date().getTime(),
       participantId,
       data,
-      eventX: 0,
-      eventY: 0
+      eventX: data.eventX || 0,
+      eventY: data.eventY || 0
     };
   }
 
-  initialize(interactionType: string, data: any = {}): any {
-    const participantId = localStorage.getItem('userId');
-    let message = {
-      appMode: this.appMode,
-      appType: this.appType,
-      appLevel: this.appLevel,
-      chartType: '',
-      interactionType,
-      interactionDuration: 0,
-      interactionAt: new Date().toISOString(),
-      createdAt: new Date().getTime(),
-      participantId,
-      data
-    }
-    return message;
-  }
   /**
    * Adds the selected item to an object of selected datapoints.
    */
@@ -493,5 +484,106 @@ export class UtilsService {
       context.chatService.sendInteractionResponse(message);
       /* Prepare and Send New Message - End */
     }
+  }
+
+  swapXY() {
+    let dataset = this.appConfig[this.global.appMode];
+    let xVar = dataset["xVar"];
+    dataset["xVar"] = dataset["yVar"];
+    dataset["yVar"] = xVar;
+    this.updateVis();
+    /* Prepare and Send New Message - Start */
+    let message = this.initializeNewMessage(InteractionTypes.SWAP_AXES_ATTRIBUTES);
+    this.chatService.sendInteraction(message);
+    /* Prepare and Send New Message - End */
+  }
+
+  addFilter(attribute) {
+    let dataset = this.appConfig[this.global.appMode];
+    dataset["attributes"][attribute]["filter"] = true;
+    dataset["attributeInteracted"][attribute] += 1;
+
+    /* Prepare and Send New Message - Start */
+    let message = this.initializeNewMessage(InteractionTypes.ADD_FILTER, {
+      attribute: attribute
+    });
+    this.chatService.sendInteraction(message);
+    /* Prepare and Send New Message - End */
+  }
+
+  removeFilter(attribute, updateVis = true, sendMessage = true) {
+    let dataset = this.appConfig[this.global.appMode];
+    let attrConfig = dataset["attributes"][attribute];
+    if (this.utilsService.isMeasure(dataset, attribute, "N")) {
+      attrConfig["filterModel"] = attrConfig["types"];
+    } else if (this.utilsService.isMeasure(dataset, attribute, "O")) {
+      attrConfig["filterModel"] = attrConfig["types"];
+    } else if (this.utilsService.isMeasure(dataset, attribute, "Q")) {
+      attrConfig["filterModel"] = [attrConfig["min"], attrConfig["max"]];
+    } else if (this.utilsService.isMeasure(dataset, attribute, "T")) {
+      attrConfig["filterModel"] = [attrConfig["min"], attrConfig["max"]];
+    }
+
+    attrConfig["filter"] = false;
+    if (updateVis) this.updateVis();
+
+    if (sendMessage) {
+      /* Prepare and Send New Message - Start */
+      let message = this.initializeNewMessage(InteractionTypes.REMOVE_FILTER, {
+        attribute: attribute
+      });
+      this.chatService.sendInteraction(message);
+      /* Prepare and Send New Message - End */
+    }
+  }
+
+  removeFilters(updateVis = true) {
+    this.appConfig[this.global.appMode].attributeList.forEach((attribute) =>
+      this.removeFilter(attribute, false, false)
+    );
+    if (updateVis) this.updateVis();
+
+    /* Prepare and Send New Message - Start */
+    let message = this.initializeNewMessage(InteractionTypes.REMOVE_ALL_FILTERS);
+    this.chatService.sendInteraction(message);
+    /* Prepare and Send New Message - End */
+  }
+
+  resetAllEncodings() {
+    this.onChangeChart(null, true, false);
+    this.onChangeAttribute(null, "x_axis", true, false);
+    this.onChangeAttribute(null, "y_axis", true, false);
+
+    // ToDo:- Revisit this code-block when the onChangeColorByMode is available by default for all appModes.
+    if (this.global.appMode == "ADMIN") {
+      this.onChangeVISColorByMode(null, true, false);
+      this.onChangeAttributeColorByMode(null, true, false);
+    }
+    this.updateVis(); // only update the vis after all encodings are reset
+
+    /* Prepare and Send New Message - Start */
+    let message = this.initializeNewMessage(InteractionTypes.REMOVE_ALL_ENCODINGS);
+    this.chatService.sendInteraction(message);
+    /* Prepare and Send New Message - End */
+  }
+
+  updateVis(): void {
+    // Implementation will be added
+  }
+
+  onChangeChart(value: any, updateVis: boolean, sendMessage: boolean): void {
+    // Implementation will be added
+  }
+
+  onChangeAttribute(value: any, axis: string, updateVis: boolean, sendMessage: boolean): void {
+    // Implementation will be added
+  }
+
+  onChangeVISColorByMode(value: any, updateVis: boolean, sendMessage: boolean): void {
+    // Implementation will be added
+  }
+
+  onChangeAttributeColorByMode(value: any, updateVis: boolean, sendMessage: boolean): void {
+    // Implementation will be added
   }
 }
