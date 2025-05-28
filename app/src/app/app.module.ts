@@ -26,7 +26,7 @@ import { PostPageComponent } from './post-page/post-page.component';
 import { ConsentComponent } from './consent/consent.component';
 
 const config: SocketIoConfig = {
-  url: 'http://localhost:3000',
+  url: DeploymentConfig.SERVER_URL,
   options: { 
     timeout: 60000, 
     autoConnect: true,

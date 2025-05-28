@@ -1,8 +1,21 @@
+import os
+import json
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
 
-cred = credentials.Certificate('/Users/soukasumi/Desktop/socratisprompts-firebase-adminsdk-fbsvc-e2b189e793.json')  
+# Get Firebase credentials from environment variable
+#firebase_credentials = os.getenv('FIREBASE_CREDENTIALS')
+
+# if not firebase_credentials:
+#     raise ValueError("FIREBASE_CREDENTIALS environment variable is not set")
+
+# # Parse the credentials JSON string
+# cred_dict = json.loads(firebase_credentials)
+# cred = credentials.Certificate(cred_dict)
+
+cred = credentials.Certificate('/Users/soukasumi/Desktop/Lumos-Socratis_Prompts/server/firebase.json')  
+# Initialize Firebase
 firebase_admin.initialize_app(cred)
 
 # Get Firestore client

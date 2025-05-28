@@ -221,7 +221,7 @@ async def on_insight(sid, data):
         "text": data.get("data", {}).get("insight"),
         "timestamp": data.get("data", {}).get("timestamp"),
         "group": data.get("data", {}).get("group"),
-        "participant_id": data.get("participantId")
+        "participant_id": data.get("data", {}).get("participantId")  # Access participantId from data object
     }
     
     try:

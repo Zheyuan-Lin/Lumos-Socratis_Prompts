@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "../server/public/",
+            "outputPath": "dist",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -31,11 +31,11 @@
               "node_modules/overlayscrollbars/css/OverlayScrollbars.css"
             ],
             "scripts": [
-                      "node_modules/jquery/dist/jquery.min.js",
-                      "node_modules/jquery-ui-dist/jquery-ui.min.js",
-                      "node_modules/@popperjs/core/dist/umd/popper.min.js",
-                       "node_modules/bootstrap/dist/js/bootstrap.min.js"
-                      ],
+              "node_modules/jquery/dist/jquery.min.js",
+              "node_modules/jquery-ui-dist/jquery-ui.min.js",
+              "node_modules/@popperjs/core/dist/umd/popper.min.js",
+              "node_modules/bootstrap/dist/js/bootstrap.min.js"
+            ],
             "es5BrowserSupport": true
           },
           "configurations": {
@@ -76,6 +76,7 @@
             }
           }
         },
+        
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
@@ -145,6 +146,11 @@
   "schematics": {
     "@schematics/angular:component": {
       "styleext": "scss"
+    }
+  },
+  "cli": {
+    "warnings": {
+      "typescriptMismatch": false
     }
   }
 }

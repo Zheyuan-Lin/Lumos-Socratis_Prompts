@@ -1455,7 +1455,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
         insight: this.userInsight,
         timestamp: new Date().toISOString(),
         group: "socratic",
-        participantId: localStorage.getItem('userId') // Adding participant ID
+        participantId: this.userId // Use component's userId property
     };
     
     // Send to backend via websocket

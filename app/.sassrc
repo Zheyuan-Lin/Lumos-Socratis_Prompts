@@ -1,0 +1,5 @@
+{
+  "style": "compressed",
+  "load_paths": ["node_modules"],
+  "quiet_deps": true
+} 

@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  backend:
+    build: 
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - ENV=development
+      - PORT=3000
+      - ALLOWED_ORIGINS=http://localhost:4200,http://localhost:4201,http://localhost:4202
+    volumes:
+      - ./server:/app
+    networks:
+      - app-network
+
+  frontend-main:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    ports:
+      - "4200:4200"
+    environment:
+      - NODE_ENV=development
+      - API_URL=http://localhost:3000
+    volumes:
+      - ./app:/app
+    networks:
+      - app-network
+
+  frontend-branch1:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    ports:
+      - "4201:4200"
+    environment:
+      - NODE_ENV=development
+      - API_URL=http://localhost:3000
+    volumes:
+      - ./app:/app
+    networks:
+      - app-network
+
+  frontend-branch2:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    ports:
+      - "4202:4200"
+    environment:
+      - NODE_ENV=development
+      - API_URL=http://localhost:3000
+    volumes:
+      - ./app:/app
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge 
