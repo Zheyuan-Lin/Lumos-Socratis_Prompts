@@ -14,7 +14,7 @@ from firebase_admin import firestore
 # cred_dict = json.loads(firebase_credentials)
 # cred = credentials.Certificate(cred_dict)
 
-cred = credentials.Certificate('/Users/soukasumi/Desktop/Lumos-Socratis_Prompts/server/firebase.json')  
+cred = credentials.Certificate('/Users/soukasumi/Desktop/firebase.json')  
 # Initialize Firebase
 firebase_admin.initialize_app(cred)
 
