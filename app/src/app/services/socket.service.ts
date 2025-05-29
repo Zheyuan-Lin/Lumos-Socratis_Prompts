@@ -84,6 +84,9 @@ export class ChatService {
 
   sendInsights(payload) {
     this.vizSocket.emit("on_insight", payload);
+<<<<<<< HEAD
     console.log("Insight sent:", payload);
+=======
+>>>>>>> a29a5e4f32d7de1e157468df1cdf57da4f3f4f33
   }
 }

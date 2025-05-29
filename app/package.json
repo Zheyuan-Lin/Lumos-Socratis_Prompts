@@ -1,23 +1,23 @@
 {
   "name": "lumos",
   "version": "1.0.0",
-    "scripts": {
-      "ng": "ng",
-      "start": "NODE_OPTIONS='--openssl-legacy-provider --no-deprecation' ng serve",
-      "build": "NODE_OPTIONS='--openssl-legacy-provider --no-deprecation' ng build --configuration production",
-      "vercel-build": "NODE_OPTIONS='--openssl-legacy-provider --no-deprecation' ng build --configuration production",
-      "watch": "ng build --watch --configuration development",
-      "test": "ng test",
-      "lint": "ng lint",
-      "e2e": "ng e2e"
-    },
+  "scripts": {
+    "ng": "ng",
+    "start": "NODE_OPTIONS='--openssl-legacy-provider --no-deprecation' ng serve",
+    "build": "NODE_OPTIONS='--openssl-legacy-provider --no-deprecation' ng build --configuration production",
+    "vercel-build": "NODE_OPTIONS='--openssl-legacy-provider --no-deprecation' ng build --configuration production",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test",
+    "lint": "ng lint",
+    "e2e": "ng e2e"
+  },
   "dependencies": {
     "@angular/animations": "~7.2.0",
     "@angular/cli": "^7.3.9",
     "@angular/common": "~7.2.0",
     "@angular/compiler": "~7.2.0",
     "@angular/core": "~7.2.0",
-    "@angular/fire": "^5.4.2",
+    "@angular/fire": "^6.1.5",
     "@angular/forms": "~7.2.0",
     "@angular/platform-browser": "~7.2.0",
     "@angular/platform-browser-dynamic": "~7.2.0",
@@ -36,7 +36,7 @@
     "core-js": "^2.5.4",
     "d3": "^6.2.0",
     "express": "^4.17.0",
-    "firebase": "^7.24.0",
+    "firebase": "^8.10.1",
     "font-awesome": "^4.7.0",
     "jquery": "^3.4.1",
     "jquery-ui-dist": "^1.12.1",

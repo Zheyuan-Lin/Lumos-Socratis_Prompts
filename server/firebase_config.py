@@ -1,9 +1,13 @@
+<<<<<<< HEAD
 import os
 import json
+=======
+>>>>>>> a29a5e4f32d7de1e157468df1cdf57da4f3f4f33
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
 
+<<<<<<< HEAD
 # Get Firebase credentials from environment variable
 #firebase_credentials = os.getenv('FIREBASE_CREDENTIALS')
 
@@ -16,6 +20,9 @@ from firebase_admin import firestore
 
 cred = credentials.Certificate('/Users/soukasumi/Desktop/firebase.json')  
 # Initialize Firebase
+=======
+cred = credentials.Certificate('/Users/soukasumi/Desktop/socratisprompts-firebase-adminsdk-fbsvc-e2b189e793.json')  
+>>>>>>> a29a5e4f32d7de1e157468df1cdf57da4f3f4f33
 firebase_admin.initialize_app(cred)
 
 # Get Firestore client
