@@ -1,21 +1,23 @@
 {
   "name": "lumos",
   "version": "1.0.0",
-  "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "test": "ng test",
-    "lint": "ng lint",
-    "e2e": "ng e2e",
-    "postinstall": "ng build --aot --prod"
-  },
+    "scripts": {
+      "ng": "ng",
+      "start": "NODE_OPTIONS='--openssl-legacy-provider --no-deprecation' ng serve",
+      "build": "NODE_OPTIONS='--openssl-legacy-provider --no-deprecation' ng build --configuration production",
+      "vercel-build": "NODE_OPTIONS='--openssl-legacy-provider --no-deprecation' ng build --configuration production",
+      "watch": "ng build --watch --configuration development",
+      "test": "ng test",
+      "lint": "ng lint",
+      "e2e": "ng e2e"
+    },
   "dependencies": {
     "@angular/animations": "~7.2.0",
     "@angular/cli": "^7.3.9",
     "@angular/common": "~7.2.0",
     "@angular/compiler": "~7.2.0",
     "@angular/core": "~7.2.0",
+    "@angular/fire": "^5.4.2",
     "@angular/forms": "~7.2.0",
     "@angular/platform-browser": "~7.2.0",
     "@angular/platform-browser-dynamic": "~7.2.0",
@@ -34,19 +36,20 @@
     "core-js": "^2.5.4",
     "d3": "^6.2.0",
     "express": "^4.17.0",
+    "firebase": "^7.24.0",
     "font-awesome": "^4.7.0",
     "jquery": "^3.4.1",
     "jquery-ui-dist": "^1.12.1",
     "ng-multiselect-dropdown": "0.2.5",
     "ng2-nouislider": "^1.8.2",
     "ng2-tooltip-directive": "2.9.20",
-    "ngx-socket-io": "^3.4.0",
+    "ngx-socket-io": "2.1.1",
     "nouislider": "^14.6.3",
     "overlayscrollbars": "^1.13.1",
     "overlayscrollbars-ngx": "^0.2.3",
     "rxjs": "~6.3.3",
     "seedrandom": "^3.0.1",
-    "tslib": "^1.14.1",
+    "tslib": "^2.0.0",
     "zone.js": "~0.8.26"
   },
   "devDependencies": {
@@ -70,5 +73,14 @@
     "ts-node": "~7.0.0",
     "tslint": "~5.11.0",
     "typescript": "3.9"
+  },
+  "resolutions": {
+    "@types/d3-scale": "1.0.14"
+  },
+  "overrides": {
+    "tar": "^6.1.15",
+    "npmlog": "^7.0.1",
+    "gauge": "^4.0.4",
+    "fstream": "^2.0.1"
   }
 }

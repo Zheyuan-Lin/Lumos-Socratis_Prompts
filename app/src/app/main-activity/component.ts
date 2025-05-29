@@ -288,12 +288,25 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
 
       context.chatService.connectToSocket();
 
-      context.chatService.getConnectEventResponse().subscribe(() => {
-        console.log("connected to socket");
+      context.chatService.getConnectEventResponse().subscribe((event) => {
+        // Wait for next tick to ensure socket ID is available
+        setTimeout(() => {
+          const socketId = context.chatService.getSocketId();
+          if (socketId !== 'not_connected') {
+            console.log("Connected to socket with ID:", socketId);
+            // Store socket ID in localStorage for persistence
+            localStorage.setItem('socketId', socketId);
+          }
+        }, 0);
       });
 
-      context.chatService.getDisconnectEventResponse().subscribe(() => {
-        console.log("disconnected from socket");
+      context.chatService.getDisconnectEventResponse().subscribe((event) => {
+        const socketId = context.chatService.getSocketId();
+        if (socketId !== 'not_connected') {
+          console.log("Disconnected from socket with ID:", socketId);
+          // Clear socket ID from localStorage
+          localStorage.removeItem('socketId');
+        }
       });
 
       context.chatService.getInteractionResponse().subscribe((obj) => {
@@ -347,20 +360,23 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
       });
 
       context.chatService.getAttributeDistribution().subscribe((obj) => {
+        console.log('Received attribute distribution:', obj);
         let attrDist = dataset["attributeDistribution"];
         let attrCov = dataset["attributeCoverage"];
-        if (obj != null) {
+        if (obj != null && obj[context.global.appMode] != null) {
           attrDist["original"] = obj[context.global.appMode];
-          Object.keys(attrDist["original"]).forEach((attr) => {
-            if (!attrDist["interacted"].hasOwnProperty(attr)) {
-              attrDist["interacted"][attr] = [];
-            }
-            if (!attrCov["interacted"].hasOwnProperty(attr)) {
-              attrCov["interacted"][attr] = [{}, []];
-            }
-          });
-          context.updateAwarenessPanel();
-          context.updateVis();
+          if (attrDist["original"] != null) {
+            Object.keys(attrDist["original"]).forEach((attr) => {
+              if (!attrDist["interacted"].hasOwnProperty(attr)) {
+                attrDist["interacted"][attr] = [];
+              }
+              if (!attrCov["interacted"].hasOwnProperty(attr)) {
+                attrCov["interacted"][attr] = [{}, []];
+              }
+            });
+            context.updateAwarenessPanel();
+            context.updateVis();
+          }
         }
       });
 

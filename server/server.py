@@ -28,7 +28,10 @@ COMPUTE_BIAS_FOR_TYPES = [
     "click_remove_item",
 ]
 
-SIO = socketio.AsyncServer(cors_allowed_origins='*')
+SIO = socketio.AsyncServer(cors_allowed_origins=[
+    'https://socratic-frontned.vercel.app',
+    'http://localhost:4200'  # For local development
+])
 APP = web.Application(middlewares=[IndexMiddleware()])
 SIO.attach(APP)
 

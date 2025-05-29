@@ -3,3 +3,5 @@ aiohttp-index==0.1
 python-engineio==3.8.1
 python-socketio==4.1.0
 scipy==1.14
+firebase-admin==6.2.0
+google-cloud-firestore==2.11.1

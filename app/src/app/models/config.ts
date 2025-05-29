@@ -23,8 +23,8 @@ export class SessionPage {
 }
 
 export const DeploymentConfig = Object.freeze({
-  //SERVER_URL: "https://lumos-webapp-4aeadb3bf30d.herokuapp.com/"
-   SERVER_URL: "http://localhost:3000"
+  // Update this URL to your backend server URL that supports WebSocket
+  SERVER_URL: "https://your-backend-server-url.com"
 });
 
 /**
