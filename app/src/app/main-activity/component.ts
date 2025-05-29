@@ -395,6 +395,22 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
           alert("Error receiving question: " + error);
         }
       });
+
+      context.chatService.getExternalQuestion().subscribe({
+        next: (questionData: any) => {
+          const formattedQuestion: Question = {
+            id: questionData.id || Date.now().toString(),
+            text: questionData.text || "What do you think about this insight?",
+            timestamp: questionData.timestamp || new Date().toISOString(),
+            type: questionData.type || "question"
+          };
+          
+          context.handleIncomingQuestion(formattedQuestion);
+        },
+        error: (error) => {
+          alert("Error receiving question: " + error);
+        }
+      });
     });
   }
 

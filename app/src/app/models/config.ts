@@ -24,7 +24,7 @@ export class SessionPage {
 
 export const DeploymentConfig = Object.freeze({
   // Update this URL to your backend server URL that supports WebSocket
-  SERVER_URL: "https://your-backend-server-url.com"
+  SERVER_URL: "http://localhost:3000"
 });
 
 /**
