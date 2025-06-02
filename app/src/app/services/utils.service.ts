@@ -204,7 +204,8 @@ export class UtilsService {
       data,
       createdAt: new Date().getTime(),
       eventX: 0,
-      eventY: 0
+      eventY: 0,
+      group:"control"
     };
   }
 

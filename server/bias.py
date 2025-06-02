@@ -8,6 +8,7 @@ import numbers
 import os
 import random
 import statistics
+from datetime import datetime
 
 import scipy
 import sys
@@ -110,6 +111,19 @@ DATA_MAP = {
         ],
         "data": {},
     },
+<<<<<<< HEAD
+=======
+
+    "synthetic_voters_v14.csv": {
+        "attributes": [],
+        "distribution": {},
+        "numerical_attributes": [
+            "age",
+            "income"
+        ],
+        "data": {},
+    },
+>>>>>>> fef6c0a (finished clean)
 }
 
 
@@ -147,12 +161,14 @@ def read_data(filename):
         reader = csv.DictReader(csvfile, delimiter=",", quotechar='"')
         dataset["attributes"] = reader.fieldnames
         for row in reader:
-            data[row["id"]] = {}  # store data in data dict
+            # Handle both 'id' and 'voter_id' cases
+            id_field = "voter_id" if "voter_id" in row else "id"
+            data[row[id_field]] = {}  # store data in data dict
             for attr in row:
                 if attr in dataset["numerical_attributes"]:
-                    data[row["id"]][attr] = bias_util.cast_to_num(row[attr])
+                    data[row[id_field]][attr] = bias_util.cast_to_num(row[attr])
                 else:
-                    data[row["id"]][attr] = str(row[attr])
+                    data[row[id_field]][attr] = str(row[attr])
         print(f"done")
 
 
@@ -518,3 +534,22 @@ def attribute_distribution(logs, active_data, active_attrs, active_attr_distr, a
                 ad_details[attr]["p_value"] = chi_squared_result[1]
 
     return ad_metric, ad_details
+
+
+def log_simplified_interaction(pid, interaction_type):
+    """
+    Logs a simplified interaction with only participant ID, interaction type, and timestamp.
+    
+    Args:
+        pid (str): Participant ID
+        interaction_type (str): Type of interaction
+    """
+    # Create simplified interaction data
+    interaction_data = {
+        "participant_id": pid,
+        "interaction_type": interaction_type,
+        "timestamp": datetime.now().isoformat()
+    }
+    
+    # Store in Firestore
+    db.collection('simplified_interactions').add(interaction_data)

@@ -11,6 +11,7 @@ export class Message {
   data: any;
   eventX: number;
   eventY: number;
+  group: string;
   
 } 
 export class Insight {

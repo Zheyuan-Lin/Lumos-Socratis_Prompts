@@ -165,7 +165,11 @@ async def on_interaction(sid, data):
         "participant_id": pid,
         "interaction_type": interaction_type,
         "interacted_value": data["data"],
+<<<<<<< HEAD
         "group": "control",
+=======
+        "group": "socratic",
+>>>>>>> fef6c0a (finished clean)
         "timestamp": data["interactionAt"]
     }
     try:
@@ -220,22 +224,21 @@ async def on_question_response(sid, data):
 
 @SIO.event
 async def on_insight(sid, data):
+    insight = {
+        "text": data.get("data", {}).get("insight"),
+        "timestamp": data.get("data", {}).get("timestamp"),
+        "group": data.get("data", {}).get("group"),
+        "participant_id": data.get("data", {}).get("participantId")  # Access participantId from data object
+    }
+    
     try:
-        insight = {
-            "text": data.get("text"),  # Direct access since frontend sends text directly
-            "timestamp": data.get("timestamp"),  # Direct access since frontend sends timestamp directly
-            "group": data.get("group"),  # Direct access since frontend sends group directly
-            "participant_id": data.get("participantId")  # Direct access since frontend sends participantId directly
-        }
-        
         # Store in Firestore
         db.collection('insights').add(insight)
-        print(f"Successfully stored insight in Firestore: {insight}")
+        print(f"Stored insight: {insight}")
         
     except Exception as e:
-        print(f"Error in on_insight handler: {str(e)}")
-        # Send error back to client
-        await SIO.emit("insight_error", {"error": str(e)}, room=sid)
+        print(f"Error storing insight: {e}")
+
 
 @SIO.event
 async def recieve_interaction(sid, data):
@@ -246,7 +249,7 @@ async def recieve_interaction(sid, data):
         "participant_id": pid,
         "interaction_type": interaction_type,
         "interacted_value": data["data"],
-        "group": "interaction_trace",
+        "group": "socratic",
         "timestamp": data["interactionAt"]
     }
     try:
@@ -281,3 +284,4 @@ if __name__ == "__main__":
     bias.precompute_distributions()
     port = int(os.environ.get("PORT", 3000))
     web.run_app(APP, port=port)
+

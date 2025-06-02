@@ -264,6 +264,13 @@
 
 # Cython debug symbols
 **/cython_debug/
+<<<<<<< HEAD
 
 # Firebase credentials
 firebase-credentials.json
+=======
+.vercel
+
+# Firebase credentials
+server/firebase-credentials.json
+>>>>>>> fef6c0a (finished clean)

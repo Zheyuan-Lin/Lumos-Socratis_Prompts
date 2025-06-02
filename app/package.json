@@ -4,8 +4,8 @@
     "scripts": {
       "ng": "ng",
       "start": "NODE_OPTIONS='--openssl-legacy-provider --no-deprecation' ng serve",
-      "build": "NODE_OPTIONS='--openssl-legacy-provider --no-deprecation' ng build --configuration production",
-      "vercel-build": "NODE_OPTIONS='--openssl-legacy-provider --no-deprecation' ng build --configuration production",
+      "build": "NODE_OPTIONS='--openssl-legacy-provider --no-deprecation' ng build",
+      "vercel-build": "NODE_OPTIONS='--openssl-legacy-provider --no-deprecation' ng build",
       "watch": "ng build --watch --configuration development",
       "test": "ng test",
       "lint": "ng lint",
@@ -75,12 +75,16 @@
     "typescript": "3.9"
   },
   "resolutions": {
-    "@types/d3-scale": "1.0.14"
+    "@types/d3-scale": "1.0.14",
+    "fsevents": "2.3.3",
+    "chokidar": "3.5.3"
   },
   "overrides": {
     "tar": "^6.1.15",
     "npmlog": "^7.0.1",
     "gauge": "^4.0.4",
-    "fstream": "^2.0.1"
+    "fstream": "^2.0.1",
+    "fsevents": "2.3.3",
+    "chokidar": "3.5.3"
   }
 }
