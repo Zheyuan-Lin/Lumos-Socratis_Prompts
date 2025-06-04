@@ -205,7 +205,7 @@ export class UtilsService {
       createdAt: new Date().getTime(),
       eventX: 0,
       eventY: 0,
-      group:"control"
+      group: "socratic"
     };
   }
 

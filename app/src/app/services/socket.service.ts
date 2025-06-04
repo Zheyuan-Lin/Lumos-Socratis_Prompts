@@ -139,16 +139,8 @@ export class ChatService {
     return this.attributeDistributionSubject.asObservable();
   }
 
-  sendQuestionResponse(questionId: string, question: string, response: string) {
-    const userId = localStorage.getItem('userId');
-    const payload = {
-      question_id: questionId,
-      response: response,
-      question: question,
-      participant_id: userId,
-      timestamp: new Date().toISOString()
-    };
-    this.vizSocket.emit("on_question_response", payload);
+  sendQuestionResponse(response: any) {
+    this.vizSocket.emit("on_question_response", response);
   }
 
   getExternalQuestion() {

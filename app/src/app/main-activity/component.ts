@@ -387,34 +387,16 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
         }
       });
 
+      // Listen for incoming questions from the backend
       context.chatService.getExternalQuestion().subscribe({
         next: (questionData: any) => {
-          const formattedQuestion: Question = {
-            id: questionData.id || Date.now().toString(),
-            text: questionData.text || "What do you think about this insight?",
-            timestamp: questionData.timestamp || new Date().toISOString(),
-            type: questionData.type || "question"
-          };
+          console.log('Received question from backend:', questionData);
           
-          context.handleIncomingQuestion(formattedQuestion);
+          // Handle the incoming question
+          context.handleIncomingQuestion(questionData);
         },
         error: (error) => {
-          alert("Error receiving question: " + error);
-        }
-      });
-
-      context.chatService.getExternalQuestion().subscribe({
-        next: (questionData: any) => {
-          const formattedQuestion: Question = {
-            id: questionData.id || Date.now().toString(),
-            text: questionData.text || "What do you think about this insight?",
-            timestamp: questionData.timestamp || new Date().toISOString(),
-            type: questionData.type || "question"
-          };
-          
-          context.handleIncomingQuestion(formattedQuestion);
-        },
-        error: (error) => {
+          console.error('Error receiving question:', error);
           alert("Error receiving question: " + error);
         }
       });
@@ -1464,7 +1446,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
    */
   saveUserInsight() {
     if (!this.userInsight.trim()) {
-        return;
+      return;
     }
     
     // Prepare the message
@@ -1488,6 +1470,38 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
         
         // Clear the insight field after sending
         this.userInsight = '';
+      }
+
+      /**
+       * Sends the user's response to a question to the backend
+       */
+      sendPopupResponse() {
+        // Validate both response and current question
+        if (!this.popupResponse.trim() || !this.currentQuestion) {
+          return;
+        }
+
+        try {
+          // Prepare the response object
+          const response = {
+            question_id: this.currentQuestion.id,
+            question: this.currentQuestion.text,
+            response: this.popupResponse,
+            participant_id: localStorage.getItem('userId'),
+            timestamp: new Date().toISOString()
+          };
+
+          // Send to backend via websocket
+          this.chatService.sendQuestionResponse(response);
+
+          // Clear the response field and hide popup
+          this.popupResponse = '';
+          this.isPopupVisible = false;
+          this.isMinimized = false;
+          this.currentQuestion = null;
+        } catch (error) {
+          console.error('Error sending response:', error);
+        }
       }
     
   /**
@@ -1516,9 +1530,12 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
    * Handle an incoming question by displaying popup and logging
    */
   private handleIncomingQuestion(questionData: Question): void {
-    console.log("Processing incoming question:", questionData);
-    
-    // Update the current question
+    if (!questionData || !questionData.text) {
+      console.error('Invalid question data received:', questionData);
+      return;
+    }
+
+    // Store the question exactly as received from backend
     this.currentQuestion = questionData;
     
     // Update popup information
@@ -1527,7 +1544,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     
     // Show the popup
     this.isPopupVisible = true;
-    
+    this.isMinimized = false;
   }
 
   onContinue() {
@@ -1570,6 +1587,13 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
       return `Please share ${5 - this.pastInsights.length} more insight${5 - this.pastInsights.length === 1 ? '' : 's'} to continue`;
     }
     return 'Click to proceed';
+  }
+
+  /**
+   * Toggles the minimized state of the popup window
+   */
+  toggleMinimize() {
+    this.isMinimized = !this.isMinimized;
   }
 
 }
