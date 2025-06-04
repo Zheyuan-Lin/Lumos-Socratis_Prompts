@@ -23,14 +23,9 @@ export class SessionPage {
 }
 
 export const DeploymentConfig = Object.freeze({
-<<<<<<< HEAD
-  SERVER_URL: "http://localhost:3000"  // Replace with your actual Railway URL
-  // Make sure this matches your Railway deployment URL
-=======
-  SERVER_URL: "http://localhost:3000"
-  //SERVER_URL: "https://lumos-webapp-4aeadb3bf30d.herokuapp.com/"
+  //SERVER_URL: "http://localhost:3000"
+  SERVER_URL: "https://socraticvis-ef6d7764216f.herokuapp.com"
   // Make sure this matches your server address
->>>>>>> a29a5e4f32d7de1e157468df1cdf57da4f3f4f33
 });
 
 /**

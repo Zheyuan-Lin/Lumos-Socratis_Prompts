@@ -21,26 +21,19 @@ import { MessageService } from "./services/message.service";
 import { ChatService } from "./services/socket.service";
 import { UtilsService } from "./services/utils.service";
 import { MainActivityComponent } from "./main-activity/component";
-import { PreSurveyComponent } from './presurvey/presurvey.component';
 import { PostPageComponent } from './post-page/post-page.component';
-import { ConsentComponent } from './consent/consent.component';
+
 
 const config: SocketIoConfig = {
   url: DeploymentConfig.SERVER_URL,
-  options: { 
-    timeout: 60000, 
-    autoConnect: true,
-    transports: ['websocket']
-  },
+  options: { timeout: 60000, autoConnect: false },
 };
 
 @NgModule({
   declarations: [
     AppComponent,
     MainActivityComponent,
-    PreSurveyComponent,
-    PostPageComponent,
-    ConsentComponent
+    PostPageComponent
   ],
   imports: [
     NgMultiSelectDropDownModule.forRoot(),

@@ -11,15 +11,14 @@ export class Message {
   data: any;
   eventX: number;
   eventY: number;
+  group: string;
   
 } 
 export class Insight {
-    data: {
-        insight: string;
+        text: string;
         timestamp: string;
         group: string;
         participantId: string;
-    };
 }
 export interface Question {
   type: 'question';

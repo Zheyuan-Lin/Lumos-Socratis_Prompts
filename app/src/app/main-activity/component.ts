@@ -17,8 +17,9 @@ import { DotPlot } from "../visualizations/main/dot-plot-component";
 import { BarChart } from "../visualizations/main/bar-chart-component";
 import { LineChart } from "../visualizations/main/line-chart-component";
 import { AttributeDistributionPlotConfig } from "../visualizations/awareness/component";
-import { Question } from '../models/question';
+
 import { Insight } from "../models/message";
+import { Question } from "../models/message";
 
 window.addEventListener("beforeunload", function (e) {
   // Cancel the event
@@ -63,7 +64,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
   popupQuestion: string = "What do you think about this visualization?";
   questionId: string = '';
   popupResponse: string = '';
-  userId: string;
+  userId: string | null = null;
   isWelcomePopupVisible: boolean = true;
   welcomeMessage: string = "Welcome to Lumos!";
   userInsight: string = ''; // Property to store user insights
@@ -83,24 +84,31 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     public global: SessionPage,
     private sanitizer: DomSanitizer,
   ) {
-    this.objectKeys = Object.keys; // to help iterate over objects with *ngFor
-    this.objectValues = Object.values; // to help iterate over objects with *ngFor
-    this.math = Math; // to help iterate over objects with *ngFor
-    this.userConfig = UserConfig; // access all user settings here
-    this.appConfig = initializeAppModes(AppConfig); // access all app settings here
-    this.currentPlotType = null; // default plot type
-    this.currentPlotInstance = null; // default plot instance
+    this.objectKeys = Object.keys;
+    this.objectValues = Object.values;
+    this.math = Math;
+    this.userConfig = UserConfig;
+    this.appConfig = initializeAppModes(AppConfig);
+    this.currentPlotType = null;
+    this.currentPlotInstance = null;
     this.scatterPlotInstance = createPlotInstance(this, ScatterPlot);
     this.stripPlotInstance = createPlotInstance(this, StripPlot);
     this.dotPlotInstance = createPlotInstance(this, DotPlot);
     this.barChartInstance = createPlotInstance(this, BarChart);
     this.lineChartInstance = createPlotInstance(this, LineChart);
-    this.route.queryParams.subscribe((params) => {
-      if("level" in params){
-        this.global.appLevel = params["level"];
+    
+    // Get userId from URL or localStorage
+    this.route.queryParams.subscribe(params => {
+      const urlUserId = params['userId'];
+      if (urlUserId) {
+        this.userId = urlUserId;
+        localStorage.setItem('userId', urlUserId);
+      } else {
+        this.userId = null;
+        localStorage.removeItem('userId');
       }
-      this.userId = params['userId'] || localStorage.getItem('userId');
     });
+
     this.qFilterSliderConfig = (attribute) => {
       let attrConfig = this.appConfig[this.global.appMode]["attributes"][attribute];
       let formatter = { from: Number, to: this.utilsService.formatLargeNum };
@@ -287,12 +295,25 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
 
       context.chatService.connectToSocket();
 
-      context.chatService.getConnectEventResponse().subscribe(() => {
-        console.log("connected to socket");
+      context.chatService.getConnectEventResponse().subscribe((event) => {
+        // Wait for next tick to ensure socket ID is available
+        setTimeout(() => {
+          const socketId = context.chatService.getSocketId();
+          if (socketId !== 'not_connected') {
+            console.log("Connected to socket with ID:", socketId);
+            // Store socket ID in localStorage for persistence
+            localStorage.setItem('socketId', socketId);
+          }
+        }, 0);
       });
 
-      context.chatService.getDisconnectEventResponse().subscribe(() => {
-        console.log("disconnected from socket");
+      context.chatService.getDisconnectEventResponse().subscribe((event) => {
+        const socketId = context.chatService.getSocketId();
+        if (socketId !== 'not_connected') {
+          console.log("Disconnected from socket with ID:", socketId);
+          // Clear socket ID from localStorage
+          localStorage.removeItem('socketId');
+        }
       });
 
       context.chatService.getInteractionResponse().subscribe((obj) => {
@@ -346,20 +367,39 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
       });
 
       context.chatService.getAttributeDistribution().subscribe((obj) => {
+        console.log('Received attribute distribution:', obj);
         let attrDist = dataset["attributeDistribution"];
         let attrCov = dataset["attributeCoverage"];
-        if (obj != null) {
+        if (obj != null && obj[context.global.appMode] != null) {
           attrDist["original"] = obj[context.global.appMode];
-          Object.keys(attrDist["original"]).forEach((attr) => {
-            if (!attrDist["interacted"].hasOwnProperty(attr)) {
-              attrDist["interacted"][attr] = [];
-            }
-            if (!attrCov["interacted"].hasOwnProperty(attr)) {
-              attrCov["interacted"][attr] = [{}, []];
-            }
-          });
-          context.updateAwarenessPanel();
-          context.updateVis();
+          if (attrDist["original"] != null) {
+            Object.keys(attrDist["original"]).forEach((attr) => {
+              if (!attrDist["interacted"].hasOwnProperty(attr)) {
+                attrDist["interacted"][attr] = [];
+              }
+              if (!attrCov["interacted"].hasOwnProperty(attr)) {
+                attrCov["interacted"][attr] = [{}, []];
+              }
+            });
+            context.updateAwarenessPanel();
+            context.updateVis();
+          }
+        }
+      });
+
+      context.chatService.getExternalQuestion().subscribe({
+        next: (questionData: any) => {
+          const formattedQuestion: Question = {
+            id: questionData.id || Date.now().toString(),
+            text: questionData.text || "What do you think about this insight?",
+            timestamp: questionData.timestamp || new Date().toISOString(),
+            type: questionData.type || "question"
+          };
+          
+          context.handleIncomingQuestion(formattedQuestion);
+        },
+        error: (error) => {
+          alert("Error receiving question: " + error);
         }
       });
 
@@ -1077,7 +1117,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     this.updateVis();
     /* Prepare and Send New Message - Start */
     let message = this.utilsService.initializeNewMessage(InteractionTypes.SWAP_AXES_ATTRIBUTES);
-    this.chatService.sendInteraction(message);
+    this.chatService.sendInteractionResponse(message);
     /* Prepare and Send New Message - End */
   }
 
@@ -1094,7 +1134,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     message.data = {
       attribute: attribute
     };
-    this.chatService.sendInteraction(message);
+    this.chatService.sendInteractionResponse(message);
     /* Prepare and Send New Message - End */
   }
 
@@ -1123,7 +1163,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
       message.data = {
         attribute: attribute
       };
-      this.chatService.sendInteraction(message);
+      this.chatService.sendInteractionResponse(message);
       /* Prepare and Send New Message - End */
     }
   }
@@ -1139,7 +1179,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
 
     /* Prepare and Send New Message - Start */
     let message = this.utilsService.initializeNewMessage(InteractionTypes.REMOVE_ALL_FILTERS);
-    this.chatService.sendInteraction(message);
+    this.chatService.sendInteractionResponse(message);
     /* Prepare and Send New Message - End */
   }
 
@@ -1160,7 +1200,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
 
     /* Prepare and Send New Message - Start */
     let message = this.utilsService.initializeNewMessage(InteractionTypes.REMOVE_ALL_ENCODINGS);
-    this.chatService.sendInteraction(message);
+    this.chatService.sendInteractionResponse(message);
     /* Prepare and Send New Message - End */
   }
 
@@ -1180,7 +1220,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
         x: dataset["xVar"],
         y: dataset["yVar"]
       };
-      this.chatService.sendInteraction(message);
+      this.chatService.sendInteractionResponse(message);
       /* Prepare and Send New Message - End */
     }
   }
@@ -1209,7 +1249,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
         x: dataset["xVar"],
         y: dataset["yVar"]
       };
-      this.chatService.sendInteraction(message);
+      this.chatService.sendInteractionResponse(message);
       /* Prepare and Send New Message - End */
     }
   }
@@ -1223,7 +1263,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
       x: dataset["xVar"],
       y: dataset["yVar"]
     };
-    this.chatService.sendInteraction(message);
+    this.chatService.sendInteractionResponse(message);
     /* Prepare and Send New Message - End */
     if (updateVis) {
       initializePlotInstance(this, this.currentPlotType);
@@ -1275,7 +1315,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
       value: dataset["attributes"][attribute]["filterModel"],
       filterType: changeType,
     };
-    this.chatService.sendInteraction(message);
+    this.chatService.sendInteractionResponse(message);
     /* Prepare and Send New Message - End */
     this.updateVis();
   }
@@ -1419,28 +1459,6 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
   }
 
 
-  toggleMinimize() {
-    this.isMinimized = !this.isMinimized; // Toggle the state
-    console.log("Minimized state:", this.isMinimized); // Log the current state for debugging
-  }
-
-  sendPopupResponse() {
-    if (!this.popupResponse.trim()) {
-        return;
-    }
-    
-    // Use the existing sendQuestionResponse method with user ID
-    this.chatService.sendQuestionResponse(
-        this.questionId,
-        this.popupQuestion,
-        this.popupResponse
-
-    );
-
-    this.popupResponse = '';  // Clear the response after sending
-    this.isPopupVisible = false;
-  }
-
   /**
    * Save user insights to the server
    */
@@ -1451,33 +1469,27 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     
     // Prepare the message
     let message = new Insight();
-    message.data = {
-        insight: this.userInsight,
-        timestamp: new Date().toISOString(),
-        group: "socratic",
-<<<<<<< HEAD
-        participantId: this.userId // Use component's userId property
-=======
-        participantId: localStorage.getItem('userId') // Adding participant ID
->>>>>>> a29a5e4f32d7de1e157468df1cdf57da4f3f4f33
-    };
+    message.text = this.userInsight;
+    message.timestamp = new Date().toISOString();
+    message.group = "socratic";
+    message.participantId = localStorage.getItem('userId');
     
     // Send to backend via websocket
     this.chatService.sendInsights(message);
     
-    // Add to past insights array in frontend
-    this.pastInsights.unshift({
-        text: this.userInsight,
-        timestamp: new Date().toLocaleString()
-    });
-    
-    // Update continue button state
-    this.canContinue = this.pastInsights.length >= 5;
-    
-    // Clear the insight field after sending
-    this.userInsight = '';
-  }
 
+        this.pastInsights.unshift({
+          text: this.userInsight,
+          timestamp: new Date().toLocaleString()
+        });
+        
+        // Update continue button state
+        this.canContinue = this.pastInsights.length >= 5;
+        
+        // Clear the insight field after sending
+        this.userInsight = '';
+      }
+    
   /**
    * Handle continue action when user has saved at least 5 insights and timer is complete
    */

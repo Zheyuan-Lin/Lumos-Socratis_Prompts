@@ -7,17 +7,11 @@ import { Message } from "../models/message";
 
 @Injectable()
 export class UtilsService {
-  private appConfig: any;
-  private global: any;
-  private chatService: any;
-  private utilsService: UtilsService;
-
   appMode: string;
   appType: string;
   appLevel: string;
 
   constructor() {
-    this.utilsService = this;
     this.appMode = "synthetic_voters_v14.csv";
     this.appType = "AWARENESS";
     this.appLevel = "live";
@@ -124,32 +118,32 @@ export class UtilsService {
 
   /**
    * Returns string of float rounded to up to 2 decimals formatted with suffix.
-   *   e.g. 10,000,000 => 10M; 12,345.6789 => 12.35K
+   *   e.g. 10,000,000 => 10M; 12,345.6789 => 12.35K; -10,000 => -10K
    */
   formatLargeNum(d: number) {
     if (d === 0) return "0";
     if (!d) return "";
     
-    // Handle negative values
+    // Handle negative numbers
     const isNegative = d < 0;
     const absValue = Math.abs(d);
     
     let digits = (Math.log(absValue) * Math.LOG10E + 1) | 0;
-    let result = "";
+    let formattedNum = "";
     
     if (digits >= 13) {
-      result = `${Math.round((absValue / 1000000000000 + Number.EPSILON) * 100) / 100}T`;
+      formattedNum = `${Math.round((absValue / 1000000000000 + Number.EPSILON) * 100) / 100}T`;
     } else if (digits >= 10) {
-      result = `${Math.round((absValue / 1000000000 + Number.EPSILON) * 100) / 100}B`;
+      formattedNum = `${Math.round((absValue / 1000000000 + Number.EPSILON) * 100) / 100}B`;
     } else if (digits >= 7) {
-      result = `${Math.round((absValue / 1000000 + Number.EPSILON) * 100) / 100}M`;
+      formattedNum = `${Math.round((absValue / 1000000 + Number.EPSILON) * 100) / 100}M`;
     } else if (digits >= 4) {
-      result = `${Math.round((absValue / 1000 + Number.EPSILON) * 100) / 100}K`;
+      formattedNum = `${Math.round((absValue / 1000 + Number.EPSILON) * 100) / 100}K`;
     } else {
-      result = `${Math.round((absValue + Number.EPSILON) * 100) / 100}`;
+      formattedNum = `${Math.round((absValue + Number.EPSILON) * 100) / 100}`;
     }
     
-    return isNegative ? `-${result}` : result;
+    return isNegative ? `-${formattedNum}` : formattedNum;
   }
 
   /**
@@ -191,7 +185,6 @@ export class UtilsService {
 
   /**
    * Returns new message object for communicating with backend server.
-   * Standardized method for all interaction messages.
    */
   initializeNewMessage(interactionType: string, data: any = {}): Message {
     const participantId = localStorage.getItem('userId');
@@ -207,11 +200,12 @@ export class UtilsService {
       interactionType,
       interactionDuration: 0,
       interactionAt: new Date().toISOString(),
-      createdAt: new Date().getTime(),
       participantId,
       data,
-      eventX: data.eventX || 0,
-      eventY: data.eventY || 0
+      createdAt: new Date().getTime(),
+      eventX: 0,
+      eventY: 0,
+      group:"control"
     };
   }
 
@@ -228,7 +222,18 @@ export class UtilsService {
       dataset["selectedObjects"][id] = d;
       context.userConfig["originalDatasetDict"][id]["selected"] = true;
       /* Prepare and Send New Message - Start */
-      let message = this.initializeNewMessage(InteractionTypes.CLICK_ADD_ITEM, { id: id, x: { name: dataset["xVar"], value: d["xVar"] }, y: { name: dataset["yVar"], value: d["yVar"] }, eventX: event.clientX, eventY: event.clientY });
+      let message = this.initializeNewMessage(InteractionTypes.CLICK_ADD_ITEM);
+      message.data["id"] = id;
+      message.data["x"] = {
+        name: dataset["xVar"],
+        value: d["xVar"],
+      };
+      message.data["y"] = {
+        name: dataset["yVar"],
+        value: d["yVar"],
+      };
+      message.data["eventX"] = event.clientX;
+      message.data["eventY"] = event.clientY;
       context.chatService.sendInteractionResponse(message);
       /* Prepare and Send New Message - End */
     }
@@ -246,7 +251,18 @@ export class UtilsService {
       context.userConfig["originalDatasetDict"][id]["selected"] = false;
       delete dataset["selectedObjects"][id];
       /* Prepare and Send New Message - Start */
-      let message = this.initializeNewMessage(InteractionTypes.CLICK_REMOVE_ITEM, { id: id, x: { name: dataset["xVar"], value: d["xVar"] }, y: { name: dataset["yVar"], value: d["yVar"] }, eventX: event.clientX, eventY: event.clientY });
+      let message = this.initializeNewMessage(InteractionTypes.CLICK_REMOVE_ITEM);
+      message.data["id"] = id;
+      message.data["x"] = {
+        name: dataset["xVar"],
+        value: d["xVar"],
+      };
+      message.data["y"] = {
+        name: dataset["yVar"],
+        value: d["yVar"],
+      };
+      message.data["eventX"] = event.clientX;
+      message.data["eventY"] = event.clientY;
       context.chatService.sendInteractionResponse(message);
       /* Prepare and Send New Message - End */
     }
@@ -298,10 +314,25 @@ export class UtilsService {
       });
     }
     /* Prepare and Send New Message - Start */
-    let message = this.initializeNewMessage(InteractionTypes.CLICK_GROUP, { id: ids, x: { name: dataset["xVar"], value: xValues }, y: { name: dataset["yVar"], value: yValues }, agg: { name: meta.aggName, axis: meta.aggAxis, value: meta.binValue, label: meta.binLabel } });
-    message.eventX = event.clientX;
-    message.eventY = event.clientY;
-    context.chatService.sendInteractionResponse(message);
+    let message = this.initializeNewMessage(InteractionTypes.CLICK_GROUP);
+    message.data["id"] = ids;
+    message.data["x"] = {
+      name: dataset["xVar"],
+      value: xValues,
+    };
+    message.data["y"] = {
+      name: dataset["yVar"],
+      value: yValues,
+    };
+    message.data["agg"] = {
+      name: meta.aggName, // aggregation applied to the bucket
+      axis: meta.aggAxis, // axis the aggregation is applied to
+      value: meta.binValue, // Value of the aggregation
+      label: meta.binLabel, // label of the bucket the agg was applied to
+    };
+    message.data["eventX"] = event.clientX;
+    message.data["eventY"] = event.clientY;
+    context.chatService.sendInteraction(message);
     /* Prepare and Send New Message - End */
   }
 
@@ -318,7 +349,6 @@ export class UtilsService {
       const delay = 350; // 350 ms delay before hover counts as an interaction
       context.userConfig["hoverTimer"] = setTimeout(function () {
         context.userConfig["hoverTimer"] = null;
-        if (element && styleAttr) d3.select(element).style(styleAttr, "cyan");
         /* Prepare and Send New Message - Start */
         let message = this_.initializeNewMessage(InteractionTypes.MOUSEOVER_ITEM);
         message.data = {
@@ -338,6 +368,20 @@ export class UtilsService {
         let startTime = context.userConfig["hoverStartTime"];
         let currentTime = this_.getCurrentTime();
         message.interactionDuration = currentTime - startTime;
+        message.data = {
+          id: d[dataset["primaryKey"]],
+          x: {
+            name: dataset["xVar"],
+            value: d["xVar"]
+          },
+          y: {
+            name: dataset["yVar"],
+            value: d["yVar"]
+          },
+          pointData: d, // Include all point data
+          eventX: event.clientX,
+          eventY: event.clientY
+        };
         context.chatService.sendInteraction(message);
         /* Prepare and Send New Message - End */
       }, delay);
@@ -375,6 +419,20 @@ export class UtilsService {
       let startTime = context.userConfig["hoverStartTime"];
       let currentTime = this.getCurrentTime();
       message.interactionDuration = currentTime - startTime;
+      message.data = {
+        id: d[dataset["primaryKey"]],
+        x: {
+          name: dataset["xVar"],
+          value: d["xVar"]
+        },
+        y: {
+          name: dataset["yVar"],
+          value: d["yVar"]
+        },
+        pointData: d, // Include all point data
+        eventX: event.clientX,
+        eventY: event.clientY
+      };
       context.chatService.sendInteraction(message);
       /* Prepare and Send New Message - End */
     }
@@ -448,14 +506,28 @@ export class UtilsService {
       context.userConfig["hoverTimer"] = setTimeout(function () {
         // reset timer function and set hovered object properties for point
         context.userConfig["hoverTimer"] = null;
-        if (element) d3.select(element).style("fill", "cyan");
         /* Prepare and Send New Message - Start */
-        let message = this_.initializeNewMessage(InteractionTypes.MOUSEOVER_GROUP, { id: dataPointIDs, x: { name: dataset["xVar"], value: xValues }, y: { name: dataset["yVar"], value: yValues }, agg: { name: meta.aggName, axis: meta.aggAxis, value: meta.binValue, label: meta.binLabel } });
+        let message = this_.initializeNewMessage(InteractionTypes.MOUSEOVER_GROUP);
         let startTime = context.userConfig["hoverStartTime"];
         let currentTime = this_.getCurrentTime();
         message.interactionDuration = currentTime - startTime;
-        message.eventX = event.clientX;
-        message.eventY = event.clientY;
+        message.data["id"] = dataPointIDs;
+        message.data["x"] = {
+          name: dataset["xVar"],
+          value: xValues,
+        };
+        message.data["y"] = {
+          name: dataset["yVar"],
+          value: yValues,
+        };
+        message.data["agg"] = {
+          name: meta.aggName, // aggregation applied to the bucket
+          axis: meta.aggAxis, // axis the aggregation is applied to
+          value: meta.binValue, // Value of the aggregation
+          label: meta.binLabel, // label of the bucket the agg was applied to
+        };
+        message.data["eventX"] = event.clientX;
+        message.data["eventY"] = event.clientY;
         context.chatService.sendInteractionResponse(message);
         /* Prepare and Send New Message - End */
       }, delay);
@@ -503,115 +575,29 @@ export class UtilsService {
         }
       });
       /* Prepare and Send New Message - Start */
-      let message = this.initializeNewMessage(InteractionTypes.MOUSEOUT_GROUP, { id: dataPointIDs, x: { name: dataset["xVar"], value: xValues }, y: { name: dataset["yVar"], value: yValues }, agg: { name: meta.aggName, axis: meta.aggAxis, value: meta.binValue, label: meta.binLabel } });
+      let message = this.initializeNewMessage(InteractionTypes.MOUSEOUT_GROUP);
       let startTime = context.userConfig["hoverStartTime"];
       let currentTime = this.getCurrentTime();
       message.interactionDuration = currentTime - startTime;
-      message.eventX = event.clientX;
-      message.eventY = event.clientY;
+      message.data["id"] = dataPointIDs;
+      message.data["x"] = {
+        name: dataset["xVar"],
+        value: xValues,
+      };
+      message.data["y"] = {
+        name: dataset["yVar"],
+        value: yValues,
+      };
+      message.data["agg"] = {
+        name: meta.aggName, // aggregation applied to the bucket
+        axis: meta.aggAxis, // axis the aggregation is applied to
+        value: meta.binValue, // Value of the aggregation
+        label: meta.binLabel, // label of the bucket the agg was applied to
+      };
+      message.data["eventX"] = event.clientX;
+      message.data["eventY"] = event.clientY;
       context.chatService.sendInteractionResponse(message);
       /* Prepare and Send New Message - End */
     }
-  }
-
-  swapXY() {
-    let dataset = this.appConfig[this.global.appMode];
-    let xVar = dataset["xVar"];
-    dataset["xVar"] = dataset["yVar"];
-    dataset["yVar"] = xVar;
-    this.updateVis();
-    /* Prepare and Send New Message - Start */
-    let message = this.initializeNewMessage(InteractionTypes.SWAP_AXES_ATTRIBUTES);
-    this.chatService.sendInteraction(message);
-    /* Prepare and Send New Message - End */
-  }
-
-  addFilter(attribute) {
-    let dataset = this.appConfig[this.global.appMode];
-    dataset["attributes"][attribute]["filter"] = true;
-    dataset["attributeInteracted"][attribute] += 1;
-
-    /* Prepare and Send New Message - Start */
-    let message = this.initializeNewMessage(InteractionTypes.ADD_FILTER, {
-      attribute: attribute
-    });
-    this.chatService.sendInteraction(message);
-    /* Prepare and Send New Message - End */
-  }
-
-  removeFilter(attribute, updateVis = true, sendMessage = true) {
-    let dataset = this.appConfig[this.global.appMode];
-    let attrConfig = dataset["attributes"][attribute];
-    if (this.utilsService.isMeasure(dataset, attribute, "N")) {
-      attrConfig["filterModel"] = attrConfig["types"];
-    } else if (this.utilsService.isMeasure(dataset, attribute, "O")) {
-      attrConfig["filterModel"] = attrConfig["types"];
-    } else if (this.utilsService.isMeasure(dataset, attribute, "Q")) {
-      attrConfig["filterModel"] = [attrConfig["min"], attrConfig["max"]];
-    } else if (this.utilsService.isMeasure(dataset, attribute, "T")) {
-      attrConfig["filterModel"] = [attrConfig["min"], attrConfig["max"]];
-    }
-
-    attrConfig["filter"] = false;
-    if (updateVis) this.updateVis();
-
-    if (sendMessage) {
-      /* Prepare and Send New Message - Start */
-      let message = this.initializeNewMessage(InteractionTypes.REMOVE_FILTER, {
-        attribute: attribute
-      });
-      this.chatService.sendInteraction(message);
-      /* Prepare and Send New Message - End */
-    }
-  }
-
-  removeFilters(updateVis = true) {
-    this.appConfig[this.global.appMode].attributeList.forEach((attribute) =>
-      this.removeFilter(attribute, false, false)
-    );
-    if (updateVis) this.updateVis();
-
-    /* Prepare and Send New Message - Start */
-    let message = this.initializeNewMessage(InteractionTypes.REMOVE_ALL_FILTERS);
-    this.chatService.sendInteraction(message);
-    /* Prepare and Send New Message - End */
-  }
-
-  resetAllEncodings() {
-    this.onChangeChart(null, true, false);
-    this.onChangeAttribute(null, "x_axis", true, false);
-    this.onChangeAttribute(null, "y_axis", true, false);
-
-    // ToDo:- Revisit this code-block when the onChangeColorByMode is available by default for all appModes.
-    if (this.global.appMode == "ADMIN") {
-      this.onChangeVISColorByMode(null, true, false);
-      this.onChangeAttributeColorByMode(null, true, false);
-    }
-    this.updateVis(); // only update the vis after all encodings are reset
-
-    /* Prepare and Send New Message - Start */
-    let message = this.initializeNewMessage(InteractionTypes.REMOVE_ALL_ENCODINGS);
-    this.chatService.sendInteraction(message);
-    /* Prepare and Send New Message - End */
-  }
-
-  updateVis(): void {
-    // Implementation will be added
-  }
-
-  onChangeChart(value: any, updateVis: boolean, sendMessage: boolean): void {
-    // Implementation will be added
-  }
-
-  onChangeAttribute(value: any, axis: string, updateVis: boolean, sendMessage: boolean): void {
-    // Implementation will be added
-  }
-
-  onChangeVISColorByMode(value: any, updateVis: boolean, sendMessage: boolean): void {
-    // Implementation will be added
-  }
-
-  onChangeAttributeColorByMode(value: any, updateVis: boolean, sendMessage: boolean): void {
-    // Implementation will be added
   }
 }
