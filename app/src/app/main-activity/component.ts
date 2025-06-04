@@ -1471,7 +1471,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     let message = new Insight();
     message.text = this.userInsight;
     message.timestamp = new Date().toISOString();
-    message.group = "interaction_trace";
+    message.group = "control";
     message.participantId = localStorage.getItem('userId');
     
     // Send to backend via websocket
@@ -1483,7 +1483,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
           timestamp: new Date().toLocaleString()
         });
         
-        // Update continue button state
+        // Update continue button statei
         this.canContinue = this.pastInsights.length >= 5;
         
         // Clear the insight field after sending
