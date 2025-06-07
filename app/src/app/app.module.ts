@@ -11,6 +11,9 @@ import { NgSelectModule } from "@ng-select/ng-select";
 import { TooltipModule } from "ng2-tooltip-directive";
 import { OverlayscrollbarsModule } from "overlayscrollbars-ngx";
 import { ReactiveFormsModule } from '@angular/forms';
+import { AngularFireModule } from '@angular/fire';
+import { AngularFirestoreModule } from '@angular/fire/firestore';
+import { environment } from '../environments/environment';
 // local
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
@@ -22,7 +25,7 @@ import { ChatService } from "./services/socket.service";
 import { UtilsService } from "./services/utils.service";
 import { MainActivityComponent } from "./main-activity/component";
 import { PostPageComponent } from './post-page/post-page.component';
-
+import { ExportPageComponent } from './export-page/export-page.component';
 
 const config: SocketIoConfig = {
   url: DeploymentConfig.SERVER_URL,
@@ -33,7 +36,8 @@ const config: SocketIoConfig = {
   declarations: [
     AppComponent,
     MainActivityComponent,
-    PostPageComponent
+    PostPageComponent,
+    ExportPageComponent
   ],
   imports: [
     NgMultiSelectDropDownModule.forRoot(),
@@ -47,7 +51,9 @@ const config: SocketIoConfig = {
     HttpClientModule,
     AppRoutingModule,
     SocketIoModule.forRoot(config),
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    AngularFireModule.initializeApp(environment.firebase),
+    AngularFirestoreModule
   ],
   providers: [
     SessionPage,
@@ -60,4 +66,4 @@ const config: SocketIoConfig = {
   ],
   bootstrap: [AppComponent],
 })
-export class AppModule {}
+export class AppModule { }

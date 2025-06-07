@@ -3,12 +3,13 @@
 import os
 from pathlib import Path
 from datetime import datetime
+import json
 
 import pandas as pd
 import socketio
 from aiohttp import web
 from aiohttp_index import IndexMiddleware
-from firebase_config import db  # Import the Firestore client
+from firebase_config import db, export_to_cloud_storage  # Import the Firestore client and export function
 from firebase_admin import credentials, firestore
 import bias
 import bias_util
@@ -251,6 +252,68 @@ async def recieve_interaction(sid, data):
         print(f"Stored interaction: {simplified_data}")
     except Exception as e:
         print(f"Error storing interaction: {e}")
+
+@SIO.event
+async def export_firestore_data(sid, data=None):
+    """Export all Firestore collections to JSON files."""
+    try:
+        # Get all collections
+        collections = ['interactions', 'questions', 'responses', 'insights']
+        export_data = {}
+        
+        for collection_name in collections:
+            # Get all documents in the collection
+            docs = db.collection(collection_name).stream()
+            collection_data = []
+            
+            for doc in docs:
+                # Convert document to dictionary and add document ID
+                doc_data = doc.to_dict()
+                doc_data['id'] = doc.id
+                collection_data.append(doc_data)
+            
+            export_data[collection_name] = collection_data
+        
+        # Create output directory if it doesn't exist
+        output_dir = Path('output/firestore_export')
+        output_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Generate filename with timestamp
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = output_dir / f'firestore_export_{timestamp}.json'
+        
+        # Write to JSON file
+        with open(filename, 'w') as f:
+            json.dump(export_data, f, indent=2)
+        
+        print(f"Successfully exported Firestore data to {filename}")
+        await SIO.emit('export_status', {'status': 'success', 'filename': str(filename)}, room=sid)
+        
+    except Exception as e:
+        error_msg = f"Error exporting Firestore data: {str(e)}"
+        print(error_msg)
+        await SIO.emit('export_status', {'status': 'error', 'message': error_msg}, room=sid)
+
+@SIO.event
+async def export_to_cloud(sid, data=None):
+    """Export Firestore data to Google Cloud Storage."""
+    try:
+        # Get bucket name from data if provided, otherwise use default
+        bucket_name = data.get('bucket_name') if data else None
+        
+        # Export to Cloud Storage
+        result = export_to_cloud_storage(bucket_name)
+        
+        # Send result back to client
+        await SIO.emit('cloud_export_status', result, room=sid)
+        
+    except Exception as e:
+        error_msg = f"Error in cloud export: {str(e)}"
+        print(error_msg)
+        await SIO.emit('cloud_export_status', {
+            'status': 'error',
+            'message': error_msg
+        }, room=sid)
 
 if __name__ == "__main__":
     bias.precompute_distributions()

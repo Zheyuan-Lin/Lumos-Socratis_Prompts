@@ -1,0 +1,117 @@
+.export-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  padding: 20px;
+}
+
+.export-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  width: 100%;
+  max-width: 600px;
+}
+
+h2 {
+  color: #333;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.collections-list {
+  margin: 24px 0;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.collections-list h4 {
+  color: #666;
+  margin-bottom: 12px;
+}
+
+.collections-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.collections-list li {
+  padding: 8px 0;
+  color: #444;
+  display: flex;
+  align-items: center;
+}
+
+.collections-list li i {
+  margin-right: 8px;
+  color: #6c757d;
+}
+
+.export-status {
+  margin: 20px 0;
+  padding: 12px;
+  border-radius: 4px;
+  background-color: #e9ecef;
+}
+
+.status-message {
+  display: flex;
+  align-items: center;
+  color: #495057;
+}
+
+.status-message i {
+  margin-right: 8px;
+}
+
+.status-message.error {
+  color: #dc3545;
+}
+
+.button-group {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+}
+
+.btn i {
+  font-size: 14px;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+  border-color: #545b62;
+}
+
+.btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+} 

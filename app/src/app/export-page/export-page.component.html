@@ -1,0 +1,41 @@
+<div class="export-container">
+  <div class="export-card">
+    <div class="export-header">
+      <h2>Export Firestore Data</h2>
+      <p class="text-muted">Access this page at <code>/export</code> to export your Firestore data</p>
+    </div>
+    
+    <div class="collections-list">
+      <h4>Collections to Export:</h4>
+      <ul>
+        <li *ngFor="let collection of collections">
+          <i class="fa fa-database"></i> {{collection}}
+        </li>
+      </ul>
+    </div>
+
+    <div class="export-status" *ngIf="exportStatus">
+      <div class="status-message" [ngClass]="{'error': exportStatus.startsWith('Error')}">
+        <i class="fa" [ngClass]="exportStatus.startsWith('Error') ? 'fa-exclamation-circle' : 'fa-info-circle'"></i>
+        {{exportStatus}}
+      </div>
+    </div>
+
+    <div class="button-group">
+      <button 
+        class="btn btn-primary" 
+        (click)="exportFirestoreData()" 
+        [disabled]="isExporting">
+        <i class="fa fa-download"></i>
+        {{isExporting ? 'Exporting...' : 'Export Data'}}
+      </button>
+      
+      <button 
+        class="btn btn-secondary" 
+        (click)="goBack()">
+        <i class="fa fa-arrow-left"></i>
+        Back to Main
+      </button>
+    </div>
+  </div>
+</div> 

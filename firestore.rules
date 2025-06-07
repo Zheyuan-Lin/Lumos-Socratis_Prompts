@@ -1,0 +1,27 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow read access to all collections
+    match /{document=**} {
+      allow read: if true;  // Allow anyone to read
+      allow write: if false; // No write access
+    }
+    
+    // Specific collection rules
+    match /interactions/{document} {
+      allow read: if true;
+    }
+    
+    match /questions/{document} {
+      allow read: if true;
+    }
+    
+    match /responses/{document} {
+      allow read: if true;
+    }
+    
+    match /insights/{document} {
+      allow read: if true;
+    }
+  }
+} 

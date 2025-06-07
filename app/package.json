@@ -3,9 +3,9 @@
   "version": "1.0.0",
     "scripts": {
       "ng": "ng",
-      "start": "NODE_OPTIONS='--openssl-legacy-provider --no-deprecation' ng serve",
-      "build": "NODE_OPTIONS='--openssl-legacy-provider --no-deprecation' ng build",
-      "vercel-build": "NODE_OPTIONS='--openssl-legacy-provider --no-deprecation' ng build",
+      "start": "--no-deprecation ng serve",
+      "build": "NODE_OPTIONS='--openssl-legacy-provider --no-deprecation' ng build --prod",
+      "vercel-build": "NODE_OPTIONS='--openssl-legacy-provider --no-deprecation' ng build --prod",
       "watch": "ng build --watch --configuration development",
       "test": "ng test",
       "lint": "ng lint",
