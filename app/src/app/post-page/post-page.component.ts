@@ -166,7 +166,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
   `]
 })
 export class PostPageComponent implements OnInit {
-  private readonly SURVEY_URL = 'https://qfreeaccountssjc1.az1.qualtrics.com/jfe/form/SV_bjcPehy9IOhUTNI';
+  private readonly SURVEY_URL = 'https://ecas.qualtrics.emory.edu/jfe/form/SV_5tEIBxhT9NwdDIa';
   
   userId: string | null = null;
   showCopied: boolean = false;
