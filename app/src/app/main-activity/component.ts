@@ -72,7 +72,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
   canContinue: boolean = false; // Flag to track if user can continue (5+ insights)
   showCopied: boolean = false;
   //timeRemaining: number = 20 * 60; // 20 minutes in seconds
-  timeRemaining: number = 10; // 10 seconds
+  timeRemaining: number = 5 * 60; // 10 seconds
   timerInterval: any;
   canContinueTime: boolean = false;
 
