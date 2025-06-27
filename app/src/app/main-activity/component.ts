@@ -1482,20 +1482,20 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
         }
 
         try {
-          // Get or create localStorage user ID
-          let localStorageUserId = localStorage.getItem('userId');
-
-          // Create timestamp for the response
-          const responseTimestamp = new Date().toISOString();
+          // Get participant ID from localStorage (consistent with interactions)
+          let participantId = localStorage.getItem('userId');
+          if (!participantId) {
+            console.error('No participant ID found in localStorage');
+            return;
+          }
 
           // Prepare the response object
           const response = {
             question_id: this.questionId,
-            question_text: this.popupQuestion,
+            question: this.popupQuestion,  // Changed from "question_text" to match backend
             response: this.popupResponse,
-            participant_id: this.global.participantId,
-            localStorage_user_id: localStorageUserId,
-            timestamp: responseTimestamp
+            participant_id: participantId,  // Use localStorage userId (consistent with interactions)
+            timestamp: new Date().toISOString()
           };
 
           // Send to backend via websocket
