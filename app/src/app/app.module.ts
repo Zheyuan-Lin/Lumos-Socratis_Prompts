@@ -28,9 +28,20 @@ import { PostPageComponent } from './post-page/post-page.component';
 import { ExportPageComponent } from './export-page/export-page.component';
 
 const config: SocketIoConfig = {
-  url: DeploymentConfig.SERVER_URL,
-  options: { timeout: 60000, autoConnect: false },
+  url: environment.serverUrl,
+  options: { 
+    timeout: 60000, 
+    autoConnect: false,
+    transports: ['websocket', 'polling'],
+    upgrade: true,
+    rememberUpgrade: true,
+    rejectUnauthorized: false
+  },
 };
+
+// Debug logging to ensure correct server URL
+console.log('Socket.IO Config URL:', config.url);
+console.log('Environment serverUrl:', environment.serverUrl);
 
 @NgModule({
   declarations: [

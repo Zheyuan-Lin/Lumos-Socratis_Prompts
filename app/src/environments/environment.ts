@@ -4,6 +4,7 @@
 
 export const environment = {
   production: false,
+  serverUrl: 'https://socraticvis-ef6d7764216f.herokuapp.com',
   firebase: {
     apiKey: "AIzaSyDPwM7yvXoLBYGL2JQg_U1LJ7XDkNEZUVY",
     projectId: "socratisprompts",
