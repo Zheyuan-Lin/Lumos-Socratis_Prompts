@@ -206,7 +206,8 @@ async def on_question_response(sid, data):
         "question": data.get("question"),
         "response": data.get("response"),
         "participant_id": data.get("participant_id"),
-        "timestamp": datetime.now().isoformat()
+        "localStorage_user_id": data.get("localStorage_user_id"),
+        "timestamp": data.get("timestamp") or datetime.now().isoformat()
     }
     try:
         # Store in Firestore
