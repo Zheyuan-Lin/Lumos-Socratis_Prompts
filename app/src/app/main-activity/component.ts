@@ -1476,29 +1476,40 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
        * Sends the user's response to a question to the backend
        */
       sendPopupResponse() {
-        // Validate both response and current question
-        if (!this.popupResponse.trim() || !this.currentQuestion) {
+        // Validate response
+        if (!this.popupResponse.trim()) {
           return;
         }
 
         try {
+          // Get or create localStorage user ID
+          let localStorageUserId = localStorage.getItem('userId');
+
+          // Create timestamp for the response
+          const responseTimestamp = new Date().toISOString();
+
           // Prepare the response object
           const response = {
-            question_id: this.currentQuestion.id,
-            question: this.currentQuestion.text,
+            question_id: this.questionId,
+            question_text: this.popupQuestion,
             response: this.popupResponse,
-            participant_id: localStorage.getItem('userId'),
-            timestamp: new Date().toISOString()
+            participant_id: this.global.participantId,
+            localStorage_user_id: localStorageUserId,
+            timestamp: responseTimestamp
           };
 
           // Send to backend via websocket
           this.chatService.sendQuestionResponse(response);
 
+          // Log locally for debugging
+          console.log('Response sent:', response);
+
           // Clear the response field and hide popup
           this.popupResponse = '';
           this.isPopupVisible = false;
           this.isMinimized = false;
-          this.currentQuestion = null;
+          this.questionId = '';
+          this.popupQuestion = '';
         } catch (error) {
           console.error('Error sending response:', error);
         }

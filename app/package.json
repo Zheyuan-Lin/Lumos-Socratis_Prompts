@@ -3,7 +3,7 @@
   "version": "1.0.0",
     "scripts": {
       "ng": "ng",
-      "start": "--no-deprecation ng serve",
+      "start": "NODE_OPTIONS='--openssl-legacy-provider --no-deprecation' ng serve",
       "build": "NODE_OPTIONS='--openssl-legacy-provider --no-deprecation' ng build --prod",
       "vercel-build": "NODE_OPTIONS='--openssl-legacy-provider --no-deprecation' ng build --prod",
       "watch": "ng build --watch --configuration development",
