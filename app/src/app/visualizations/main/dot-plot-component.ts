@@ -75,32 +75,8 @@ export class DotPlot {
     // Add dots groups
     context.dotPlotConfig.dotsGroup = context.plotGroup.append("g").classed("dots", true);
 
-    // Add legend group, text and gradient rectangle
+    // Add legend group (empty for now)
     context.dotPlotConfig.legendGroup = context.plotGroup.append("g").classed("legend", true);
-    if (context.global.appType !== "CONTROL") {
-      let xPos = context.plotWidth; // x position of element, gets updated dynamically
-      const pad = 5; // padding between elements
-      const gradRectWidth = context.plotWidth / 5; // width of gradient rectangle
-      const el = context.dotPlotConfig.legendGroup
-        .append("text")
-        .attr("transform", `translate(${xPos}, ${(-5 / 8) * plotMargins.top})`)
-        .attr("text-anchor", "end")
-        .text("More Focus");
-      xPos -= Math.abs(el.node().getBBox()["x"]) + gradRectWidth + pad;
-      context.dotPlotConfig.legendGroup
-        .append("rect")
-        .attr("transform", `translate(${xPos}, ${(-3 / 4) * plotMargins.top})`)
-        .attr("width", gradRectWidth)
-        .attr("height", (1 / 8) * plotMargins.top)
-        .style("rx", "4")
-        .style("fill", "url(#grad)");
-      xPos -= pad;
-      context.dotPlotConfig.legendGroup
-        .append("text")
-        .attr("transform", `translate(${xPos}, ${(-5 / 8) * plotMargins.top})`)
-        .attr("text-anchor", "end")
-        .text("Less Focus");
-    }
 
     // Create unsupported text to display if chart cannot render
     context.dotPlotConfig.unsupportedMessage = `
@@ -285,6 +261,34 @@ export class DotPlot {
 
     // UPDATE all existing dots
     enterSelection.append("circle");
+    
+    // ENTER text for count labels
+    const offset = 5;
+    enterSelection
+      .append("text")
+      .attr("class", "bubble-count-label")
+      .attr("transform", (d) => {
+        const x = context.dotPlotConfig.xScale;
+        const y = context.dotPlotConfig.yScale;
+        const dotX = !xIsQ && !xIsNA
+          ? x(d[0].split(binLabelDelim)[0]) + x.bandwidth() / 2
+          : 0.5 * y.bandwidth();
+        const dotY = !yIsQ && !yIsNA
+          ? y(d[0].split(binLabelDelim)[1]) + y.bandwidth() / 2
+          : context.plotHeight - 0.5 * x.bandwidth();
+        return `translate(${dotX}, ${dotY - offset})`;
+      })
+      .attr("display", "none")
+      .style("text-anchor", "middle")
+      .style("font-size", "12px")
+      .style("font-weight", "bold")
+      .text((d) => d[1].length);
+    
+    // Compute max count for scaling
+    let maxCount = 0;
+    if (buckets && buckets.length > 0) {
+      maxCount = d3.max(buckets, d => d[1].length);
+    }
     enterSelection
       .merge(dataBound)
       .select("circle")
@@ -301,11 +305,12 @@ export class DotPlot {
             : context.plotHeight - 0.5 * x.bandwidth(); // align bottom
         return `translate(${d["x"]}, ${d["y"]})`;
       })
-      .attr("r", () => {
-        // fit the dots within the smallest bandwidth on either axis
-        const x = context.dotPlotConfig.xScale;
-        const y = context.dotPlotConfig.yScale;
-        return `${0.25 * Math.min(x.bandwidth(), y.bandwidth())}px`;
+      .attr("r", (d) => {
+        // Bubble size by count
+        const count = d[1].length;
+        const minR = 8;
+        const maxR = 0.4 * Math.min(context.dotPlotConfig.xScale.bandwidth(), context.dotPlotConfig.yScale.bandwidth());
+        return count && maxCount ? (minR + (maxR - minR) * (count / maxCount)) : minR;
       })
       .style("fill", (d) => {
         // fill based on interactions with underlying data points!
@@ -350,6 +355,8 @@ export class DotPlot {
         }
       })
       .on("mouseover", function (event, d) {
+        // Show the count label
+        d3.select(this.parentNode).select(".bubble-count-label").attr("display", "block");
         context.utilsService.mouseoverGroup(context, event, this, {
           aggName: null,
           aggAxis: null,
@@ -359,6 +366,8 @@ export class DotPlot {
         });
       })
       .on("mouseout", function (event, d) {
+        // Hide the count label
+        d3.select(this.parentNode).select(".bubble-count-label").attr("display", "none");
         context.utilsService.mouseoutGroup(context, event, {
           aggName: null,
           aggAxis: null,

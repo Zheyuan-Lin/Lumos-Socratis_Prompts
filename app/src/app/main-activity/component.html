@@ -1,7 +1,7 @@
 <!-- Top Navigation Bar -->
 <nav class="navbar navbar-light bg-light">
   <div class="navbar-collapse collapse show justify-content-between align-items-center w-100" id="collapsingNavbar2">
-    <div class="navbar-brand" style="color: #007bff; font-weight: bold;">Lumos</div>
+    <div class="navbar-brand" style="color: #fd7e14; font-weight: bold;">Lumos</div>
   </div>
 </nav>
 
@@ -175,7 +175,7 @@
                   </tr>
                 </table>
               </header>
-
+        
               <!-- Content: Attributes -->
               <div class="accordion" id="attributeaccordion">
                 <div *ngFor="let attribute of customSortAttributePanel(appConfig[global.appMode].attributeList);">
@@ -225,10 +225,7 @@
                   </small>
               </div>
         
-              <!-- Scale Indicator for Quantitative Attributes -->
-              <div class="scale-indicator" *ngIf="hasQuantitativeAttributesWithScale()">
-
-              </div>
+    
             </article>
           </div>
         </as-split-area>
@@ -269,12 +266,13 @@
                   <div class="row mb-sm">
                     <label class="col-sm-4 col-form-label">Chart</label>
                     <div class="col-sm-8">
-                      <ng-select name="chartSelect" [searchable]="false" appendTo="body"
+                      <ng-select name="chartTypeSelect" [searchable]="false" appendTo="body"
                         [(ngModel)]="appConfig[global.appMode]['chartType']" (change)="onChangeChart($event)"
-                        (clear)="onChangeChart($event, true)">
-                        <ng-option *ngFor="let c of userConfig['charts']" [value]="c">
-                          {{userConfig['chartMapping'][c]}}
-                        </ng-option>
+                        [clearable]="false">
+                        <ng-option value="scatterplot">Scatter Plot</ng-option>
+                        <ng-option value="stripplot">Strip Plot</ng-option>
+                        <ng-option value="barchart">Bar Chart</ng-option>
+                        <ng-option value="linechart">Line Chart</ng-option>
                       </ng-select>
                     </div>
                   </div>
@@ -372,7 +370,10 @@
                       <label class="col-sm-4 col-form-label">Agg</label>
                       <div class="col-sm-8">
                         <ng-select name="aggTypeSelect" [searchable]="false" appendTo="body"
-                          [(ngModel)]="appConfig[global.appMode]['aggType']" (change)="onChangeAggregation($event)"
+                          [(ngModel)]="appConfig[global.appMode]['aggType']" 
+                          (change)="onChangeAggregation($event)"
+                          (ngModelChange)="onChangeAggregation($event)"
+                          (selectionChange)="onChangeAggregation($event)"
                           [clearable]="false">
                           <ng-option *ngFor="let a of userConfig['aggregations']" [value]="a">
                             {{userConfig['aggregationMapping'][a]}}
@@ -382,19 +383,7 @@
                     </div>
                   </div>
 
-                  <!-- OPTION: Color By -->
-                  <div *ngIf="global.appType != 'CONTROL'" class="row mb-sm">
-                    <label class="col-sm-4 col-form-label">Color By</label>
-                    <div class="col-sm-8">
-                      <ng-select name="visColorByModeSelect" [searchable]="false" [clearable]="false" appendTo="body"
-                        [(ngModel)]="appConfig[global.appMode]['colorByMode']" (change)="onChangeVISColorByMode($event)"
-                        (clear)="onChangeColorByMode($event, true)">
-                        <ng-option *ngFor="let m of userConfig['colorByModes']" [value]="m">
-                          {{userConfig['colorByModeMapping'][m]}}
-                        </ng-option>
-                      </ng-select>
-                    </div>
-                  </div>
+
                 </form>
               </div>
             </article>
@@ -546,10 +535,15 @@
                 <div class="past-insights mt-4" *ngIf="pastInsights.length > 0">
                   <h6 class="mb-3">Your Past Insights</h6>
                   <div class="insight-list">
-                    <div class="insight-item" *ngFor="let insight of pastInsights">
+                    <div class="insight-item" *ngFor="let insight of pastInsights; let i = index">
                       <div class="insight-text">{{insight.text}}</div>
                       <div class="insight-timestamp text-muted">
                         <small><i class="fa fa-clock-o mr-1"></i> {{insight.timestamp}}</small>
+                      </div>
+                      <div class="insight-actions mt-2">
+                        <button class="btn btn-sm btn-link text-danger p-0" (click)="deleteInsight(i)" title="Delete">
+                          <i class="fa fa-trash"></i>
+                        </button>
                       </div>
                     </div>
                   </div>

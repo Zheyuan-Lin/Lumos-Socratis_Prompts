@@ -61,7 +61,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
   userResponse: string = '';
   isPopupVisible: boolean = true;
   isMinimized: boolean = false;
-  popupQuestion: string = "What do you think about this visualization?";
+  popupQuestion: string = "You will see prompts here as you explore.";
   questionId: string = '';
   popupResponse: string = '';
   userId: string | null = null;
@@ -77,8 +77,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
   canContinueTime: boolean = false;
   editingInsightIndex: number = -1; // Track which insight is being edited
   editingInsightText: string = ''; // Store the text being edited
-  isDataShown: boolean = false; // Control data preview visibility
-
+  isDataShown: boolean = false;
   constructor(
     private route: ActivatedRoute,
     public utilsService: UtilsService,
@@ -211,6 +210,9 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
       // and Quantitative (Q) attributes defined above for *ngFor purposes.
       dataset.attributeDatatypeList[attribute["datatype"]].push(attr);
     });
+
+    // Sort all attribute datatype lists alphabetically
+    this.sortAttributeDatatypeLists(dataset);
 
     // Load the data itself from file
     const fp = "./assets/" + context.global.appMode;
@@ -685,6 +687,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     
     switch (this.currentPlotType) {
       case "scatterplot":
+        console.log('📈 Updating scatterplot...');
         // use VIS Matrix to determine which version to update
         let context = this;
         let dataset = context.appConfig[context.global.appMode];
@@ -699,21 +702,26 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
         }
         break;
       case "stripplot":
+        console.log('📊 Updating stripplot...');
         this.stripPlotInstance.update();
         break;
       case "barchart":
+        console.log('📊 Updating barchart...');
         this.barChartInstance.update();
         break;
       case "linechart":
+        console.log('📈 Updating linechart...');
         this.lineChartInstance.update();
         break;
       case null:
+        console.log('🗑️ Clearing plot container...');
         $("#plot_container").empty(); // clear existing plot
         break;
       default:
-        console.log(`Invalid plot type '${this.currentPlotType}'`);
+        console.log(`❌ Invalid plot type '${this.currentPlotType}'`);
         break;
     }
+    console.log('✅ updateVis completed');
   }
 
   /** ======================== INTERFACE METHODS ========================== */
@@ -1016,45 +1024,6 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Mark all attribute cards in the AwarenessPanel to be `visible`
-   */
-  expandAccordion(attribute = null) {
-    let dataset = this.appConfig[this.global.appMode];
-    if (attribute == null) {
-      dataset.attributeList.forEach((attr) => {
-        dataset["attributes"][attr]["awarenessPanel"]["isExpanded"] = true;
-      });
-      $("#awarenessaccordion .collapse").addClass("show");
-      this.updateAwarenessPanel(); // Refresh the awareness panel visualizations
-
-      /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initializeNewMessage(InteractionTypes.TOGGLE_ALL_ATTRIBUTE_ACCORDION_AWARENESS_PANEL);
-      message.data = {
-        isExpanded: true,
-        eventX: null,
-        eventY: null,
-      };
-      this.chatService.sendInteractionResponse(message);
-      /* Prepare and Send New Message - End */
-    } else {
-      dataset["attributes"][attribute]["awarenessPanel"]["isExpanded"] = true;
-      $("#awarenesscollapse-" + dataset["attributes"][attribute]["cleaned"]).addClass("show");
-      this.updateAwarenessPanel(attribute); // Refresh the awareness panel visualizations just for this attribute
-
-      /* Prepare and Send New Message - Start */
-      let message = this.utilsService.initializeNewMessage(InteractionTypes.TOGGLE_ATTRIBUTE_ACCORDION_AWARENESS_PANEL);
-      message.data = {
-        attribute: attribute,
-        isExpanded: dataset["attributes"][attribute]["awarenessPanel"]["isExpanded"],
-        eventX: null,
-        eventY: null,
-      };
-      this.chatService.sendInteractionResponse(message);
-      /* Prepare and Send New Message - End */
-    }
-  }
-
-  /**
    * Mark all attribute cards in the AwarenessPanel to be `hidden`
    */
   collapseAccordion(attribute = null) {
@@ -1078,6 +1047,45 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     } else {
       dataset["attributes"][attribute]["awarenessPanel"]["isExpanded"] = false;
       $("#awarenesscollapse-" + dataset["attributes"][attribute]["cleaned"]).removeClass("show");
+      this.updateAwarenessPanel(attribute); // Refresh the awareness panel visualizations just for this attribute
+
+      /* Prepare and Send New Message - Start */
+      let message = this.utilsService.initializeNewMessage(InteractionTypes.TOGGLE_ATTRIBUTE_ACCORDION_AWARENESS_PANEL);
+      message.data = {
+        attribute: attribute,
+        isExpanded: dataset["attributes"][attribute]["awarenessPanel"]["isExpanded"],
+        eventX: null,
+        eventY: null,
+      };
+      this.chatService.sendInteractionResponse(message);
+      /* Prepare and Send New Message - End */
+    }
+  }
+
+  /**
+   * Mark all attribute cards in the AwarenessPanel to be `visible`
+   */
+  expandAccordion(attribute = null) {
+    let dataset = this.appConfig[this.global.appMode];
+    if (attribute == null) {
+      dataset.attributeList.forEach((attr) => {
+        dataset["attributes"][attr]["awarenessPanel"]["isExpanded"] = true;
+      });
+      $("#awarenessaccordion .collapse").addClass("show");
+      this.updateAwarenessPanel(); // Refresh the awareness panel visualizations
+
+      /* Prepare and Send New Message - Start */
+      let message = this.utilsService.initializeNewMessage(InteractionTypes.TOGGLE_ALL_ATTRIBUTE_ACCORDION_AWARENESS_PANEL);
+      message.data = {
+        isExpanded: true,
+        eventX: null,
+        eventY: null,
+      };
+      this.chatService.sendInteractionResponse(message);
+      /* Prepare and Send New Message - End */
+    } else {
+      dataset["attributes"][attribute]["awarenessPanel"]["isExpanded"] = true;
+      $("#awarenesscollapse-" + dataset["attributes"][attribute]["cleaned"]).addClass("show");
       this.updateAwarenessPanel(attribute); // Refresh the awareness panel visualizations just for this attribute
 
       /* Prepare and Send New Message - Start */
@@ -1159,6 +1167,11 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
    * Disable all filters and reset the visualization.
    */
   removeFilters(updateVis = true) {
+    // Show confirmation dialog before removing all filters
+    if (!confirm("Are you sure you want to remove all filters?")) {
+      return; // User cancelled the operation
+    }
+    
     this.appConfig[this.global.appMode].attributeList.forEach((attribute) =>
       this.removeFilter(attribute, false, false)
     );
@@ -1233,6 +1246,13 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
         break;
     }
     
+    
+    console.log('🔍 After onChangeAttribute:', {
+      xVar: dataset["xVar"],
+      yVar: dataset["yVar"],
+      shouldShowAgg: this.shouldShowAggregationDropdown()
+    });
+    
     if (updateVis) {
       initializePlotInstance(this, this.currentPlotType);
       this.updateVis();
@@ -1249,6 +1269,8 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
       /* Prepare and Send New Message - End */
     }
   }
+
+
 
   /**
    * Check if aggregation dropdown should be visible
@@ -1268,6 +1290,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
   }
 
   onChangeAggregation(event, updateVis = true) {
+    console.log('🚨 onChangeAggregation CALLED!', event);
     let dataset = this.appConfig[this.global.appMode];
         
     this.updateVis();
@@ -1586,7 +1609,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     
     // Show the popup
     this.isPopupVisible = true;
-    this.isMinimized = false;
+    this.isMinimized = true; // Start minimized instead of expanded
   }
 
   onContinue() {
@@ -1754,18 +1777,23 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
    * Test method to manually trigger aggregation change
    */
   testAggregationChange() {
+    console.log('🧪 Testing aggregation change manually');
     this.onChangeAggregation('test', true);
   }
 
-  testXAxisChange() {
-    this.onChangeAttribute('test', 'x_axis', false, true);
-  }
-
-  /**
+    /**
    * Toggle the data preview visibility
    */
-  toggleDataPreview() {
-    this.isDataShown = !this.isDataShown;
+    toggleDataPreview() {
+      this.isDataShown = !this.isDataShown;
+    }
+
+  /**
+   * Toggle the minimized state of the popup window
+   */
+  toggleMinimize() {
+    this.isMinimized = !this.isMinimized;
+    console.log("Minimized state:", this.isMinimized);
   }
 
 }
@@ -1839,18 +1867,19 @@ function createPlotInstance(context, plotObject) {
 function initializePlotInstance(context, chartType) {
   switch (chartType) {
     case "scatterplot":
-      // use VIS Matrix to determine which version to initialize
       let dataset = context.appConfig[context.global.appMode];
       const xVar = dataset["xVar"];
       const yVar = dataset["yVar"];
       const xIsQ = context.utilsService.isMeasure(dataset, xVar, "Q");
       const yIsQ = context.utilsService.isMeasure(dataset, yVar, "Q");
-      if (!(xVar || yVar) || xIsQ || yIsQ) {
-        context.currentPlotInstance = "scatterplot";
-        context.scatterPlotInstance.initialize();
-      } else {
+      const xIsCat = context.utilsService.isMeasure(dataset, xVar, "N") || context.utilsService.isMeasure(dataset, xVar, "O");
+      const yIsCat = context.utilsService.isMeasure(dataset, yVar, "N") || context.utilsService.isMeasure(dataset, yVar, "O");
+      if (xVar && yVar && xIsCat && yIsCat) {
         context.currentPlotInstance = "dotplot";
         context.dotPlotInstance.initialize();
+      } else {
+        context.currentPlotInstance = "scatterplot";
+        context.scatterPlotInstance.initialize();
       }
       break;
     case "stripplot":

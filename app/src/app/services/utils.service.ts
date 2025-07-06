@@ -98,17 +98,25 @@ export class UtilsService {
    */
   aggregate(values, aggType, xyVar) {
     if (values.length) {
+      // Filter out null/undefined values for all aggregations except count
+      let validValues = values.filter(d => d[xyVar] != null && d[xyVar] !== undefined);
+      
       switch (aggType) {
         case "count":
-          return d3.count(values, (d) => d[xyVar]);
+          // Count all values, including null/undefined
+          return values.length;
         case "min":
-          return d3.min(values, (d) => d[xyVar]);
+          if (validValues.length === 0) return 0;
+          return d3.min(validValues, (d) => +d[xyVar]);
         case "max":
-          return d3.max(values, (d) => d[xyVar]);
+          if (validValues.length === 0) return 0;
+          return d3.max(validValues, (d) => +d[xyVar]);
         case "avg":
-          return d3.mean(values, (d) => d[xyVar]);
+          if (validValues.length === 0) return 0;
+          return d3.mean(validValues, (d) => +d[xyVar]);
         case "sum":
-          return d3.sum(values, (d) => d[xyVar]);
+          if (validValues.length === 0) return 0;
+          return d3.sum(validValues, (d) => +d[xyVar]);
         default:
           return 0; // no agg applied yet
       }
