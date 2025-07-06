@@ -102,32 +102,8 @@ export class LineChart {
       .attr("fill", "none")
       .attr("stroke", "currentColor");
 
-    // Add legend group, text and gradient rectangle
+    // Add legend group (empty for now)
     context.lineChartConfig.legendGroup = context.plotGroup.append("g").classed("legend", true);
-    if (context.global.appType !== "CONTROL") {
-      let xPos = context.plotWidth; // x position of element, gets updated dynamically
-      const pad = 5; // padding between elements
-      const gradRectWidth = context.plotWidth / 5; // width of gradient rectangle
-      const el = context.lineChartConfig.legendGroup
-        .append("text")
-        .attr("transform", `translate(${xPos}, ${(-5 / 8) * plotMargins.top})`)
-        .attr("text-anchor", "end")
-        .text("More Focus");
-      xPos -= Math.abs(el.node().getBBox()["x"]) + gradRectWidth + pad;
-      context.lineChartConfig.legendGroup
-        .append("rect")
-        .attr("transform", `translate(${xPos}, ${(-3 / 4) * plotMargins.top})`)
-        .attr("width", gradRectWidth)
-        .attr("height", (1 / 8) * plotMargins.top)
-        .style("rx", "4")
-        .style("fill", "url(#grad)");
-      xPos -= pad;
-      context.lineChartConfig.legendGroup
-        .append("text")
-        .attr("transform", `translate(${xPos}, ${(-5 / 8) * plotMargins.top})`)
-        .attr("text-anchor", "end")
-        .text("Less Focus");
-    }
 
     // Create unsupported text to display if chart cannot render
     context.lineChartConfig.unsupportedMessage = `

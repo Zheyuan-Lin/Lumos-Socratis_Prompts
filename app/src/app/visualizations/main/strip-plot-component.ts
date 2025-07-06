@@ -75,35 +75,8 @@ export class StripPlot {
     // Add strips groups
     context.stripPlotConfig.stripsGroup = context.plotGroup.append("g").classed("strips", true);
 
-    // Add legend group, text and gradient rectangle
+    // Add legend group (empty for now)
     context.stripPlotConfig.legendGroup = context.plotGroup.append("g").classed("legend", true);
-    if (context.global.appType !== "CONTROL") {
-      const pad = 5; // padding (px) between elements
-      const gradRectWidth = context.plotWidth / 5; // width of gradient rectangle
-      const leftLabel = "Less Focus"; // label on the left of the legend gradient
-      const rightLabel = "More Focus"; // label on the right of the legend gradient
-      // build the legend right to left
-      let xPos = context.plotWidth; // x position of element, gets updated dynamically
-    let el = context.stripPlotConfig.legendGroup
-        .append("text")
-        .attr("transform", `translate(${xPos}, ${(-5 / 8) * plotMargins.top})`)
-        .attr("text-anchor", "end")
-        .text(rightLabel);
-      xPos -= Math.abs(el.node().getBBox()["x"]) + gradRectWidth + pad;
-      context.stripPlotConfig.legendGroup
-        .append("rect")
-        .attr("transform", `translate(${xPos}, ${(-3 / 4) * plotMargins.top})`)
-        .attr("width", gradRectWidth)
-        .attr("height", (1 / 8) * plotMargins.top)
-        .style("rx", "4")
-        .style("fill", "url(#grad)");
-      xPos -= pad;
-      context.stripPlotConfig.legendGroup
-        .append("text")
-        .attr("transform", `translate(${xPos}, ${(-5 / 8) * plotMargins.top})`)
-        .attr("text-anchor", "end")
-        .text(leftLabel);
-    }
 
     // Create unsupported text to display if chart cannot render
     context.stripPlotConfig.unsupportedMessage = `

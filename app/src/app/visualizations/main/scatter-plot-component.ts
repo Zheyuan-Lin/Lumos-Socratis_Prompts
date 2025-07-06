@@ -148,14 +148,11 @@ export class ScatterPlot {
       xAxisTitle = dataset["xVar"];
       yAxisTitle = dataset["yVar"];
       if (xIsQ) {
-        // x is Q => scale linear
+        // x is Q => scale linear with actual data range
+        const xExtent = d3.extent(prepared, d => d["xVar"]);
         context.scatterPlotConfig.xScale = d3
           .scaleLinear()
-          .domain(
-            d3.extent(rawData, function (d) {
-              return d["xVar"];
-            })
-          )
+          .domain(xExtent)
           .range([0, context.plotWidth]);
       } else {
         // x is N/O/T => scale ordinal
@@ -174,14 +171,11 @@ export class ScatterPlot {
           .padding(0.1);
       }
       if (yIsQ) {
-        // y is Q => scale linear
+        // y is Q => scale linear with actual data range
+        const yExtent = d3.extent(prepared, d => d["yVar"]);
         context.scatterPlotConfig.yScale = d3
           .scaleLinear()
-          .domain(
-            d3.extent(rawData, function (d) {
-              return d["yVar"];
-            })
-          )
+          .domain(yExtent)
           .range([context.plotHeight, 0]);
       } else {
         // y is N/O/T => scale ordinal
@@ -210,12 +204,24 @@ export class ScatterPlot {
     // set x axis
     context.scatterPlotConfig.xAxis = d3
       .axisBottom(context.scatterPlotConfig.xScale)
-      .tickFormat((d) => (xIsQ ? context.utilsService.formatLargeNum(+d) : d.toString()));
+      .tickFormat((d) => {
+        if (xIsQ) {
+          return context.utilsService.formatLargeNum(+d);
+        } else {
+          return d.toString();
+        }
+      });
 
     // set y axis
     context.scatterPlotConfig.yAxis = d3
       .axisLeft(context.scatterPlotConfig.yScale)
-      .tickFormat((d) => (yIsQ ? context.utilsService.formatLargeNum(+d) : d.toString()));
+      .tickFormat((d) => {
+        if (yIsQ) {
+          return context.utilsService.formatLargeNum(+d);
+        } else {
+          return d.toString();
+        }
+      });
 
     // draw axes
     context.scatterPlotConfig.xAxisGroup.call(context.scatterPlotConfig.xAxis);

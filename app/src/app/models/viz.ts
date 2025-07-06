@@ -67,3 +67,4 @@ export class LineChartConfig {
   focusDivergentColorScale: Function;
   sizeScale: Function;
 }
+

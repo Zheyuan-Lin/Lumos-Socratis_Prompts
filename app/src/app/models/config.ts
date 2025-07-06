@@ -80,7 +80,7 @@ export const enum InteractionTypes {
  */
 export var UserConfig = {
   // Default settings for various parameters
-  attributeSortByMode: "default",
+  attributeSortByMode: "A-Z, 0-9",
   attributeColorByMode: "rel",
   attributeColorScale: "Sequential",
   awarenessMode: "Percentage",
@@ -134,7 +134,6 @@ export var UserConfig = {
   charts: ["scatterplot", "stripplot", "barchart", "linechart"],
   aggregations: ["count", "avg", "min", "max", "sum"],
   awarenessModes: ["Percentage", "Raw"],
-  colorByModes: ["abs", "rel", "binary"],
   colorScales: ["Divergent", "Sequential"],
   attributeControlSortByModes: ["default", "reverse-dtype", "dtype", "A-Z, 0-9", "Z-A, 9-0"],
   attributeSortByModes: ["default", "reverse-dtype", "dtype", "Focus 1-0", "Focus 0-1", "A-Z, 0-9", "Z-A, 9-0"],
@@ -168,11 +167,6 @@ export var UserConfig = {
     min: "Minimum",
     max: "Maximum",
     sum: "Sum",
-  },
-  colorByModeMapping: {
-    abs: "Absolute Freq",
-    rel: "Relative Freq",
-    binary: "Binary",
   },
   colorScaleMapping: {
     Divergent: "Divergent",
@@ -1050,8 +1044,8 @@ export const AppConfig = {
       "voted_last_election": {
           name: "Voted in Last Election",
           datatype: "N",
-          types: [true, false],  // Add boolean values
-          filterModel: [true, false]
+          types: ["True", "False"],  // Add boolean values as strings
+          filterModel: ["True", "False"]
       }
   }
 },
