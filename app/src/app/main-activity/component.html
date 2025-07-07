@@ -483,6 +483,29 @@
                       </div>
                     </ng-container>
                   </div>
+
+                  <!-- OPTION: Ordinal Attributes -->
+                  <div class="form-group"
+                    *ngFor="let attribute of appConfig[global.appMode].attributeDatatypeList['O'];">
+                    <ng-container *ngIf="appConfig[global.appMode]['attributes'][attribute]['filter']">
+                      <span>
+                        <label class="form-label" for="{{'select_' + attribute}}">{{attribute}}</label>
+                        <button class="btn btn-light btn-sm float-right" (click)="removeFilter(attribute)">
+                          <i class="fa fa-times"></i>
+                        </button>
+                      </span>
+                      <ng-multiselect-dropdown name="{{'select_' + attribute}}" [placeholder]="' '" appendTo="body"
+                        [data]="appConfig[global.appMode]['attributes'][attribute]['types']"
+                        [(ngModel)]="appConfig[global.appMode]['attributes'][attribute]['filterModel']"
+                        [settings]="userConfig['filterMultiselectDropdownSettings']"
+                        (onSelect)="onChangeFilter(attribute, 'select')"
+                        (onSelectAll)="onChangeFilter(attribute, 'selectAll')"
+                        (onDeSelect)="onChangeFilter(attribute, 'deselect')"
+                        (onDeSelectAll)="onChangeFilter(attribute, 'deselectAll')">
+                      </ng-multiselect-dropdown>
+                      <hr class="separator" />
+                    </ng-container>
+                  </div>
                 </form>
               </div>
             </article>
