@@ -149,7 +149,6 @@ export class BarChart {
       aggType = "count"; // Default fallback
     }
     
-    console.log('📊 BarChart update - aggType:', aggType, 'dataset aggType:', dataset["aggType"]);
     
     let aggTitle = "";
     if (context.userConfig["aggregationMapping"] && context.userConfig["aggregationMapping"][aggType]) {
@@ -158,7 +157,7 @@ export class BarChart {
       aggTitle = aggType.toUpperCase();
     }
     
-    console.log('📊 BarChart update - aggTitle:', aggTitle);
+ 
     
     let xScale = context.barChartConfig.xScale;
     let xAxis = context.barChartConfig.xAxis;
@@ -167,11 +166,18 @@ export class BarChart {
     let xIsQ = utils.isMeasure(dataset, dataset["xVar"], "Q");
     let yIsQ = utils.isMeasure(dataset, dataset["yVar"], "Q");
 
-    // Debug logging to track aggregation changes
-    console.log("Updating chart with aggType:", aggType, "xVar:", dataset["xVar"], "yVar:", dataset["yVar"]);
+
 
     // Check if we should create a grouped bar chart (both variables are categorical)
     let shouldCreateGroupedBar = dataset["xVar"] && dataset["yVar"] && !xIsQ && !yIsQ;
+
+    console.log("Bar chart debugging:", {
+      xVar: dataset["xVar"],
+      yVar: dataset["yVar"],
+      xIsQ: xIsQ,
+      yIsQ: yIsQ,
+      shouldCreateGroupedBar: shouldCreateGroupedBar
+    });
 
     if (shouldCreateGroupedBar) {
       // Create grouped bar chart
@@ -289,7 +295,7 @@ export class BarChart {
       yScale.domain(d3.range(buckets.length));
       xScale = d3.scaleLinear().range([0, context.plotWidth]);
       
-      // Handle X-axis range properly based on value distribution
+      // Handle negative values properly for horizontal charts with aggregated data
       let minVal = d3.min(buckets, (d) => d[1]) || 0;
       let maxVal = d3.max(buckets, (d) => d[1]) || 0;
       
@@ -400,7 +406,14 @@ export class BarChart {
         // Handle negative values properly for horizontal charts with aggregated data
         let minVal = d3.min(buckets, (d) => d[1]) || 0;
         let maxVal = d3.max(buckets, (d) => d[1]) || 0;
-        xScale.domain([minVal, maxVal]).nice();
+        
+        if (minVal >= 0) {
+          xScale.domain([0, maxVal]).nice();
+        } else if (maxVal <= 0) {
+          xScale.domain([minVal, 0]).nice();
+        } else {
+          xScale.domain([minVal, maxVal]).nice();
+        }
         
         xAxis = d3.axisBottom(xScale).tickFormat((d) => utils.formatLargeNum(+d));
       }
@@ -561,16 +574,58 @@ export class BarChart {
         d3.select(this)
           .style("stroke", "brown")
           .style("stroke-width", "3px");
+        
+        // Add hover functionality to show grouped data details
+        context.utilsService.mouseoverGroup(context, event, this, {
+          aggName: aggType,
+          aggAxis: horizontal ? "x-axis" : "y-axis",
+          binLabel: d[0],
+          binValue: d[1],
+          binData: d[2] || [], // Use the bin data if available, otherwise empty array
+        });
       })
       .on("mouseout", function (event, d) {
         d3.select(this.parentNode).select("text").attr("display", "none");
         d3.select(this)
           .style("stroke", "black")
           .style("stroke-width", "1px");
+        
+        // Remove hover functionality
+        context.utilsService.mouseoutGroup(context, event, {
+          aggName: aggType,
+          aggAxis: horizontal ? "x-axis" : "y-axis",
+          binLabel: d[0],
+          binValue: d[1],
+          binData: d[2] || [],
+        });
       });
 
     // Hide legend since we're not using colors for single-dimension charts
     context.barChartConfig.legendGroup.style("display", "none");
+    
+    // FILTER can update `buckets` => must update hovered Objects list
+    if (dataset["hoveredObjects"]["binName"]) {
+      // binName set => there is a bin visible in details view, reset existing object
+      let currentBinName = dataset["hoveredObjects"]["binName"];
+      dataset["hoveredObjects"] = { binName: null, binAttr: null, points: {} };
+      // look for the bin in the filtered data set. If not there, table is already reset!
+      for (let bin of buckets) {
+        if (bin[0] == currentBinName) {
+          // found the bin! => update hovered Objects for possible FILTER
+          dataset["hoveredObjects"]["binName"] = currentBinName;
+          bin[2].forEach((d) => {
+            const id = d[dataset["primaryKey"]];
+            if (id !== "-") {
+              // use dict OBJECT to update source data by reference!
+              let dataPoint = originalDatasetDict[id];
+              context.utilsService.colorDataPoint(context, dataPoint, bin[2]);
+              dataset["hoveredObjects"]["points"][id] = dataPoint;
+            }
+          });
+          break;
+        }
+      }
+    }
   }
 
   /**
@@ -588,16 +643,12 @@ export class BarChart {
     let quantVar = null;
     let aggType = dataset["aggType"] || "count";
     
-    // Check if there's a third quantitative variable we can aggregate on
-    if (dataset.attributeDatatypeList && dataset.attributeDatatypeList['Q']) {
-      for (let qAttr of dataset.attributeDatatypeList['Q']) {
-        if (qAttr !== dataset["xVar"] && qAttr !== dataset["yVar"]) {
-          quantVar = qAttr;
-          hasQuantVar = true;
-          break;
-        }
-      }
-    }
+    // Only use quantitative variable if user explicitly wants to aggregate it
+    // For now, let's just use counts when user selects two categorical variables
+    // This respects the user's choice of variables
+    hasQuantVar = false;
+    quantVar = null;
+    aggType = "count";
 
     console.log("Grouped bar chart - aggType:", aggType, "quantVar:", quantVar, "hasQuantVar:", hasQuantVar);
 
@@ -718,7 +769,7 @@ export class BarChart {
     let xAxisTitle = dataset["xVar"];
     let yAxisTitle = hasQuantVar && quantVar 
       ? `${(context.userConfig["aggregationMapping"][aggType] || aggType).toUpperCase()}(${quantVar})`
-      : `COUNT by ${dataset["yVar"]}`;
+      : dataset["yVar"];
 
     context.barChartConfig.xAxisGroup
       .append("g")
@@ -765,12 +816,12 @@ export class BarChart {
       value: d[sub] as number || 0,
       group: d.group 
     })));
-    
+
     rects.exit().remove();
-    
+
     let rectsEnter = rects.enter().append("rect");
     rects = rectsEnter.merge(rects);
-    
+
     rects
       .attr("x", d => x1(d.subgroup))
       .attr("y", d => d.value >= 0 ? y(d.value) : y(0))
@@ -784,11 +835,51 @@ export class BarChart {
         d3.select(this)
           .style("stroke", "brown")
           .style("stroke-width", "3px");
+        
+        // Show the specific value label for this bar only
+        // Find the corresponding text element for this specific subgroup
+        d3.select(this.parentNode)
+          .selectAll("text")
+          .filter(function(textData: any) {
+            return textData && textData.subgroup === d.subgroup;
+          })
+          .attr("display", "block");
+        
+        // Add hover functionality to show grouped data details
+        // Find the data points for this specific subgroup within the group
+        let groupData = prepared.filter((item) => item.xVar === d.group && item.yVar === d.subgroup);
+        
+        context.utilsService.mouseoverGroup(context, event, this, {
+          aggName: aggType,
+          aggAxis: "y-axis",
+          binLabel: `${d.group} x ${d.subgroup}`,
+          binValue: d.value,
+          binData: groupData,
+        });
       })
       .on("mouseout", function (event, d) {
         d3.select(this)
           .style("stroke", "black")
           .style("stroke-width", "1px");
+        
+        // Hide the specific value label for this bar only
+        d3.select(this.parentNode)
+          .selectAll("text")
+          .filter(function(textData: any) {
+            return textData && textData.subgroup === d.subgroup;
+          })
+          .attr("display", "none");
+        
+        // Remove hover functionality
+        let groupData = prepared.filter((item) => item.xVar === d.group && item.yVar === d.subgroup);
+        
+        context.utilsService.mouseoutGroup(context, event, {
+          aggName: aggType,
+          aggAxis: "y-axis",
+          binLabel: `${d.group} x ${d.subgroup}`,
+          binValue: d.value,
+          binData: groupData,
+        });
       });
 
     // Draw legend
@@ -814,32 +905,64 @@ export class BarChart {
       .text(d => d)
       .style("font-size", "12px");
 
-    // Add value labels on bars (optional - can be toggled)
+    // Also update the value labels section to ensure proper data binding
+    // Add value labels on bars (with proper data binding for hover)
     let labels = bars.selectAll("text").data(d => subgroups.map(sub => ({ 
       subgroup: sub, 
       value: d[sub] as number || 0,
       group: d.group 
-    })));
-    
+    })), d => `${d.group}-${d.subgroup}`); // Add key function for proper data binding
+
     labels.exit().remove();
-    
+
     let labelsEnter = labels.enter().append("text");
     labels = labelsEnter.merge(labels);
-    
+
     labels
       .attr("x", d => x1(d.subgroup) + x1.bandwidth() / 2)
       .attr("y", d => d.value >= 0 ? y(d.value) - 5 : y(d.value) + 15)
       .attr("text-anchor", "middle")
       .style("font-size", "10px")
       .style("font-weight", "bold")
-      .style("fill", d => Math.abs(d.value) < (yMax - yMin) * 0.05 ? "black" : "white")
+      .style("fill", "black")
       .text(d => utils.formatLargeNum(+d.value))
-      .style("pointer-events", "none");
+      .style("pointer-events", "none")
+      .attr("display", "none") // Hide by default, show on hover
+      .attr("data-subgroup", d => d.subgroup); // Add data attribute to help with filtering
 
     // Store the scales for potential future use
     context.barChartConfig.xScale = x0;
     context.barChartConfig.yScale = y;
     context.barChartConfig.xAxis = d3.axisBottom(x0);
     context.barChartConfig.yAxis = d3.axisLeft(y).tickFormat((d) => utils.formatLargeNum(+d));
+    
+    // FILTER can update data => must update hovered Objects list
+    if (dataset["hoveredObjects"]["binName"]) {
+      // binName set => there is a bin visible in details view, reset existing object
+      let currentBinName = dataset["hoveredObjects"]["binName"];
+      let originalDatasetDict = context.userConfig["originalDatasetDict"];
+      dataset["hoveredObjects"] = { binName: null, binAttr: null, points: {} };
+      // look for the bin in the filtered data set. If not there, table is already reset!
+      for (let group of groups) {
+        for (let sub of subgroups) {
+          let binLabel = `${group} x ${sub}`;
+          if (binLabel == currentBinName) {
+            // found the bin! => update hovered Objects for possible FILTER
+            dataset["hoveredObjects"]["binName"] = currentBinName;
+            let groupData = prepared.filter((d) => d.xVar === group && d.yVar === sub);
+            groupData.forEach((d) => {
+              const id = d[dataset["primaryKey"]];
+              if (id !== "-") {
+                // use dict OBJECT to update source data by reference!
+                let dataPoint = originalDatasetDict[id];
+                context.utilsService.colorDataPoint(context, dataPoint, groupData);
+                dataset["hoveredObjects"]["points"][id] = dataPoint;
+              }
+            });
+            break;
+          }
+        }
+      }
+    }
   }
 }

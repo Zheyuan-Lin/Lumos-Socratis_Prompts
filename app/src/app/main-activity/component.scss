@@ -779,3 +779,17 @@
 .circular-continue i {
   font-size: 18px;
 }
+
+/** Filtered Attribute Styling */
+.filtered-attribute {
+  transition: all 0.2s ease !important;
+}
+
+.filtered-attribute:hover {
+  transform: scale(1.1) !important;
+}
+
+.filtered-icon {
+  color: #28a745 !important;
+  font-weight: bold !important;
+}

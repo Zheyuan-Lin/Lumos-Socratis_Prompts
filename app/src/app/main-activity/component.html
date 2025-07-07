@@ -1,7 +1,7 @@
 <!-- Top Navigation Bar -->
 <nav class="navbar navbar-light bg-light">
   <div class="navbar-collapse collapse show justify-content-between align-items-center w-100" id="collapsingNavbar2">
-    <div class="navbar-brand">Lumos</div>
+    <div class="navbar-brand" style="color: #007bff; font-weight: bold;">Lumos</div>
   </div>
 </nav>
 <!-- The Interface -->
@@ -11,7 +11,7 @@
     <as-split-area [size]="20">
       <as-split direction="vertical" restrictMove="true">
         <!-- ROW: Dataset Selector -->
-        <as-split-area [size]="15">
+        <as-split-area [size]="25">
           <div class="list-group h-100" style="overflow: auto">
             <article class="list-group-item">
               <!-- Header -->
@@ -42,13 +42,125 @@
                     </div>
                   </div>
                 </div>
+                
+                <!-- Data Preview Dropdown -->
+                <div class="mt-2">
+                  <button class="btn btn-outline-secondary btn-sm" 
+                          type="button" 
+                          (click)="toggleDataPreview()">
+                    <i class="fa fa-eye"></i> <span id="previewButtonText">Preview Data</span>
+                  </button>
+                </div>
+                
+                <!-- Collapsible Data Preview -->
+                <div class="collapse mt-2" id="dataPreview" [class.show]="isDataShown">
+                  <div class="card card-body" style="max-height: 300px; overflow-y: auto;">
+                    <h6 class="mb-2"><i class="fa fa-table"></i> Data Preview (First 5 rows)</h6>
+                    <div class="table-responsive">
+                      <table class="table table-sm table-striped">
+                        <thead class="thead-light">
+                          <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Age</th>
+                            <th>Gender</th>
+                            <th>Race</th>
+                            <th>Income</th>
+                            <th>Location</th>
+                            <th>Party</th>
+                            <th>Abortion</th>
+                            <th>Gun Control</th>
+                            <th>Immigration</th>
+                            <th>Voted</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>84891255</td>
+                            <td>Darnell Johnson</td>
+                            <td>43</td>
+                            <td>Male</td>
+                            <td>Black</td>
+                            <td>High</td>
+                            <td>Urban</td>
+                            <td>Democrat</td>
+                            <td>1.6</td>
+                            <td>2.3</td>
+                            <td>1.6</td>
+                            <td>False</td>
+                          </tr>
+                          <tr>
+                            <td>76236989</td>
+                            <td>Elizabeth Johnson</td>
+                            <td>62</td>
+                            <td>Female</td>
+                            <td>White</td>
+                            <td>High</td>
+                            <td>Suburban</td>
+                            <td>Democrat</td>
+                            <td>2.2</td>
+                            <td>1.4</td>
+                            <td>0.9</td>
+                            <td>True</td>
+                          </tr>
+                          <tr>
+                            <td>58261217</td>
+                            <td>Woo Jung</td>
+                            <td>86</td>
+                            <td>Male</td>
+                            <td>Asian</td>
+                            <td>Low</td>
+                            <td>Suburban</td>
+                            <td>Democrat</td>
+                            <td>2.2</td>
+                            <td>1.4</td>
+                            <td>1.5</td>
+                            <td>False</td>
+                          </tr>
+                          <tr>
+                            <td>39895612</td>
+                            <td>Malik Anderson</td>
+                            <td>28</td>
+                            <td>Male</td>
+                            <td>Black</td>
+                            <td>Low</td>
+                            <td>Urban</td>
+                            <td>Democrat</td>
+                            <td>0.8</td>
+                            <td>1.1</td>
+                            <td>2.1</td>
+                            <td>True</td>
+                          </tr>
+                          <tr>
+                            <td>94821339</td>
+                            <td>Darius Moore</td>
+                            <td>38</td>
+                            <td>Male</td>
+                            <td>Black</td>
+                            <td>Middle</td>
+                            <td>Suburban</td>
+                            <td>Democrat</td>
+                            <td>1.2</td>
+                            <td>2.1</td>
+                            <td>1.2</td>
+                            <td>True</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <small class="text-muted">
+                      <i class="fa fa-info-circle"></i> 
+                      Political views scale: -3 (strongly oppose) to +3 (strongly support)
+                    </small>
+                  </div>
+                </div>
               </div>
             </article>
           </div>
         </as-split-area>
 
         <!-- ROW: Attribute Panel -->
-        <as-split-area [size]="85">
+        <as-split-area [size]="75">
           <div class="list-group h-100" style="overflow: auto">
             <article class="list-group-item">
               <!-- Header -->
@@ -94,27 +206,28 @@
                             <button [disabled]="appConfig[global.appMode]['attributes'][attribute]['filter']"
                               (click)="addFilter(attribute)"
                               [ngStyle]="{'color':getPanelCardTxtColor(attribute, 'attributes')}"
-                              class="btn btn-sm p-0">
-                              <i class="fa fa-filter"></i>
+                              class="btn btn-sm p-0"
+                              [ngClass]="{'filtered-attribute': appConfig[global.appMode]['attributes'][attribute]['filter']}">
+                              <i class="fa fa-filter" [ngClass]="{'filtered-icon': appConfig[global.appMode]['attributes'][attribute]['filter']}"></i>
                             </button>
                           </td>
                         </tr>
                       </table>
                     </div>
+                    
                   </div>
                 </div>
-              </div>
-        
-              <!-- Scale Indicator for Quantitative Attributes -->
-              <div class="scale-indicator" *ngIf="hasQuantitativeAttributesWithScale()">
-                <div class="alert alert-light alert-sm mb-2">
                   <small>
                     <i class="fa fa-info-circle"></i>
                     <strong>Scale of political views:</strong><br>
                     <strong>-3</strong> "strongly oppose"<br>
                     <strong>+3</strong> "strongly support"
                   </small>
-                </div>
+              </div>
+        
+              <!-- Scale Indicator for Quantitative Attributes -->
+              <div class="scale-indicator" *ngIf="hasQuantitativeAttributesWithScale()">
+
               </div>
             </article>
           </div>
@@ -255,17 +368,10 @@
 
                   <!-- OPTION: Aggregation -->
                   <div *ngIf="appConfig[global.appMode]['xVar'] && appConfig[global.appMode]['yVar']">
-                    <div *ngIf="['barchart', 'linechart'].indexOf(appConfig[global.appMode]['chartType']) !== -1"
+                    <div *ngIf="['barchart', 'linechart'].indexOf(appConfig[global.appMode]['chartType']) !== -1 && shouldShowAggregationDropdown()"
                       class="row mb-sm">
                       <label class="col-sm-4 col-form-label">Agg</label>
                       <div class="col-sm-8">
-                        <!-- Debug info -->
-                        <small class="text-muted">
-                          Debug: xVar={{appConfig[global.appMode]['xVar']}}, 
-                          yVar={{appConfig[global.appMode]['yVar']}}, 
-                          chartType={{appConfig[global.appMode]['chartType']}},
-                          aggType={{appConfig[global.appMode]['aggType']}}
-                        </small>
                         <ng-select name="aggTypeSelect" [searchable]="false" appendTo="body"
                           [(ngModel)]="appConfig[global.appMode]['aggType']" 
                           (change)="onChangeAggregation($event)"
