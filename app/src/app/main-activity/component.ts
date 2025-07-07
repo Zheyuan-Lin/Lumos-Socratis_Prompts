@@ -75,6 +75,9 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
   timeRemaining: number = 5 * 60; // 10 seconds
   timerInterval: any;
   canContinueTime: boolean = false;
+  editingInsightIndex: number = -1; // Track which insight is being edited
+  editingInsightText: string = ''; // Store the text being edited
+  isDataShown: boolean = false; // Control data preview visibility
 
   constructor(
     private route: ActivatedRoute,
@@ -678,6 +681,8 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
    * one that's chosen.
    */
   updateVis() {
+    let dataset = this.appConfig[this.global.appMode];
+    
     switch (this.currentPlotType) {
       case "scatterplot":
         // use VIS Matrix to determine which version to update
@@ -1188,8 +1193,15 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
 
   onChangeChart(event, reset = false, updateVis = true) {
     let dataset = this.appConfig[this.global.appMode];
+    
     if (reset) dataset["chartType"] = null;
     this.currentPlotType = dataset["chartType"];
+    
+    // Clear Y-axis when switching to bar chart since bar charts don't use Y-axis
+    if (dataset["chartType"] === "barchart" && dataset["yVar"]) {
+      dataset["yVar"] = null;
+    }
+    
     if (updateVis) {
       initializePlotInstance(this, this.currentPlotType);
       this.updateVis();
@@ -1209,6 +1221,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
 
   onChangeAttribute(event, axis, reset = false, updateVis = true) {
     let dataset = this.appConfig[this.global.appMode];
+    
     switch (axis) {
       case "x_axis":
         if (reset) dataset["xVar"] = null;
@@ -1219,6 +1232,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
         if (dataset["yVar"]) dataset["attributeInteracted"][dataset["yVar"]] += 1;
         break;
     }
+    
     if (updateVis) {
       initializePlotInstance(this, this.currentPlotType);
       this.updateVis();
@@ -1236,8 +1250,27 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     }
   }
 
+  /**
+   * Check if aggregation dropdown should be visible
+   */
+  shouldShowAggregationDropdown() {
+    let dataset = this.appConfig[this.global.appMode];
+    let hasBothVars = dataset["xVar"] && dataset["yVar"];
+    let isBarOrLine = ['barchart', 'linechart'].indexOf(dataset["chartType"]) !== -1;
+    
+    // Check if both variables are quantitative (can be aggregated)
+    let xIsQ = this.utilsService.isMeasure(dataset, dataset["xVar"], "Q");
+    let yIsQ = this.utilsService.isMeasure(dataset, dataset["yVar"], "Q");
+    let hasQuantitativeVar = xIsQ || yIsQ;
+    
+    // Only show aggregation if we have both variables, it's a bar/line chart, and at least one variable is quantitative
+    return hasBothVars && isBarOrLine && hasQuantitativeVar;
+  }
+
   onChangeAggregation(event, updateVis = true) {
     let dataset = this.appConfig[this.global.appMode];
+        
+    this.updateVis();
     /* Prepare and Send New Message - Start */
     let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_AGGREGATION);
     message.data = {
@@ -1247,10 +1280,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     };
     this.chatService.sendInteractionResponse(message);
     /* Prepare and Send New Message - End */
-    if (updateVis) {
-      initializePlotInstance(this, this.currentPlotType);
-      this.updateVis();
-    }
+
   }
 
   onChangeAttributeColorByMode(event, reset = false, updateVis = true) {
@@ -1291,6 +1321,8 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     let dataset = this.appConfig[this.global.appMode];
     dataset["attributeInteracted"][attribute] += 1;
     /* Prepare and Send New Message - Start */
+        /* Prepare and Send New Message - End */
+        this.updateVis();
     let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_FILTER);
     message.data = {
       attribute: attribute,
@@ -1298,8 +1330,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
       filterType: changeType,
     };
     this.chatService.sendInteractionResponse(message);
-    /* Prepare and Send New Message - End */
-    this.updateVis();
+
   }
 
   /**
@@ -1600,11 +1631,141 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     return 'Click to proceed';
   }
 
+  sortAttributeDatatypeLists(dataset) {
+    // Sort all attribute datatype lists alphabetically
+    Object.keys(dataset.attributeDatatypeList).forEach(datatype => {
+      dataset.attributeDatatypeList[datatype].sort((a, b) => {
+        const a1 = a.toLowerCase();
+        const b1 = b.toLowerCase();
+        if (a1 < b1) return -1;
+        if (a1 > b1) return 1;
+        return 0;
+      });
+    });
+  }
+
   /**
-   * Toggles the minimized state of the popup window
+   * Delete an insight from the past insights list
    */
-  toggleMinimize() {
-    this.isMinimized = !this.isMinimized;
+  deleteInsight(index: number) {
+    if (confirm("Are you sure you want to delete this insight?")) {
+      this.pastInsights.splice(index, 1);
+      // Update continue button state
+      this.canContinue = this.pastInsights.length >= 5;
+      
+      // Send deletion message to backend
+      let message = {
+        type: "delete_insight",
+        index: index,
+        participantId: localStorage.getItem('userId'),
+        timestamp: new Date().toISOString()
+      };
+      this.chatService.sendInsights(message);
+    }
+  }
+
+  /**
+   * Start editing an insight inline
+   */
+  startEditInsight(index: number) {
+    this.editingInsightIndex = index;
+    this.editingInsightText = this.pastInsights[index].text;
+  }
+
+  /**
+   * Save the edited insight
+   */
+  saveEditInsight() {
+    if (this.editingInsightText.trim() !== "") {
+      const index = this.editingInsightIndex;
+      const oldText = this.pastInsights[index].text;
+      
+      this.pastInsights[index].text = this.editingInsightText.trim();
+      this.pastInsights[index].timestamp = new Date().toLocaleString();
+      
+      // Send edit message to backend
+      let message = {
+        type: "edit_insight",
+        index: index,
+        oldText: oldText,
+        newText: this.editingInsightText.trim(),
+        participantId: localStorage.getItem('userId'),
+        timestamp: new Date().toISOString()
+      };
+      this.chatService.sendInsights(message);
+    }
+    
+    // Reset editing state
+    this.editingInsightIndex = -1;
+    this.editingInsightText = '';
+  }
+
+  /**
+   * Cancel editing an insight
+   */
+  cancelEditInsight() {
+    this.editingInsightIndex = -1;
+    this.editingInsightText = '';
+  }
+
+  /**
+   * Edit an insight in the past insights list
+   */
+  editInsight(index: number) {
+    const insight = this.pastInsights[index];
+    const newText = prompt("Edit your insight:", insight.text);
+    
+    if (newText !== null && newText.trim() !== "") {
+      this.pastInsights[index].text = newText.trim();
+      this.pastInsights[index].timestamp = new Date().toLocaleString();
+      
+      // Send edit message to backend
+      let message = {
+        type: "edit_insight",
+        index: index,
+        oldText: insight.text,
+        newText: newText.trim(),
+        participantId: localStorage.getItem('userId'),
+        timestamp: new Date().toISOString()
+      };
+      this.chatService.sendInsights(message);
+    }
+  }
+
+  /**
+   * Check if there are quantitative attributes with -3 to +3 scale
+   */
+  hasQuantitativeAttributesWithScale() {
+    let dataset = this.appConfig[this.global.appMode];
+    if (!dataset || !dataset.attributeDatatypeList || !dataset.attributeDatatypeList['Q']) {
+      return false;
+    }
+    
+    // Check if any quantitative attributes have min: -3 and max: 3
+    return dataset.attributeDatatypeList['Q'].some(attr => {
+      const attrConfig = dataset.attributes[attr];
+      return attrConfig && 
+             attrConfig.min === -3.0 && 
+             attrConfig.max === 3.0;
+    });
+  }
+
+  /**
+   * Test method to manually trigger aggregation change
+   */
+  testAggregationChange() {
+    this.onChangeAggregation('test', true);
+  }
+
+  testXAxisChange() {
+    this.onChangeAttribute('test', 'x_axis', false, true);
+  }
+
+  /**
+   * Toggle the data preview visibility
+   */
+  toggleDataPreview() {
+    this.isDataShown = !this.isDataShown;
   }
 
 }
