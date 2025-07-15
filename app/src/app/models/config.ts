@@ -23,9 +23,8 @@ export class SessionPage {
 }
 
 export const DeploymentConfig = Object.freeze({
-  //SERVER_URL: "http://localhost:3000"
-  SERVER_URL: "https://socraticvis-ef6d7764216f.herokuapp.com"
-  // Make sure this matches your server address
+  SERVER_URL: "https://socraticvis-ef6d7764216f.herokuapp.com/"
+   //SERVER_URL: "http://localhost:3000"
 });
 
 /**
@@ -71,7 +70,9 @@ export const enum InteractionTypes {
   // User Insights
   SAVE_USER_INSIGHT = "save_user_insight",
   CONTINUE_AFTER_INSIGHTS = "continue_after_insights",
-  INSIGHT = "insight"
+  
+  // Question Responses
+  QUESTION_RESPONSE = "question_response"
 }
 
 /**
@@ -953,7 +954,7 @@ export const AppConfig = {
   "tutorial_dataset_movie.csv": {
     dataset: "tutorial_dataset_movie.csv",
     primaryKey: "Title",
-    labelKey: "Title",
+    labelKey: "",
     orderedAttributeList: [
       "Title",
       "Worldwide Gross",
@@ -964,10 +965,7 @@ export const AppConfig = {
       "Genre",
       "Creative Type",
       "Rotten Tomatoes Rating",
-      "IMDB Rating",
-      "Profit Ratio",
-      "Decade",
-      "Budget Tier"
+      "IMDB Rating"
     ],
     attributes: {
       "Worldwide Gross": {
@@ -1018,14 +1016,6 @@ export const AppConfig = {
         min: Infinity,
         filterModel: [0, 1],
       },
-      "Profit Ratio": {
-        name: "Profit Ratio",
-        datatype: "Q",
-        max: -Infinity,
-        step: 0.01,
-        min: Infinity,
-        filterModel: [0, 1],
-      },
       Title: {
         name: "Title",
         datatype: "N",
@@ -1046,18 +1036,6 @@ export const AppConfig = {
       },
       "Creative Type": {
         name: "Creative Type",
-        datatype: "N",
-        types: [],
-        filterModel: [],
-      },
-      Decade: {
-        name: "Decade",
-        datatype: "N",
-        types: [],
-        filterModel: [],
-      },
-      "Budget Tier": {
-        name: "Budget Tier",
         datatype: "N",
         types: [],
         filterModel: [],
@@ -1165,5 +1143,6 @@ export const AppConfig = {
           filterModel: ["True", "False"]
       }
   }
-}
+},
 };
+
