@@ -3,24 +3,27 @@
   "version": "1.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
+    "start": "NODE_OPTIONS='--openssl-legacy-provider --no-deprecation' ng serve",
+    "build": "NODE_OPTIONS='--openssl-legacy-provider --no-deprecation' ng build --prod",
+    "vercel-build": "ng build --configuration production",
+    "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e",
-    "postinstall": "ng build --aot --prod"
+    "e2e": "ng e2e"
   },
   "dependencies": {
     "@angular/animations": "~7.2.0",
     "@angular/cli": "^7.3.9",
     "@angular/common": "~7.2.0",
     "@angular/compiler": "~7.2.0",
+    "@angular/compiler-cli": "~7.2.0",
     "@angular/core": "~7.2.0",
-    "@angular/fire": "^6.1.5",
+    "@angular/fire": "^5.4.2",
     "@angular/forms": "~7.2.0",
     "@angular/platform-browser": "~7.2.0",
     "@angular/platform-browser-dynamic": "~7.2.0",
     "@angular/router": "~7.2.0",
+    "@angular-devkit/build-angular": "~0.13.0",
     "@fortawesome/fontawesome-free-webfonts": "^1.0.9",
     "@ng-select/ng-select": "^2.1.0",
     "@popperjs/core": "^2.6.0",
@@ -35,25 +38,26 @@
     "core-js": "^2.5.4",
     "d3": "^6.2.0",
     "express": "^4.17.0",
-    "firebase": "^8.10.1",
+    "firebase": "^7.24.0",
     "font-awesome": "^4.7.0",
     "jquery": "^3.4.1",
     "jquery-ui-dist": "^1.12.1",
     "ng-multiselect-dropdown": "0.2.5",
     "ng2-nouislider": "^1.8.2",
     "ng2-tooltip-directive": "2.9.20",
-    "ngx-socket-io": "^3.4.0",
+    "ngx-socket-io": "2.1.1",
+    "node-sass": "^4.14.1",
     "nouislider": "^14.6.3",
     "overlayscrollbars": "^1.13.1",
     "overlayscrollbars-ngx": "^0.2.3",
     "rxjs": "~6.3.3",
+    "sass": "^1.77.8",
     "seedrandom": "^3.0.1",
-    "tslib": "^1.14.1",
+    "tslib": "^2.0.0",
+    "typescript": "3.9",
     "zone.js": "~0.8.26"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "~0.13.0",
-    "@angular/compiler-cli": "~7.2.0",
     "@angular/language-service": "~7.2.0",
     "@types/bootstrap": "^4.5.1",
     "@types/jasmine": "~2.8.8",
@@ -68,9 +72,20 @@
     "karma-jasmine": "~1.1.2",
     "karma-jasmine-html-reporter": "^0.2.2",
     "protractor": "~5.4.0",
-    "sass": "^1.77.8",
     "ts-node": "~7.0.0",
-    "tslint": "~5.11.0",
-    "typescript": "3.9"
+    "tslint": "~5.11.0"
+  },
+  "resolutions": {
+    "@types/d3-scale": "1.0.14",
+    "fsevents": "2.3.3",
+    "chokidar": "3.5.3"
+  },
+  "overrides": {
+    "tar": "^6.1.15",
+    "npmlog": "^7.0.1",
+    "gauge": "^4.0.4",
+    "fstream": "^2.0.1",
+    "fsevents": "2.3.3",
+    "chokidar": "3.5.3"
   }
 }
