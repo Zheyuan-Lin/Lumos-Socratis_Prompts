@@ -195,10 +195,7 @@ export class UtilsService {
    * Returns new message object for communicating with backend server.
    */
   initializeNewMessage(interactionType: string, data: any = {}): Message {
-    const participantId = localStorage.getItem('userId');
-    if (!participantId) {
-      throw new Error('Participant ID not found in local storage');
-    }
+    const participantId = localStorage.getItem('userId') || ''; // Use empty string if not found
 
     return {
       appMode: this.appMode,

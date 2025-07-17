@@ -23,7 +23,7 @@ export class SessionPage {
 }
 
 export const DeploymentConfig = Object.freeze({
-  SERVER_URL: "https://socraticvis-ef6d7764216f.herokuapp.com/"
+  SERVER_URL: "https://socratic-prompt-d70074f075c9.herokuapp.com/"
    //SERVER_URL: "http://localhost:3000"
 });
 

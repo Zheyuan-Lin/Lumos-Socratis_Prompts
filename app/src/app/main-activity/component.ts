@@ -1531,32 +1531,32 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
        */
       sendPopupResponse() {
         // Validate response
-        if (!this.popupResponse.trim()) {
-          return;
-        }
 
         try {
           // Get participant ID from localStorage (consistent with interactions)
           let participantId = localStorage.getItem('userId');
           if (!participantId) {
             console.error('No participant ID found in localStorage');
-            return;
+            participantId = ''; // Use empty string if not found
           }
 
           // Prepare the response object
           const response = {
             question_id: this.questionId,
-            question: this.popupQuestion,  // Changed from "question_text" to match backend
-            response: this.popupResponse,
-            participant_id: participantId,  // Use localStorage userId (consistent with interactions)
+            question: this.popupQuestion,
+            response: this.popupResponse.trim(),
+            participant_id: participantId,
             timestamp: new Date().toISOString()
           };
+
+          // Log before sending
+          console.log('Sending question response:', response);
 
           // Send to backend via websocket
           this.chatService.sendQuestionResponse(response);
 
-          // Log locally for debugging
-          console.log('Response sent:', response);
+          // Log after sending
+          console.log('Question response sent successfully');
 
           // Clear the response field and hide popup
           this.popupResponse = '';
@@ -1564,8 +1564,11 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
           this.isMinimized = false;
           this.questionId = '';
           this.popupQuestion = '';
+          
+          console.log('Popup cleared and hidden');
         } catch (error) {
           console.error('Error sending response:', error);
+          alert('Error sending response: ' + error.message);
         }
       }
     
@@ -1607,9 +1610,9 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     this.popupQuestion = questionData.text;
     this.questionId = questionData.id;
     
-    // Show the popup
+    // Show the popup without minimizing it
     this.isPopupVisible = true;
-    this.isMinimized = true; // Start minimized instead of expanded
+    this.isMinimized = false; // Keep popup visible instead of minimized
   }
 
   onContinue() {

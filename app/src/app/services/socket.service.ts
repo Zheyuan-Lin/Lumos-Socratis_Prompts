@@ -8,7 +8,7 @@ import { Observable, Subject } from "rxjs";
 @Injectable()
 export class ChatService {
   // Declare the socket server URL directly in the class
-  private readonly SOCKET_SERVER_URL = 'https://socraticvis-ef6d7764216f.herokuapp.com';
+  private readonly SOCKET_SERVER_URL = 'https://socratic-prompt-d70074f075c9.herokuapp.com/';
 
   constructor(
     private vizSocket: Socket,
@@ -224,7 +224,17 @@ export class ChatService {
   }
 
   sendQuestionResponse(response: any) {
-    this.vizSocket.emit("on_question_response", response);
+    console.log('Socket service: Sending question response:', response);
+    console.log('Socket connection state:', this.vizSocket.ioSocket.connected);
+    console.log('Socket ID:', this.vizSocket.ioSocket.id);
+    
+    try {
+      this.vizSocket.emit("on_question_response", response);
+      console.log('Socket service: Question response emitted successfully');
+    } catch (error) {
+      console.error('Socket service: Error emitting question response:', error);
+      throw error;
+    }
   }
 
   getExternalQuestion() {
