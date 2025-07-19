@@ -319,9 +319,6 @@ export class ScatterPlot {
         // Update the hovered object to show in details section
         dataset["hoveredObject"] = hoveredData;
         
-        // Log the hovered data for debugging
-        console.log("Hovered data point:", hoveredData);
-        
         // Track the interaction
         context.utilsService.mouseoverItem(context, event, dataPoint);
       })
@@ -345,8 +342,8 @@ export class ScatterPlot {
         // Get the data point ID
         const id = d[dataset["primaryKey"]];
         
-        // Update the selected object in the dataset
-        dataset["selectedObject"] = { ...originalDatasetDict[id], selected: true };
+        // Update the selected object to show in details section
+        dataset["selectedObject"] = originalDatasetDict[id];
         
         // Update the hovered object to show in details section
         dataset["hoveredObject"] = { ...originalDatasetDict[id], hovered: true };
@@ -357,9 +354,6 @@ export class ScatterPlot {
         
         // Update the visualization to reflect the selection
         context.update();
-        
-        // Log the selection
-        console.log("Selected data point:", originalDatasetDict[id]);
         
         // Track the interaction
         context.utilsService.clickAddItem(context, event, d);

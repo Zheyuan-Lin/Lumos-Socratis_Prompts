@@ -305,7 +305,6 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
         setTimeout(() => {
           const socketId = context.chatService.getSocketId();
           if (socketId !== 'not_connected') {
-            console.log("Connected to socket with ID:", socketId);
             // Store socket ID in localStorage for persistence
             localStorage.setItem('socketId', socketId);
           }
@@ -315,7 +314,6 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
       context.chatService.getDisconnectEventResponse().subscribe((event) => {
         const socketId = context.chatService.getSocketId();
         if (socketId !== 'not_connected') {
-          console.log("Disconnected from socket with ID:", socketId);
           // Clear socket ID from localStorage
           localStorage.removeItem('socketId');
         }
@@ -372,7 +370,6 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
       });
 
       context.chatService.getAttributeDistribution().subscribe((obj) => {
-        console.log('Received attribute distribution:', obj);
         let attrDist = dataset["attributeDistribution"];
         let attrCov = dataset["attributeCoverage"];
         if (obj != null && obj[context.global.appMode] != null) {
@@ -395,13 +392,10 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
       // Listen for incoming questions from the backend
       context.chatService.getExternalQuestion().subscribe({
         next: (questionData: any) => {
-          console.log('Received question from backend:', questionData);
-          
           // Handle the incoming question
           context.handleIncomingQuestion(questionData);
         },
         error: (error) => {
-          console.error('Error receiving question:', error);
           alert("Error receiving question: " + error);
         }
       });
@@ -687,7 +681,6 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
     
     switch (this.currentPlotType) {
       case "scatterplot":
-        console.log('📈 Updating scatterplot...');
         // use VIS Matrix to determine which version to update
         let context = this;
         let dataset = context.appConfig[context.global.appMode];
@@ -702,26 +695,20 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
         }
         break;
       case "stripplot":
-        console.log('📊 Updating stripplot...');
         this.stripPlotInstance.update();
         break;
       case "barchart":
-        console.log('📊 Updating barchart...');
         this.barChartInstance.update();
         break;
       case "linechart":
-        console.log('📈 Updating linechart...');
         this.lineChartInstance.update();
         break;
       case null:
-        console.log('🗑️ Clearing plot container...');
         $("#plot_container").empty(); // clear existing plot
         break;
       default:
-        console.log(`❌ Invalid plot type '${this.currentPlotType}'`);
         break;
     }
-    console.log('✅ updateVis completed');
   }
 
   /** ======================== INTERFACE METHODS ========================== */
@@ -944,7 +931,6 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
    * Event Listener when SORT order in the Distribution Panel is changed.
    */
   onChangeDistributionPanelSort(model) {
-    console.log(model);
     /* Prepare and Send New Message - Start */
     let message = this.utilsService.initializeNewMessage(InteractionTypes.CHANGE_DISTRIBUTION_PANEL_SORT);
     message.data = {
@@ -1246,13 +1232,6 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
         break;
     }
     
-    
-    console.log('🔍 After onChangeAttribute:', {
-      xVar: dataset["xVar"],
-      yVar: dataset["yVar"],
-      shouldShowAgg: this.shouldShowAggregationDropdown()
-    });
-    
     if (updateVis) {
       initializePlotInstance(this, this.currentPlotType);
       this.updateVis();
@@ -1290,7 +1269,6 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
   }
 
   onChangeAggregation(event, updateVis = true) {
-    console.log('🚨 onChangeAggregation CALLED!', event);
     let dataset = this.appConfig[this.global.appMode];
         
     this.updateVis();
@@ -1436,7 +1414,6 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
         });
         break;
       default:
-        console.log(`Invalid attribute panel Sort By option; Do nothing.`);
         break;
     }
     // remove primary Key and label Key from awareness panel
@@ -1488,7 +1465,6 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
         });
         break;
       default:
-        console.log(`Invalid awareness Panel Sort By option; Do nothing.`);
         break;
     }
     return arrayCopy;
@@ -1536,7 +1512,6 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
           // Get participant ID from localStorage (consistent with interactions)
           let participantId = localStorage.getItem('userId');
           if (!participantId) {
-            console.error('No participant ID found in localStorage');
             participantId = ''; // Use empty string if not found
           }
 
@@ -1549,14 +1524,8 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
             timestamp: new Date().toISOString()
           };
 
-          // Log before sending
-          console.log('Sending question response:', response);
-
           // Send to backend via websocket
           this.chatService.sendQuestionResponse(response);
-
-          // Log after sending
-          console.log('Question response sent successfully');
 
           // Clear the response field and hide popup
           this.popupResponse = '';
@@ -1564,10 +1533,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
           this.isMinimized = false;
           this.questionId = '';
           this.popupQuestion = '';
-          
-          console.log('Popup cleared and hidden');
         } catch (error) {
-          console.error('Error sending response:', error);
           alert('Error sending response: ' + error.message);
         }
       }
@@ -1599,7 +1565,6 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
    */
   private handleIncomingQuestion(questionData: Question): void {
     if (!questionData || !questionData.text) {
-      console.error('Invalid question data received:', questionData);
       return;
     }
 
@@ -1780,7 +1745,6 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
    * Test method to manually trigger aggregation change
    */
   testAggregationChange() {
-    console.log('🧪 Testing aggregation change manually');
     this.onChangeAggregation('test', true);
   }
 
@@ -1796,7 +1760,6 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
    */
   toggleMinimize() {
     this.isMinimized = !this.isMinimized;
-    console.log("Minimized state:", this.isMinimized);
   }
 
 }
@@ -1901,7 +1864,6 @@ function initializePlotInstance(context, chartType) {
       context.currentPlotInstance = null;
       break;
     default:
-      console.log(`Invalid plot type '${chartType}'`);
       break;
   }
 }

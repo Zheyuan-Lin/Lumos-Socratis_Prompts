@@ -39,10 +39,6 @@ const config: SocketIoConfig = {
   },
 };
 
-// Debug logging to ensure correct server URL
-console.log('Socket.IO Config URL:', config.url);
-console.log('Environment serverUrl:', environment.serverUrl);
-
 @NgModule({
   declarations: [
     AppComponent,
